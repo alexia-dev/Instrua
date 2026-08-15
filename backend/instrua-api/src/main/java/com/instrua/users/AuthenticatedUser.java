@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public record AuthenticatedUser(UUID id, String email, String passwordHash, boolean enabled,
                                 Collection<? extends GrantedAuthority> authorities) implements UserDetails {
+    @Override public Collection<? extends GrantedAuthority> getAuthorities() { return authorities; }
     @Override public String getUsername() { return email; }
     @Override public String getPassword() { return passwordHash; }
     @Override public boolean isEnabled() { return enabled; }

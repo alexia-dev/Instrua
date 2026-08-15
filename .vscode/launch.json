@@ -2,10 +2,10 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Spring Boot-InstruaApiApplication<instrua-api>",
+            "name": "Spring Boot-InstruaApplication<instrua-api>",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "mainClass": "br.com.instrua.instrua_api.user.InstruaApiApplication",
+            "cwd": "${workspaceFolder}/backend/instrua-api",
+            "mainClass": "com.instrua.InstruaApplication",
             "projectName": "instrua-api",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
