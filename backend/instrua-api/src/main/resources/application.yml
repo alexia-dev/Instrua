@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: instrua-api
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/instrua}
+    username: ${DATABASE_USERNAME:instrua}
+    password: ${DATABASE_PASSWORD:instrua}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: never
+
+app:
+  security:
+    # Defina JWT_SECRET em produção. O valor padrão só permite execução local.
+    jwt-secret: ${JWT_SECRET:instrua-local-development-secret-change-before-production-2026}
+    jwt-expiration-seconds: ${JWT_EXPIRATION_SECONDS:86400}
