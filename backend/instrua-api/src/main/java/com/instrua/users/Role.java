@@ -4,5 +4,8 @@ public enum Role {
     PLATFORM_ADMIN,
     COMPANY_OWNER,
     COMPANY_ADMIN,
-    EMPLOYEE
+    RECEPTION,
+    CLINICAL,
+    BILLING,
+    PATIENT
 }
