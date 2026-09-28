@@ -135,3 +135,18 @@ create index idx_appointments_employee_time on appointments(employee_id, starts_
 create index idx_instructions_company_service on instructions(company_id, service_offering_id);
 create index idx_notifications_company_created on notifications(company_id, created_at desc);
 create index idx_integrations_company on integrations(company_id);
+
+
+create table audit_logs (
+    id uuid primary key,
+    company_id uuid references companies(id) on delete set null,
+    actor_user_id uuid references app_users(id) on delete set null,
+    action varchar(80) not null,
+    entity_type varchar(120) not null,
+    entity_id uuid,
+    occurred_at timestamptz not null,
+    metadata varchar(8000)
+);
+
+create index idx_audit_company_occurred on audit_logs(company_id, occurred_at desc);
+create index idx_audit_actor_occurred on audit_logs(actor_user_id, occurred_at desc);
