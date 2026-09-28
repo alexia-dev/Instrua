@@ -1,9 +1,10 @@
 package com.instrua.companies;
 
 import com.instrua.common.exception.BusinessException;
-import com.instrua.common.exception.NotFoundException;
+import com.instrua.common.tenant.TenantAccessService;
 import com.instrua.users.CurrentUser;
 import com.instrua.users.User;
+import com.instrua.users.Role;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,10 +17,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class CompanyService {
     private final CompanyRepository companies;
     private final CurrentUser currentUser;
+    private final TenantAccessService tenantAccess;
 
-    public CompanyService(CompanyRepository companies, CurrentUser currentUser) {
+    public CompanyService(CompanyRepository companies, CurrentUser currentUser, TenantAccessService tenantAccess) {
         this.companies = companies;
         this.currentUser = currentUser;
+        this.tenantAccess = tenantAccess;
     }
 
     @Transactional
@@ -35,6 +38,7 @@ public class CompanyService {
     @Transactional(readOnly = true)
     public List<Company> accessible() {
         User user = currentUser.get();
+        if (user.getRoles().contains(Role.PLATFORM_ADMIN)) return companies.findAll();
         Map<UUID, Company> unique = new LinkedHashMap<>();
         companies.findAllByOwnerId(user.getId()).forEach(company -> unique.put(company.getId(), company));
         companies.findAllAccessibleByUserId(user.getId()).forEach(company -> unique.put(company.getId(), company));
@@ -43,11 +47,6 @@ public class CompanyService {
 
     @Transactional(readOnly = true)
     public Company requireAccess(UUID companyId) {
-        User user = currentUser.get();
-        Company company = companies.findById(companyId).orElseThrow(() -> new NotFoundException("Empresa não encontrada"));
-        boolean allowed = companies.isOwner(companyId, user.getId()) || companies.findAllAccessibleByUserId(user.getId()).stream()
-                .anyMatch(accessibleCompany -> accessibleCompany.getId().equals(companyId));
-        if (!allowed) throw new NotFoundException("Empresa não encontrada");
-        return company;
+        return tenantAccess.requireAccess(companyId);
     }
 }
