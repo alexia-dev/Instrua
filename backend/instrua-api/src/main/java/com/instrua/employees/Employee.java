@@ -32,7 +32,7 @@ public class Employee extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role accessRole = Role.EMPLOYEE;
+    private Role accessRole = Role.CLINICAL;
 
     @Column(nullable = false)
     private boolean active = true;
@@ -46,7 +46,7 @@ public class Employee extends BaseEntity {
         this.email = email;
         this.phone = phone;
         this.title = title;
-        this.accessRole = accessRole == null ? Role.EMPLOYEE : accessRole;
+        this.accessRole = accessRole == null ? Role.CLINICAL : accessRole;
     }
 
     public Company getCompany() { return company; }
