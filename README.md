@@ -1,150 +1,80 @@
 # INSTRUA
 
-### Plataforma Inteligente de Agendamento, Confirmação e Comunicação
+### Módulo do NEXA para jornada clínica, agendamento e comunicação
 
-O **Instrua** é uma plataforma inteligente de agendamento desenvolvida para conectar clientes e empresas de diferentes segmentos em uma experiência simples, organizada e automatizada.
+O **Instrua** é o módulo clínico do **NEXA**. O foco é acompanhar a jornada entre clínica e paciente: agendamento, confirmação, check-in, instruções, notificações e histórico do compromisso.
 
-A plataforma centraliza agendamentos, confirmações de presença, notificações e instruções personalizadas, permitindo que cada serviço adapte sua comunicação de acordo com as necessidades do cliente.
+> O Instrua não incorpora faturamento. O domínio financeiro permanece no **Nexa Bill**.
 
----
+## Objetivos do módulo
 
-## 🎯 Sobre o Projeto
+- Organizar agenda e compromissos;
+- manter cadastro de pacientes;
+- confirmar presença;
+- apoiar check-in;
+- distribuir instruções personalizadas;
+- enviar notificações;
+- registrar histórico e alterações;
+- preparar integrações futuras.
 
-O Instrua nasceu com o objetivo de solucionar um problema comum em diferentes tipos de negócios: a dificuldade de organizar agendamentos e manter uma comunicação eficiente com seus clientes.
+## Perfis
 
-Em vez de funcionar apenas como uma agenda, o Instrua transforma o agendamento em um fluxo completo de comunicação.
+- **PLATFORM_ADMIN** — administração da plataforma;
+- **COMPANY_OWNER** — responsável pela clínica;
+- **COMPANY_ADMIN** — administração da clínica;
+- **RECEPTION** — agenda, cadastro e confirmação;
+- **CLINICAL** — fluxo clínico e instruções;
+- **BILLING** — acesso financeiro quando o perfil possuir o módulo;
+- **PATIENT** — acesso apenas aos próprios dados e compromissos.
 
-Desde a criação do compromisso até sua conclusão, a plataforma pode:
+## Arquitetura atual
 
-- Realizar agendamentos
-- Confirmar presença
-- Permitir cancelamentos e remarcações
-- Enviar notificações
-- Distribuir instruções personalizadas
-- Adaptar instruções de acordo com o serviço
-- Centralizar informações do cliente e do compromisso
-- Automatizar etapas do processo
-- Reduzir esquecimentos e faltas
-
----
-
-## 🌎 Aplicações
-
-O Instrua foi pensado para ser uma plataforma **multissetorial**, podendo atender diferentes tipos de negócios e serviços.
-
-### Exemplos de utilização
-
-- 💇 Salões de beleza
-- 💅 Clínicas de estética
-- 🏥 Clínicas e consultórios
-- 🧪 Laboratórios e centros de exames
-- 🏨 Hospitais
-- 🎓 Instituições de ensino
-- 🎫 Eventos
-- 🏢 Empresas e serviços corporativos
-- 🔧 Serviços técnicos
-- 🚗 Serviços automotivos
-- 📋 Consultorias
-- 🏠 Serviços residenciais
-- E muitos outros segmentos
-
----
-
-## 🚀 Principais Funcionalidades
-
-### 📅 Agendamento
-
-Criação e gerenciamento de compromissos de forma organizada.
-
-### ✅ Confirmação de presença
-
-O cliente recebe uma solicitação de confirmação e pode informar sua disponibilidade para o compromisso.
-
-### 🔄 Cancelamento e remarcação
-
-Permite que o cliente informe quando não poderá comparecer e solicite uma nova data ou horário.
-
-### 📲 Notificações
-
-Comunicação automática para lembrar o cliente sobre seus compromissos.
-
-### 📚 Instruções personalizadas
-
-Cada serviço pode possuir instruções específicas que são apresentadas ao cliente de acordo com o tipo de agendamento.
-
-As instruções podem incluir:
-
-- Texto
-- Imagens
-- Vídeos
-- Documentos
-- Orientações específicas
-- Informações adicionais
-
-### 🤖 Automação
-
-O sistema pode automatizar etapas do relacionamento entre empresa e cliente, reduzindo tarefas manuais e aumentando a eficiência operacional.
-
----
-
-## 🧩 Arquitetura
-
-O projeto foi planejado utilizando uma arquitetura moderna e modular, permitindo evolução e integração com diferentes serviços.
-
-### Backend
-
-- Java
+- Java 21
 - Spring Boot
 - Spring Security
-- Spring Data
+- Spring Data JPA
 - REST API
 - PostgreSQL
-
-### Frontend Web
-
-- React
-- JavaScript / TypeScript
-- HTML
-- CSS
-
-### Aplicação Mobile
-
-- Kotlin / Java
-- Android
-
-### Infraestrutura
-
+- Flyway
 - Docker
-- Nginx
-- PostgreSQL
 
-### Integrações
+A direção arquitetural do NEXA é **monólito modular**: os domínios ficam separados no código, mas compartilham uma API e um banco central na primeira fase.
 
-- Firebase
-- E-mail
-- WhatsApp
-- APIs externas
+## Regras de segurança
 
----
+Como o módulo pode lidar com dados pessoais e potencialmente dados de saúde:
 
-## 🏗️ Estrutura do Projeto
+- aplicar isolamento por clínica/tenant em todas as consultas;
+- usar autenticação e autorização por papel;
+- manter auditoria para alterações relevantes;
+- nunca versionar dados reais no repositório público;
+- armazenar segredos fora do código;
+- preparar backups e políticas de retenção antes de produção.
+
+## Próximos passos
+
+1. Formalizar o contexto de tenant no backend.
+2. Completar RBAC por módulo.
+3. Criar auditoria.
+4. Evoluir pacientes, agenda, confirmação e instruções.
+5. Documentar a API com OpenAPI.
+6. Integrar o Instrua ao NEXA Core sem misturar o domínio do Nexa Bill.
+
+## Estrutura
 
 ```text
-instrua/
-│
-├── backend/
-│   └── Java + Spring Boot
-│
-├── web/
-│   └── React
-│
-├── mobile/
-│   └── Android
-│
-├── docs/
-│   └── Documentação do projeto
-│
-├── docker/
-│   └── Configurações de infraestrutura
-│
-└── README.md
+backend/
+└── instrua-api/
+    ├── auth/
+    ├── users/
+    ├── companies/
+    ├── clients/
+    ├── appointments/
+    ├── instructions/
+    ├── notifications/
+    ├── integrations/
+    ├── reports/
+    └── common/
+```
+
+🚧 Projeto em desenvolvimento.
