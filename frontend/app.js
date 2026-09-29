@@ -10,4 +10,6 @@ async function loadAppointments(){if(!state.companyId)return;try{state.appointme
 function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
 function logout(){state.token=null;state.user=null;$("contentView").classList.add("hidden");$("loginView").classList.remove("hidden");$("logoutBtn").classList.add("hidden")}
 document.querySelectorAll("[data-route]").forEach(b=>b.addEventListener("click",()=>route(b.dataset.route)));
-$("loginForm").addEventListener("submit",login);$("patientSearch").addEventListener("input",renderPatients);$("logoutBtn").addEventListener("click",logout);
+$("loginForm").addEventListener("submit",login);$("themeBtn").addEventListener("click",toggleTheme);applyTheme(localStorage.getItem("instrua_theme")||"dark");$("patientSearch").addEventListener("input",renderPatients);$("logoutBtn").addEventListener("click",logout);
+function applyTheme(theme){document.body.classList.toggle("light",theme==="light");localStorage.setItem("instrua_theme",theme);const b=$("themeBtn");if(b){b.textContent=theme==="light"?"☾":"☀";b.setAttribute("aria-label",theme==="light"?"Usar modo escuro":"Usar modo claro")}}
+function toggleTheme(){applyTheme(document.body.classList.contains("light")?"dark":"light")}
