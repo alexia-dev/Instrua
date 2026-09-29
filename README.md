@@ -1,33 +1,39 @@
 # INSTRUA
 
-### Módulo do NEXA para jornada clínica, agendamento e comunicação
+## Aplicativo do ecossistema NEXA
 
-O **Instrua** é o módulo clínico do **NEXA**. O foco é acompanhar a jornada entre clínica e paciente: agendamento, confirmação, check-in, instruções, notificações e histórico do compromisso.
+O Instrua é um aplicativo independente do ecossistema NEXA. Ele pode ser instalado e usado separadamente, mas compartilha identidade e serviços de plataforma quando o usuário autorizar.
 
-> O Instrua não incorpora faturamento. O domínio financeiro permanece no **Nexa Bill**.
+### O que o Instrua resolve
 
-## Objetivos do módulo
+O produto organiza jornadas de atendimento, agendamento, instruções, confirmações, check-in, notificações e histórico.
 
-- Organizar agenda e compromissos;
-- manter cadastro de pacientes;
-- confirmar presença;
-- apoiar check-in;
-- distribuir instruções personalizadas;
-- enviar notificações;
-- registrar histórico e alterações;
-- preparar integrações futuras.
+O público não é limitado a clínicas ou hospitais. O modelo pode atender diferentes tipos de organizações e profissionais que precisam organizar atendimento e comunicação.
 
-## Perfis
+### Relação com o NEXA
 
-- **PLATFORM_ADMIN** — administração da plataforma;
-- **COMPANY_OWNER** — responsável pela clínica;
-- **COMPANY_ADMIN** — administração da clínica;
-- **RECEPTION** — agenda, cadastro e confirmação;
-- **CLINICAL** — fluxo clínico e instruções;
-- **BILLING** — acesso financeiro quando o perfil possuir o módulo;
-- **PATIENT** — acesso apenas aos próprios dados e compromissos.
+```text
+NEXA ECOSYSTEM
+   │
+   ├── NEXA ACCOUNT
+   ├── NEXA PLATFORM
+   │      ├── identidade
+   │      ├── organizações
+   │      ├── apps
+   │      ├── entitlements
+   │      └── assinatura
+   │
+   └── INSTRUA
+          ├── agenda
+          ├── pacientes/clientes
+          ├── instruções
+          ├── confirmações
+          └── check-in
+```
 
-## Arquitetura atual
+O Instrua não incorpora o Nexa Bill. Os produtos permanecem separados.
+
+### Arquitetura atual
 
 - Java 21
 - Spring Boot
@@ -38,43 +44,22 @@ O **Instrua** é o módulo clínico do **NEXA**. O foco é acompanhar a jornada 
 - Flyway
 - Docker
 
-A direção arquitetural do NEXA é **monólito modular**: os domínios ficam separados no código, mas compartilham uma API e um banco central na primeira fase.
+A direção arquitetural é uma plataforma com domínios separados e contratos de API. O backend do Instrua pode evoluir para consumir ou expor serviços compartilhados do NEXA Platform sem transformar o Instrua em um monólito de todos os produtos.
 
-## Regras de segurança
+### Identidade e acesso
 
-Como o módulo pode lidar com dados pessoais e potencialmente dados de saúde:
+O objetivo é uma conta NEXA única com acesso por aplicativo.
 
-- aplicar isolamento por clínica/tenant em todas as consultas;
-- usar autenticação e autorização por papel;
-- manter auditoria para alterações relevantes;
-- nunca versionar dados reais no repositório público;
-- armazenar segredos fora do código;
-- preparar backups e políticas de retenção antes de produção.
+A autorização deverá ser determinada no servidor por:
 
-## Próximos passos
+- identidade;
+- organização/membership;
+- aplicativo;
+- papel/permissão;
+- entitlement/plano.
 
-1. Formalizar o contexto de tenant no backend.
-2. Completar RBAC por módulo.
-3. Criar auditoria.
-4. Evoluir pacientes, agenda, confirmação e instruções.
-5. Documentar a API com OpenAPI.
-6. Integrar o Instrua ao NEXA Core sem misturar o domínio do Nexa Bill.
+A interface do aplicativo nunca deve ser a fonte de verdade para premium ou autorização.
 
-## Estrutura
+### Estado
 
-```text
-backend/
-└── instrua-api/
-    ├── auth/
-    ├── users/
-    ├── companies/
-    ├── clients/
-    ├── appointments/
-    ├── instructions/
-    ├── notifications/
-    ├── integrations/
-    ├── reports/
-    └── common/
-```
-
-🚧 Projeto em desenvolvimento.
+O backend já possui JWT, empresas/tenants, pacientes, auditoria e agenda em evolução. A camada de plataforma compartilhada ainda está sendo implementada.
