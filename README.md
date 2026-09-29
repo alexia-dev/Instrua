@@ -50,6 +50,15 @@ A direção arquitetural é uma plataforma com domínios separados e contratos d
 
 O objetivo é uma conta NEXA única com acesso por aplicativo.
 
+### Novidades desta etapa
+
+- catálogo inicial de aplicativos em `/api/v1/apps`;
+- perfil e organizações em `/api/v1/me` e `/api/v1/me/organizations`;
+- entitlements iniciais em `/api/v1/me/entitlements`;
+- resumo operacional da jornada em `/api/v1/companies/{companyId}/journey/summary`;
+- migração V4 preparando catálogo, entitlements por organização e jornada por agendamento;
+- interface Web com Light/Dark e preferência persistente.
+
 A autorização deverá ser determinada no servidor por:
 
 - identidade;
