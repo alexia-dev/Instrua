@@ -27,4 +27,4 @@ jobs:
           cache: maven
 
       - name: Compilar e testar
-        run: ./mvnw -q test
+        run: bash mvnw -q test
