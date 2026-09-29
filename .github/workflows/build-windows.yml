@@ -1,0 +1,47 @@
+name: Build Instrua Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - "feature/**"
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Instalar dependências do desktop
+        shell: pwsh
+        run: npm install --prefix desktop
+
+      - name: Validar arquivos do frontend
+        shell: pwsh
+        run: |
+          if (!(Test-Path frontend/index.html)) { throw "frontend/index.html não encontrado" }
+          if (!(Test-Path frontend/styles.css)) { throw "frontend/styles.css não encontrado" }
+          if (!(Test-Path frontend/app.js)) { throw "frontend/app.js não encontrado" }
+
+      - name: Gerar Instrua.exe
+        shell: pwsh
+        run: npm run dist --prefix desktop
+
+      - name: Publicar executável
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrua-windows
+          path: desktop/dist/Instrua-*.exe
+          if-no-files-found: error
+          retention-days: 14
