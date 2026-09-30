@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14051f">
+<title>Instrua • Gestão e Agendamentos</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">🦊</div>
+      <div><strong>Instrua</strong><small>GESTÃO • AGENDAMENTOS</small></div>
+    </div>
+    <p class="side-copy">Organize serviços, atenda melhor e cresça sempre.</p>
+    <nav class="side-nav">
+      <button data-route="dashboard" class="active"><span>⌂</span> Início</button>
+      <button data-route="agenda"><span>▣</span> Agenda</button>
+      <button data-route="patients"><span>♙</span> Clientes</button>
+      <button data-route="instructions"><span>✦</span> Instruções</button>
+      <button data-route="services"><span>◎</span> Serviços</button>
+      <button data-route="team"><span>♧</span> Equipe</button>
+      <button data-route="reports"><span>▥</span> Relatórios</button>
+    </nav>
+    <div class="side-footer">Um só lugar para conectar você e seus clientes.</div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="mobile-brand">🦊 <strong>INSTRUA</strong></div>
+      <div class="top-chips">
+        <span>Salão de beleza</span><span>Clínica</span><span>Oficina</span><span>Consultoria</span><span>Aulas e cursos</span><span>Serviços técnicos</span>
+      </div>
+      <button id="themeBtn" class="theme-btn" type="button" aria-label="Alternar tema">☾</button><button id="logoutBtn" class="logout hidden">Sair</button>
+    </header>
+
+    <section id="loginView" class="view login-view">
+      <div class="login-copy">
+        <span class="eyebrow">INSTRUA • Simples • Claro • Seguro</span>
+        <h1>Organize hoje,<br><em>construa o amanhã.</em></h1>
+        <p>Gestão, agendamentos, confirmações e instruções para o seu negócio.</p>
+        <ul><li>Agendamentos de serviços</li><li>Confirmações automáticas</li><li>Instruções personalizadas</li><li>Gestão de clientes e equipe</li><li>Relatórios e crescimento</li></ul>
+      </div>
+      <div class="card login-card">
+        <div class="logo-large">🦊<span>Instrua</span></div>
+        <p>Organize seus serviços, atenda melhor, cresça sempre.</p>
+        <form id="loginForm">
+          <label>E-mail<input id="email" type="email" required placeholder="seu@email.com"></label>
+          <label>Senha<input id="password" type="password" required placeholder="••••••••"></label>
+          <label class="api-field">API<input id="apiUrl" value="http://127.0.0.1:8080"></label>
+          <button type="submit" class="primary">Entrar</button>
+          <small id="loginError" class="error"></small>
+        </form>
+        <div class="or">ou</div>
+        <button class="social">🌐 Continuar com Google</button>
+        <button class="create">Criar conta</button>
+      </div>
+    </section>
+
+    <section id="contentView" class="hidden">
+      <div id="dashboardPage" class="page">
+        <div class="page-title"><div><span class="eyebrow">Visão geral</span><h1>Olá, <span id="welcomeName">Aléxia</span> 👋</h1><p>Que bom ver você por aqui.</p></div><button class="primary compact" data-route="agenda">+ Novo agendamento</button></div>
+        <div class="stats"><div><b id="patientCount">—</b><small>Clientes</small></div><div><b id="appointmentCount">—</b><small>Agendamentos</small></div><div><b>03</b><small>Pendentes</small></div><div class="danger-stat"><b>01</b><small>Cancelado</small></div></div>
+        <div class="dashboard-grid">
+          <div class="card panel-card"><div class="panel-head"><h2>Próximos atendimentos</h2><button data-route="agenda">Ver todos</button></div><div id="agendaPreview" class="list"><div class="empty">Carregando agenda...</div></div></div>
+          <div class="card panel-card"><div class="panel-head"><h2>Ações rápidas</h2></div><div class="quick-grid"><button data-route="agenda">📅<span>Novo agendamento</span></button><button data-route="patients">♙<span>Clientes</span></button><button data-route="instructions">✦<span>Instruções</span></button><button data-route="reports">▥<span>Relatórios</span></button></div></div>
+        </div>
+        <div class="card company-card" id="companyInfo">Carregando organização...</div>
+      </div>
+
+      <div id="patientsPage" class="page hidden">
+        <div class="page-title"><div><span class="eyebrow">Clientes</span><h1>Selecionar cliente</h1><p>Encontre rapidamente quem será atendido.</p></div></div>
+        <div class="card search-card"><input id="patientSearch" placeholder="⌕  Buscar cliente..."><button class="primary">+ Novo cliente</button></div>
+        <div id="patientList" class="entity-list"></div>
+      </div>
+
+      <div id="agendaPage" class="page hidden">
+        <div class="page-title"><div><span class="eyebrow">Agenda</span><h1>Novo agendamento</h1><p>Selecione cliente, serviço, data e horário.</p></div></div>
+        <div class="stepper"><span class="on">1 Cliente</span><span>2 Serviço</span><span>3 Data</span><span>4 Confirmação</span></div>
+        <form id="appointmentForm" class="card appointment-card">
+          <h2>Novo agendamento</h2>
+          <label>Cliente<select id="appointmentPatient" required></select></label>
+          <label>Serviço<select id="appointmentService" required></select></label>
+          <label>Data e horário<input id="appointmentDate" type="datetime-local" required></label>
+          <label>Observações<input id="appointmentNotes" placeholder="Opcional"></label>
+          <button class="primary" type="submit">Criar agendamento</button>
+          <small id="appointmentError" class="error"></small>
+        </form>
+        <div id="agendaList" class="card panel-card"><h2>Agendamentos existentes</h2><div class="empty">Carregando agenda...</div></div>
+      </div>
+
+      <div id="instructionsPage" class="page hidden">
+        <div class="page-title"><div><span class="eyebrow">Instruções do serviço</span><h1>Orientações para o cliente</h1><p>Conteúdo personalizado para cada atendimento.</p></div></div>
+        <div class="instruction-grid"><div class="card instruction-card"><span>✓</span><h2>Antes do atendimento</h2><p>Chegue com 5 minutos de antecedência.</p></div><div class="card instruction-card"><span>♡</span><h2>Referências</h2><p>Envie referências opcionais quando necessário.</p></div><div class="card instruction-card"><span>✦</span><h2>Cuidados</h2><p>Confira as orientações específicas do serviço.</p></div></div>
+      
+      <div id="servicesPage" class="page hidden">
+        <div class="page-title"><div><span class="eyebrow">Serviços</span><h1>Serviços cadastrados</h1><p>Gerencie o que sua organização oferece.</p></div></div>
+        <div id="serviceList" class="entity-list"></div>
+      </div>
+      <div id="teamPage" class="page hidden">
+        <div class="page-title"><div><span class="eyebrow">Equipe</span><h1>Pessoas da equipe</h1><p>Visualize profissionais e funções.</p></div></div>
+        <div id="teamList" class="entity-list"></div>
+      </div>
+      <div id="reportsPage" class="page hidden">
+        <div class="page-title"><div><span class="eyebrow">Relatórios</span><h1>Resumo operacional</h1><p>Indicadores do período atual.</p></div></div>
+        <div id="reportSummary" class="stats"></div>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="./app.js"></script>
+</body>
+</html>
