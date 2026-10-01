@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14051f">
+<title>Instrua • Agendamentos Multi-Nicho</title>
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">🦊</div><div><strong>Instrua</strong><small>AGENDAMENTOS • MULTI-NICHO</small></div></div>
+    <div class="role-switch"><button data-role="client" class="active">Cliente</button><button data-role="professional">Profissional</button><button data-role="master">Master</button></div>
+    <nav class="side-nav" id="sideNav"></nav>
+    <div class="side-footer">Saúde • Beleza • Bem-estar • Pet • Consultorias • Serviços</div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div class="mobile-brand">🦊 <strong>INSTRUA</strong></div>
+      <div id="contextLabel" class="context-label">Cliente</div>
+      <button id="themeBtn" class="theme-btn" type="button">☾</button>
+      <button id="logoutBtn" class="logout hidden" type="button">Sair</button>
+    </header>
+
+    <section id="authView" class="view auth-view">
+      <div class="auth-copy">
+        <span class="eyebrow">INSTRUA • MULTI-NICHO</span>
+        <h1>Agende o que precisa.<br><em>Do seu jeito.</em></h1>
+        <p>Uma plataforma para descobrir profissionais, reservar horários e manter tudo organizado — da saúde à beleza, do pet ao serviço técnico.</p>
+        <div class="feature-pills"><span>Busca por proximidade</span><span>Agenda em poucos cliques</span><span>Lista de espera ativa</span><span>Pagamentos</span><span>IA de triagem</span></div>
+      </div>
+      <div class="card auth-card">
+        <div class="logo-large">🦊<span>Instrua</span></div>
+        <div class="auth-tabs"><button data-auth="login" class="active">Entrar</button><button data-auth="register">Criar conta</button></div>
+        <form id="loginForm">
+          <label>E-mail<input id="loginEmail" type="email" required placeholder="seu@email.com"></label>
+          <label>Senha<input id="loginPassword" type="password" required placeholder="••••••••"></label>
+          <button class="primary" type="submit">Entrar</button>
+          <small id="loginError" class="error"></small>
+        </form>
+        <form id="registerForm" class="hidden">
+          <label>Nome<input id="regName" required placeholder="Seu nome"></label>
+          <label>E-mail<input id="regEmail" type="email" required placeholder="seu@email.com"></label>
+          <label>Senha<input id="regPassword" type="password" minlength="8" required placeholder="Mínimo 8 caracteres"></label>
+          <label>Perfil<select id="regType"><option value="CUSTOMER">Cliente</option><option value="PROFESSIONAL">Profissional/estabelecimento</option></select></label>
+          <div id="businessFields">
+            <label>Nome do estabelecimento<input id="regCompany" placeholder="Ex.: Clínica Aurora"></label>
+            <label>Nicho<select id="regNiche"><option>HEALTH</option><option>BEAUTY</option><option>WELLNESS</option><option>PET</option><option>CONSULTING</option><option>TECHNICAL_SERVICES</option><option>EDUCATION</option><option>GENERAL</option></select></label>
+          </div>
+          <button class="primary" type="submit">Criar conta</button>
+          <small id="registerError" class="error"></small>
+        </form>
+        <p class="auth-note">A conta é separada do produto NEXA. O Instrua é um aplicativo próprio.</p>
+      </div>
+    </section>
+
+    <section id="appView" class="hidden">
+      <div id="pageRoot"></div>
+    </section>
+  </main>
+</div>
+<script src="./app.js"></script>
+</body>
+</html>

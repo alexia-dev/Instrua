@@ -1,80 +1,114 @@
-# INSTRUA
+# Instrua
 
-### Módulo do NEXA para jornada clínica, agendamento e comunicação
+Plataforma SaaS de agendamento **Multi-Nicho**, com Web + Mobile planejado para Android/iOS.
 
-O **Instrua** é o módulo clínico do **NEXA**. O foco é acompanhar a jornada entre clínica e paciente: agendamento, confirmação, check-in, instruções, notificações e histórico do compromisso.
+## Produto
 
-> O Instrua não incorpora faturamento. O domínio financeiro permanece no **Nexa Bill**.
+O Instrua é um aplicativo independente. Ele não é um launcher do NEXA e não incorpora o produto de faturamento NEXA.
 
-## Objetivos do módulo
+### Nichos
 
-- Organizar agenda e compromissos;
-- manter cadastro de pacientes;
-- confirmar presença;
-- apoiar check-in;
-- distribuir instruções personalizadas;
-- enviar notificações;
-- registrar histórico e alterações;
-- preparar integrações futuras.
+- Saúde
+- Beleza
+- Bem-estar
+- Pet
+- Consultorias
+- Educação
+- Serviços técnicos
+- Outros nichos configuráveis
 
-## Perfis
+## 3 visões
 
-- **PLATFORM_ADMIN** — administração da plataforma;
-- **COMPANY_OWNER** — responsável pela clínica;
-- **COMPANY_ADMIN** — administração da clínica;
-- **RECEPTION** — agenda, cadastro e confirmação;
-- **CLINICAL** — fluxo clínico e instruções;
-- **BILLING** — acesso financeiro quando o perfil possuir o módulo;
-- **PATIENT** — acesso apenas aos próprios dados e compromissos.
+### Cliente
 
-## Arquitetura atual
+- Busca por serviço, nicho e proximidade
+- Filtros e descoberta
+- Agendamento rápido
+- Histórico e favoritos
+- Lista de espera ativa
+- Carteira e pagamentos
+- Agendamento em grupo
+- Assinaturas/recorrência
+- Triagem conversacional com IA como módulo desacoplado
 
-- Java 21
-- Spring Boot
-- Spring Security
-- Spring Data JPA
-- REST API
-- PostgreSQL
-- Flyway
-- Docker
+### Profissional / Estabelecimento
 
-A direção arquitetural do NEXA é **monólito modular**: os domínios ficam separados no código, mas compartilham uma API e um banco central na primeira fase.
+- Agenda e escala
+- Clientes e serviços
+- Dashboard financeiro
+- Comissões, faturamento, cancelamentos e no-show
+- Fichas/anamnese customizáveis por nicho
+- Equipe e permissões
+- Integrações de calendário
+- Relatórios
 
-## Regras de segurança
+### Administrador Master
 
-Como o módulo pode lidar com dados pessoais e potencialmente dados de saúde:
+- Validação de documentos
+- Moderação de profissionais
+- Planos e comissões
+- Relatórios globais
+- Auditoria
 
-- aplicar isolamento por clínica/tenant em todas as consultas;
-- usar autenticação e autorização por papel;
-- manter auditoria para alterações relevantes;
-- nunca versionar dados reais no repositório público;
-- armazenar segredos fora do código;
-- preparar backups e políticas de retenção antes de produção.
+## Diferenciais
 
-## Próximos passos
+A arquitetura já possui fundações de banco para:
 
-1. Formalizar o contexto de tenant no backend.
-2. Completar RBAC por módulo.
-3. Criar auditoria.
-4. Evoluir pacientes, agenda, confirmação e instruções.
-5. Documentar a API com OpenAPI.
-6. Integrar o Instrua ao NEXA Core sem misturar o domínio do Nexa Bill.
+- Lista de espera ativa
+- Match por proximidade/interesse
+- Agendamento em grupo e participantes
+- Transações, split e taxas
+- Assinaturas recorrentes
+- Formulários customizáveis
+- Documentos de profissionais
+- Google/Apple calendar connections
+- Sessões de triagem
+- Cashback cruzado
+- Gamificação
+- Experiências AR
+- Assinaturas dos parceiros da plataforma
 
-## Estrutura
+Esses módulos devem ser ativados progressivamente; a fundação de dados não significa que uma integração externa ou regra financeira já esteja pronta para produção.
 
-```text
-backend/
-└── instrua-api/
-    ├── auth/
-    ├── users/
-    ├── companies/
-    ├── clients/
-    ├── appointments/
-    ├── instructions/
-    ├── notifications/
-    ├── integrations/
-    ├── reports/
-    └── common/
-```
+## Calendários e Double Booking
 
-🚧 Projeto em desenvolvimento.
+O desenho de integração usa conexão por profissional/estabelecimento, armazenamento seguro de referência de credencial e sincronização incremental.
+
+- Google Calendar: OAuth, refresh token protegido, watch/webhook e sincronização incremental.
+- Apple Calendar: integração compatível com CalDAV/credencial do ambiente.
+- Antes de confirmar um horário, o backend deve validar a agenda interna e os bloqueios externos.
+- Eventos recebidos devem ser idempotentes e reconciliados por identificador externo.
+- A confirmação final continua sendo uma operação server-side, evitando confiar no calendário do navegador.
+
+## LGPD e segurança
+
+- Minimização de dados
+- Finalidade e base legal documentadas
+- Controle por organização e papel
+- Auditoria de operações relevantes
+- Criptografia em trânsito e proteção de segredos
+- Referências de storage em vez de guardar arquivos sensíveis no banco
+- Retenção e descarte definidos por categoria
+- Exportação/eliminação quando aplicável
+- Dados de pagamento tratados por PSP; não armazenar dados completos de cartão
+- Dados de saúde e outros dados sensíveis com controles adicionais de acesso e tratamento
+
+## Roadmap técnico
+
+1. Core: autenticação, descoberta, organizações, serviços e agenda.
+2. Cliente: busca, favoritos, histórico, lista de espera e fluxo rápido.
+3. Profissional: escala, financeiro, formulários e calendários.
+4. Master: validação, assinaturas, comissões e relatórios.
+5. Pagamentos: Pix/cartão/split com PSP e webhooks.
+6. Diferenciais: grupo, recorrência, IA, cashback/gamificação e AR.
+7. Mobile: Android/iOS consumindo a mesma API.
+
+## Stack
+
+- Backend: Java 21 + Spring Boot
+- Banco: PostgreSQL + Flyway
+- Frontend atual: HTML/CSS/JavaScript modular
+- Desktop: Electron shell
+- Infra: Docker
+- API: REST
+- Auth: JWT
