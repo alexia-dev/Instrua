@@ -88,8 +88,8 @@ public class VacancyOpportunityController {
             select count(*) from vacancy_reservations
             where opportunity_id=? and status='HELD'
             """, Integer.class, opportunityId);
-        Integer slots = jdbc.queryForObject("select slots from vacancy_opportunities where id=? and company_id=?", Integer.class, opportunityId, companyId);
-        if (slots == null) throw new IllegalArgumentException("Oportunidade não encontrada");
+        Integer slots = jdbc.queryForObject("select slots from vacancy_opportunities where id=? and company_id=? and status in ('PUBLISHED','ACTIVE') and (published_until is null or published_until > now())", Integer.class, opportunityId, companyId);
+        if (slots == null) throw new IllegalArgumentException("Oportunidade não encontrada ou expirada");
         if (held != null && held >= slots) throw new IllegalStateException("A vaga já está reservada");
 
         UUID id = UUID.randomUUID();
