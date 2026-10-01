@@ -1,74 +1,114 @@
-# INSTRUA
+# Instrua
 
-## Aplicativo do ecossistema NEXA
+Plataforma SaaS de agendamento **Multi-Nicho**, com Web + Mobile planejado para Android/iOS.
 
-O Instrua é um aplicativo independente do ecossistema NEXA. Ele pode ser instalado e usado separadamente, mas compartilha identidade e serviços de plataforma quando o usuário autorizar.
+## Produto
 
-### O que o Instrua resolve
+O Instrua é um aplicativo independente. Ele não é um launcher do NEXA e não incorpora o produto de faturamento NEXA.
 
-O produto organiza jornadas de atendimento, agendamento, instruções, confirmações, check-in, notificações e histórico.
+### Nichos
 
-O público não é limitado a clínicas ou hospitais. O modelo pode atender diferentes tipos de organizações e profissionais que precisam organizar atendimento e comunicação.
+- Saúde
+- Beleza
+- Bem-estar
+- Pet
+- Consultorias
+- Educação
+- Serviços técnicos
+- Outros nichos configuráveis
 
-### Relação com o NEXA
+## 3 visões
 
-```text
-NEXA ECOSYSTEM
-   │
-   ├── NEXA ACCOUNT
-   ├── NEXA PLATFORM
-   │      ├── identidade
-   │      ├── organizações
-   │      ├── apps
-   │      ├── entitlements
-   │      └── assinatura
-   │
-   └── INSTRUA
-          ├── agenda
-          ├── pacientes/clientes
-          ├── instruções
-          ├── confirmações
-          └── check-in
-```
+### Cliente
 
-O Instrua não incorpora o Nexa Bill. Os produtos permanecem separados.
+- Busca por serviço, nicho e proximidade
+- Filtros e descoberta
+- Agendamento rápido
+- Histórico e favoritos
+- Lista de espera ativa
+- Carteira e pagamentos
+- Agendamento em grupo
+- Assinaturas/recorrência
+- Triagem conversacional com IA como módulo desacoplado
 
-### Arquitetura atual
+### Profissional / Estabelecimento
 
-- Java 21
-- Spring Boot
-- Spring Security
-- Spring Data JPA
-- REST API
-- PostgreSQL
-- Flyway
-- Docker
+- Agenda e escala
+- Clientes e serviços
+- Dashboard financeiro
+- Comissões, faturamento, cancelamentos e no-show
+- Fichas/anamnese customizáveis por nicho
+- Equipe e permissões
+- Integrações de calendário
+- Relatórios
 
-A direção arquitetural é uma plataforma com domínios separados e contratos de API. O backend do Instrua pode evoluir para consumir ou expor serviços compartilhados do NEXA Platform sem transformar o Instrua em um monólito de todos os produtos.
+### Administrador Master
 
-### Identidade e acesso
+- Validação de documentos
+- Moderação de profissionais
+- Planos e comissões
+- Relatórios globais
+- Auditoria
 
-O objetivo é uma conta NEXA única com acesso por aplicativo.
+## Diferenciais
 
-### Novidades desta etapa
+A arquitetura já possui fundações de banco para:
 
-- catálogo inicial de aplicativos em `/api/v1/apps`;
-- perfil e organizações em `/api/v1/me` e `/api/v1/me/organizations`;
-- entitlements iniciais em `/api/v1/me/entitlements`;
-- resumo operacional da jornada em `/api/v1/companies/{companyId}/journey/summary`;
-- migração V4 preparando catálogo, entitlements por organização e jornada por agendamento;
-- interface Web com Light/Dark e preferência persistente.
+- Lista de espera ativa
+- Match por proximidade/interesse
+- Agendamento em grupo e participantes
+- Transações, split e taxas
+- Assinaturas recorrentes
+- Formulários customizáveis
+- Documentos de profissionais
+- Google/Apple calendar connections
+- Sessões de triagem
+- Cashback cruzado
+- Gamificação
+- Experiências AR
+- Assinaturas dos parceiros da plataforma
 
-A autorização deverá ser determinada no servidor por:
+Esses módulos devem ser ativados progressivamente; a fundação de dados não significa que uma integração externa ou regra financeira já esteja pronta para produção.
 
-- identidade;
-- organização/membership;
-- aplicativo;
-- papel/permissão;
-- entitlement/plano.
+## Calendários e Double Booking
 
-A interface do aplicativo nunca deve ser a fonte de verdade para premium ou autorização.
+O desenho de integração usa conexão por profissional/estabelecimento, armazenamento seguro de referência de credencial e sincronização incremental.
 
-### Estado
+- Google Calendar: OAuth, refresh token protegido, watch/webhook e sincronização incremental.
+- Apple Calendar: integração compatível com CalDAV/credencial do ambiente.
+- Antes de confirmar um horário, o backend deve validar a agenda interna e os bloqueios externos.
+- Eventos recebidos devem ser idempotentes e reconciliados por identificador externo.
+- A confirmação final continua sendo uma operação server-side, evitando confiar no calendário do navegador.
 
-O backend já possui JWT, empresas/tenants, pacientes, auditoria e agenda em evolução. A camada de plataforma compartilhada ainda está sendo implementada.
+## LGPD e segurança
+
+- Minimização de dados
+- Finalidade e base legal documentadas
+- Controle por organização e papel
+- Auditoria de operações relevantes
+- Criptografia em trânsito e proteção de segredos
+- Referências de storage em vez de guardar arquivos sensíveis no banco
+- Retenção e descarte definidos por categoria
+- Exportação/eliminação quando aplicável
+- Dados de pagamento tratados por PSP; não armazenar dados completos de cartão
+- Dados de saúde e outros dados sensíveis com controles adicionais de acesso e tratamento
+
+## Roadmap técnico
+
+1. Core: autenticação, descoberta, organizações, serviços e agenda.
+2. Cliente: busca, favoritos, histórico, lista de espera e fluxo rápido.
+3. Profissional: escala, financeiro, formulários e calendários.
+4. Master: validação, assinaturas, comissões e relatórios.
+5. Pagamentos: Pix/cartão/split com PSP e webhooks.
+6. Diferenciais: grupo, recorrência, IA, cashback/gamificação e AR.
+7. Mobile: Android/iOS consumindo a mesma API.
+
+## Stack
+
+- Backend: Java 21 + Spring Boot
+- Banco: PostgreSQL + Flyway
+- Frontend atual: HTML/CSS/JavaScript modular
+- Desktop: Electron shell
+- Infra: Docker
+- API: REST
+- Auth: JWT
