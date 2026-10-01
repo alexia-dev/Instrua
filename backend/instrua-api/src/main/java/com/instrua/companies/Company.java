@@ -61,6 +61,7 @@ public class Company extends BaseEntity {
     public String getTimezone() { return timezone; }
     public boolean isActive() { return active; }
     public String getNiche() { return niche; }
+    public void setNiche(String niche) { if (niche != null && !niche.isBlank()) this.niche = niche.trim().toUpperCase(); }
     public boolean isVacancyAuctionEnabled() { return vacancyAuctionEnabled; }
     public boolean isVacancyAllowDiscount() { return vacancyAllowDiscount; }
     public int getVacancyDefaultExpiryMinutes() { return vacancyDefaultExpiryMinutes; }
