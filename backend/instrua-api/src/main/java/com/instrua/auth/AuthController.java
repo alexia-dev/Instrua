@@ -40,6 +40,7 @@ public class AuthController {
         if(!customer){
             if(request.companyName()==null||request.companyName().isBlank()) throw new BusinessException("Informe o nome do estabelecimento");
             company=companies.create(request.companyName(),request.companySlug(),request.companyEmail(),request.companyPhone(),request.timezone(),user);
+            if (request.niche() != null && !request.niche().isBlank()) company.setNiche(request.niche());
         }
         return new RegistrationResponse(authResponse(user),company==null?null:CompanyResponse.from(company));
     }
