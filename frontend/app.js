@@ -1,168 +1,53 @@
-const state={token:null,companies:[],companyId:null,patients:[],appointments:[],services:[],team:[],user:null,apiUrl:localStorage.getItem("instrua_api")||"http://127.0.0.1:8080"};
-
+const state={token:null,user:null,role:"client",page:"home",apiUrl:localStorage.getItem("instrua_api")||"http://127.0.0.1:8080",companyId:null,companies:[],patients:[],appointments:[],services:[],team:[],results:[]};
 const $=id=>document.getElementById(id);
-
-async function api(path,options={}){
-  const headers={"Content-Type":"application/json",...(options.headers||{})};
-  if(state.token) headers.Authorization="Bearer "+state.token;
-  const r=await fetch(state.apiUrl+path,{...options,headers});
-  let data=null; try{data=await r.json()}catch{}
-  if(!r.ok) throw new Error(data?.message||data?.error||"Erro ao comunicar com a API.");
-  return data;
-}
-
-async function route(name){
-  document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
-  const target=$(name+"Page"); if(!target)return;
-  target.classList.remove("hidden");
-  document.querySelectorAll("[data-route]").forEach(b=>b.classList.toggle("active",b.dataset.route===name));
-  try{
-    if(name==="dashboard") await loadDashboard();
-    if(name==="patients"){await loadPatients();renderPatients();}
-    if(name==="agenda"){await loadPatients();await loadServices();await loadAppointments();prepareAppointmentForm();}
-    if(name==="services"){await loadServices();renderServices();}
-    if(name==="team"){await loadTeam();renderTeam();}
-    if(name==="instructions"){await loadInstructions();renderInstructions();}
-    if(name==="reports"){await loadReport();}
-  }catch(e){showPageError(target,e.message)}
-}
-
-async function login(e){
-  e.preventDefault(); $("loginError").textContent="";
-  state.apiUrl=$("apiUrl").value.replace(/\/$/,"");
-  localStorage.setItem("instrua_api",state.apiUrl);
-  try{
-    const data=await api("/api/v1/auth/login",{method:"POST",body:JSON.stringify({email:$("email").value,password:$("password").value})});
-    state.token=data.accessToken; state.user=data; await loadSession();
-  }catch(err){$("loginError").textContent=err.message}
-}
-
-async function loadSession(){
-  state.companies=await api("/api/v1/me/organizations");
-  state.companyId=state.companies[0]?.id||null;
-  const me=await api("/api/v1/me");
-  state.user={...state.user,...me};
-  $("loginView").classList.add("hidden"); $("contentView").classList.remove("hidden"); $("logoutBtn").classList.remove("hidden");
-  $("welcomeName").textContent=state.user?.name||"usuário";
-  $("companyInfo").textContent=state.companies[0]?.name||"Nenhuma organização disponível";
-  if(state.companyId) await loadPatients();
-  await route("dashboard");
-}
-
-async function loadDashboard(){
-  if(!state.companyId)return;
-  await Promise.all([loadPatients(),loadAppointments()]);
-  $("companyInfo").textContent=state.companies[0]?.name||"Nenhuma organização disponível";
-  const preview=$("agendaPreview");
-  preview.innerHTML=state.appointments.length
-    ?state.appointments.slice(0,5).map(a=>`<div class="item"><strong>${escapeHtml(a.clientName||"Cliente")}</strong><div class="muted">${formatDate(a.startsAt)} • ${escapeHtml(a.serviceName||"Serviço")}</div></div>`).join("")
-    :'<div class="empty">Nenhum agendamento encontrado.</div>';
-}
-
-async function loadPatients(){
-  if(!state.companyId)return;
-  state.patients=await api("/api/v1/companies/"+state.companyId+"/patients");
-  $("patientCount").textContent=state.patients.length;
-}
-function renderPatients(){
-  const q=($("patientSearch")?.value||"").toLowerCase();
-  const list=state.patients.filter(p=>(p.name||"").toLowerCase().includes(q));
-  $("patientList").innerHTML=list.length
-    ?list.map(p=>`<div class="item"><strong>${escapeHtml(p.name)}</strong><div class="muted">${escapeHtml(p.phone||p.email||"Sem contato")}</div></div>`).join("")
-    :'<div class="card">Nenhum cliente encontrado.</div>';
-}
-
-async function loadAppointments(){
-  if(!state.companyId)return;
-  state.appointments=await api("/api/v1/companies/"+state.companyId+"/appointments");
-  $("appointmentCount").textContent=state.appointments.length;
-  const list=$("agendaList");
-  if(!list)return;
-  list.innerHTML=state.appointments.length
-    ?state.appointments.map(a=>`<div class="item"><strong>${escapeHtml(a.clientName||"Cliente")}</strong><div class="muted">${formatDate(a.startsAt)} • ${escapeHtml(a.serviceName||"Serviço")} • ${escapeHtml(a.status||"")}</div></div>`).join("")
-    :'<div class="empty">Nenhum agendamento.</div>';
-}
-
-async function loadServices(){
-  if(!state.companyId)return;
-  state.services=await api("/api/v1/companies/"+state.companyId+"/services");
-}
-function renderServices(){
-  $("serviceList").innerHTML=state.services.length
-    ?state.services.map(s=>`<div class="item"><strong>${escapeHtml(s.name)}</strong><div class="muted">${s.durationMinutes||0} min • ${formatMoney(s.price)}</div></div>`).join("")
-    :'<div class="empty">Nenhum serviço cadastrado.</div>';
-}
-function fillServiceSelect(){
-  const select=$("appointmentService"); if(!select)return;
-  select.innerHTML='<option value="">Selecione um serviço</option>'+state.services.map(s=>`<option value="${s.id}">${escapeHtml(s.name)} — ${formatMoney(s.price)}</option>`).join("");
-}
-
-async function loadTeam(){
-  if(!state.companyId)return;
-  state.team=await api("/api/v1/companies/"+state.companyId+"/employees");
-}
-function renderTeam(){
-  $("teamList").innerHTML=state.team.length
-    ?state.team.map(e=>`<div class="item"><strong>${escapeHtml(e.name)}</strong><div class="muted">${escapeHtml(e.title||e.accessRole||"Equipe")} • ${escapeHtml(e.phone||e.email||"Sem contato")}</div></div>`).join("")
-    :'<div class="empty">Nenhum profissional cadastrado.</div>';
-}
-
-async function loadInstructions(){
-  if(!state.companyId)return;
-  state.instructions=await api("/api/v1/companies/"+state.companyId+"/instructions");
-}
-function renderInstructions(){
-  const list=state.instructions||[];
-  $("instructionsPage").querySelector(".instruction-grid").innerHTML=list.length
-    ?list.map(i=>`<div class="card instruction-card"><span>✦</span><h2>${escapeHtml(i.title)}</h2><p>${escapeHtml(i.content)}</p></div>`).join("")
-    :'<div class="empty">Nenhuma instrução cadastrada.</div>';
-}
-
-async function loadReport(){
-  if(!state.companyId)return;
-  const r=await api("/api/v1/companies/"+state.companyId+"/reports/summary");
-  $("reportSummary").innerHTML=[
-    ["Clientes",r.totalClients],["Serviços ativos",r.activeServices],["Agendamentos",r.appointments],["Confirmados",r.confirmed],["Cancelados",r.cancelled],["No-show",r.noShows]
-  ].map(([label,value])=>`<div><b>${value}</b><small>${label}</small></div>`).join("");
-}
-
-function prepareAppointmentForm(){
-  const patient=$("appointmentPatient");
-  patient.innerHTML='<option value="">Selecione um cliente</option>'+state.patients.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
-  fillServiceSelect();
-}
-async function createAppointment(e){
-  e.preventDefault(); $("appointmentError").textContent="";
-  try{
-    const local=$("appointmentDate").value;
-    if(!local)throw new Error("Informe a data e o horário.");
-    await api("/api/v1/companies/"+state.companyId+"/appointments",{method:"POST",body:JSON.stringify({
-      clientId:$("appointmentPatient").value,serviceId:$("appointmentService").value,startsAt:new Date(local).toISOString(),notes:$("appointmentNotes").value||null
-    })});
-    e.target.reset(); await loadAppointments(); alert("Agendamento criado com sucesso.");
-  }catch(err){$("appointmentError").textContent=err.message}
-}
-
-function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-function formatDate(v){return v?new Date(v).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}):"Data não informada"}
-function formatMoney(v){if(v==null||v==="")return"Preço não informado";return Number(v).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
-function showPageError(target,message){target.innerHTML=`<div class="card error">Não foi possível carregar esta área: ${escapeHtml(message)}</div>`}
-
-function logout(){
-  state.token=null;state.user=null;state.companies=[];state.companyId=null;
-  $("contentView").classList.add("hidden");$("loginView").classList.remove("hidden");$("logoutBtn").classList.add("hidden");
-}
-
-document.querySelectorAll("[data-route]").forEach(b=>b.addEventListener("click",()=>route(b.dataset.route)));
-$("loginForm").addEventListener("submit",login);
-$("themeBtn").addEventListener("click",toggleTheme);
-$("patientSearch").addEventListener("input",renderPatients);
-$("logoutBtn").addEventListener("click",logout);
-$("appointmentForm").addEventListener("submit",createAppointment);
-applyTheme(localStorage.getItem("instrua_theme")||"dark");
-
-function applyTheme(theme){
-  document.body.classList.toggle("light",theme==="light");localStorage.setItem("instrua_theme",theme);
-  const b=$("themeBtn");if(b){b.textContent=theme==="light"?"☾":"☀";b.setAttribute("aria-label",theme==="light"?"Usar modo escuro":"Usar modo claro")}
-}
-function toggleTheme(){applyTheme(document.body.classList.contains("light")?"dark":"light")}
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const money=v=>v==null?"—":Number(v).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const date=v=>v?new Date(v).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}):"—";
+async function api(path,opt={}){const h={"Content-Type":"application/json",...(opt.headers||{})};if(state.token)h.Authorization="Bearer "+state.token;const r=await fetch(state.apiUrl+path,{...opt,headers:h});let d=null;try{d=await r.json()}catch{}if(!r.ok)throw new Error(d?.message||d?.error||"Erro na API.");return d}
+const nav={client:[["home","Início"],["discover","Explorar"],["bookings","Agendamentos"],["waitlist","Lista de espera"],["favorites","Favoritos"],["wallet","Carteira"],["subscriptions","Assinaturas"],["profile","Conta"]],professional:[["home","Início"],["agenda","Agenda"],["clients","Clientes"],["services","Serviços"],["team","Equipe"],["finance","Financeiro"],["forms","Fichas e anamnese"],["calendar","Calendários"],["reports","Relatórios"],["settings","Configurações"]],master:[["home","Início"],["moderation","Validação"],["partners","Parceiros"],["global","Relatórios globais"],["subscriptions","Assinaturas"],["audit","Auditoria"],["settings","Configurações"]]};
+function renderNav(){ $("sideNav").innerHTML=nav[state.role].map(x=>'<button data-page="'+x[0]+'" class="'+(state.page===x[0]?"active":"")+'">'+x[1]+"</button>").join("");document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>route(b.dataset.page)))}
+function setRole(r){state.role=r;state.page="home";$("contextLabel").textContent=r==="client"?"Cliente":r==="professional"?"Profissional / Estabelecimento":"Administrador Master";document.querySelectorAll("[data-role]").forEach(b=>b.classList.toggle("active",b.dataset.role===r));renderNav();if(!$("appView").classList.contains("hidden"))route("home")}
+async function route(p){state.page=p;renderNav();$("pageRoot").innerHTML='<div class="loading">Carregando…</div>';try{$("pageRoot").innerHTML=await page(p);bindPage()}catch(e){$("pageRoot").innerHTML='<div class="card error-card"><h2>Erro</h2><p>'+esc(e.message)+"</p></div>"}}
+async function page(p){
+if(p==="home")return home();
+if(p==="discover")return discover();
+if(p==="bookings")return bookings();
+if(p==="waitlist")return waitlist();
+if(p==="favorites")return simple("Favoritos","Salve estabelecimentos e profissionais para encontrar novamente.","Seus favoritos aparecerão aqui.");
+if(p==="wallet")return simple("Carteira","Pix, cartão, split e cashback.","A infraestrutura de pagamentos está preparada no backend; o PSP real deve ser configurado antes de produção.");
+if(p==="subscriptions")return simple("Assinaturas","Planos e recorrência automática.","A fundação de assinaturas e períodos recorrentes foi criada no banco.");
+if(p==="profile")return simple("Minha conta",state.user?.email||"","Consentimentos, sessões, privacidade e solicitações LGPD.");
+if(p==="agenda"){await professionalData();return listPage("Agenda","Agenda dinâmica e prevenção de conflitos",state.appointments.map(a=>esc(a.clientName)+" • "+date(a.startsAt)+" • "+esc(a.serviceName)),"Novo agendamento");}
+if(p==="clients"){await professionalData();return listPage("Clientes","Histórico e relacionamento",state.patients.map(x=>esc(x.name)+" • "+esc(x.phone||x.email||"Sem contato")),"Novo cliente");}
+if(p==="services"){await professionalData();return listPage("Serviços","Catálogo por nicho",state.services.map(x=>esc(x.name)+" • "+(x.durationMinutes||0)+" min • "+money(x.price)),"Novo serviço");}
+if(p==="team"){await professionalData();return listPage("Equipe","Profissionais e permissões",state.team.map(x=>esc(x.name)+" • "+esc(x.title||x.accessRole||"Profissional")),"Novo profissional");}
+if(p==="finance")return dashboardPage("Financeiro","Comissões, faturamento, cancelamentos e split",["Faturamento","Comissões","Cancelamentos","No-show"]);
+if(p==="forms")return featurePage("Fichas e anamnese","Formulários 100% customizáveis por nicho",["Schema de campos","Obrigatoriedade","Consentimento","Versionamento"]);
+if(p==="calendar")return featurePage("Calendários","Google Calendar e Apple Calendar",["OAuth/CalDAV","Sincronização incremental","Webhooks","Bloqueio de double booking"]);
+if(p==="reports")return dashboardPage("Relatórios","Ocupação, conversão, retenção e no-show",["Ocupação","Conversão","Retenção","No-show"]);
+if(p==="moderation")return featurePage("Validação de profissionais","Documentos e moderação",["Fila de documentos","Aprovação/rejeição","Trilha de auditoria","Storage seguro"]);
+if(p==="partners")return featurePage("Parceiros","Assinaturas e comissões da plataforma",["Planos","Comissão","Status","Cobrança"]);
+if(p==="global")return dashboardPage("Relatórios globais","Uso da plataforma por nicho e período",["Empresas","Usuários","Agendamentos","GMV"]);
+if(p==="audit")return featurePage("Auditoria","Eventos administrativos e acesso a dados",["Ator","Organização","Entidade","Timestamp"]);
+return simple("Configurações","Regras do estabelecimento","Defina horários, políticas, notificações, integrações, finalidade, retenção e controles LGPD.")}
+function home(){if(state.role==="client")return '<div class="page-title"><div><span class="eyebrow">Cliente</span><h1>Encontre e agende.</h1><p>Da saúde à beleza, do pet ao serviço técnico.</p></div><button class="primary compact" data-page="discover">Explorar serviços</button></div>'+stats(["3|Etapas do agendamento","10 km|Busca inicial","24/7|Lista de espera","Pix|Carteira"])+featureGrid(["🧠|Triagem inteligente|IA conversacional para orientar o nicho e o profissional, com consentimento.","👥|Agendamento em grupo|Convide participantes e divida a conta.","🎁|Cashback cruzado|Créditos entre nichos conforme regras da plataforma."]);
+if(state.role==="professional"){return '<div class="page-title"><div><span class="eyebrow">Profissional</span><h1>Seu negócio, sua agenda.</h1><p>Gestão de escala, clientes, serviços e financeiro.</p></div><button class="primary compact" data-page="agenda">Abrir agenda</button></div>'+stats([state.appointments.length+"|Agendamentos",state.patients.length+"|Clientes",state.services.length+"|Serviços","0|Cancelamentos"])+featureGrid(["📊|Financeiro|Faturamento, comissões, cancelamentos e split.","📝|Ficha customizável|Anamnese por nicho.","🗓️|Agenda dinâmica|Conflitos verificados no servidor e calendários externos."])}
+return '<div class="page-title"><div><span class="eyebrow">Admin Master</span><h1>Visão global do Instrua.</h1><p>Moderação, parceiros, assinaturas e métricas.</p></div></div>'+stats(["—|Profissionais","—|Empresas","—|Agendamentos","—|Receita"])+featureGrid(["🪪|Validação|Documentos e status dos parceiros.","💰|Comissões|Planos e monetização.","🌐|Uso global|Relatórios por nicho, região e período."])}
+async function discover(){try{const q=encodeURIComponent(($("discoverQuery")?.value||"").trim());state.results=await api("/api/v1/discovery/companies?query="+q)}catch{state.results=[]}return '<div class="page-title"><div><span class="eyebrow">Descobrir</span><h1>Encontre o serviço certo</h1><p>Busca por nicho, proximidade, preço e disponibilidade.</p></div></div><div class="card search-panel"><input id="discoverQuery" placeholder="⌕ O que você procura?"><select><option>Todos os nichos</option><option>HEALTH</option><option>BEAUTY</option><option>WELLNESS</option><option>PET</option><option>CONSULTING</option><option>TECHNICAL_SERVICES</option></select><button class="primary" id="discoverBtn">Buscar</button></div><div id="results" class="entity-list">'+(state.results.length?state.results.map(c=>'<div class="card result"><span class="result-icon">🦊</span><div><b>'+esc(c.name)+'</b><p>'+esc(c.niche||"GENERAL")+' • '+esc(c.addressLine||"Localização não informada")+'</p></div><button class="secondary" data-company="'+c.id+'">Ver horários</button></div>').join(""):'<div class="card empty">Faça uma busca para encontrar estabelecimentos.</div>')+"</div>"}
+async function bookings(){let a=[];try{a=state.companyId?await api("/api/v1/companies/"+state.companyId+"/appointments"):[]}catch{}return listPage("Meus agendamentos","Histórico e próximos horários",a.map(x=>esc(x.serviceName)+" • "+date(x.startsAt)+" • "+esc(x.status)),"Novo agendamento")}
+function waitlist(){return featurePage("Lista de espera ativa","Combina proximidade, interesse e janela de horário",["Vaga liberada automaticamente","Prioridade por proximidade","Interesse no serviço","Expiração do convite"])}
+function simple(t,s,b){return '<div class="page-title"><div><span class="eyebrow">Instrua</span><h1>'+esc(t)+'</h1><p>'+esc(s)+'</p></div></div><div class="card feature"><h3>'+esc(t)+'</h3><p>'+esc(b)+'</p></div>'}
+function featurePage(t,s,items){return '<div class="page-title"><div><span class="eyebrow">Instrua</span><h1>'+esc(t)+'</h1><p>'+esc(s)+'</p></div></div>'+featureGrid(items.map(x=>"•|"+x+"|Fundação preparada para implementação server-side e integração segura."))}
+function featureGrid(items){return '<div class="feature-grid">'+items.map(x=>{const a=x.split("|");return '<div class="card feature"><span>'+a[0]+'</span><h3>'+esc(a[1])+'</h3><p>'+esc(a[2])+'</p></div>'}).join("")+"</div>"}
+function stats(items){return '<div class="stats">'+items.map(x=>{const a=x.split("|");return '<div><b>'+esc(a[0])+'</b><small>'+esc(a[1])+"</small></div>"}).join("")+"</div>"}
+function dashboardPage(t,s,items){return '<div class="page-title"><div><span class="eyebrow">Indicadores</span><h1>'+t+'</h1><p>'+s+"</p></div></div>"+stats(items.map(x=>"—|"+x))}
+function listPage(t,s,items,action){return '<div class="page-title"><div><span class="eyebrow">Instrua</span><h1>'+t+'</h1><p>'+s+'</p></div><button class="primary compact">'+action+'</button></div><div class="entity-list">'+(items.length?items.map(x=>'<div class="card item">'+x+"</div>").join(""):'<div class="card empty">Nenhum registro.</div>')+"</div>"}
+async function professionalData(){if(!state.companyId){try{state.companies=await api("/api/v1/me/organizations");state.companyId=state.companies[0]?.id||null}catch{}}if(!state.companyId)return;[state.patients,state.appointments,state.services,state.team]=await Promise.all([api("/api/v1/companies/"+state.companyId+"/patients"),api("/api/v1/companies/"+state.companyId+"/appointments"),api("/api/v1/companies/"+state.companyId+"/services"),api("/api/v1/companies/"+state.companyId+"/employees")])}
+function bindPage(){$("discoverBtn")?.addEventListener("click",async()=>{$("pageRoot").innerHTML=await discover();bindPage()});document.querySelectorAll("[data-company]").forEach(b=>b.addEventListener("click",()=>alert("Fluxo: serviço → horário disponível → confirmação.")));document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>route(b.dataset.page)))}
+async function login(e){e.preventDefault();$("loginError").textContent="";try{const d=await api("/api/v1/auth/login",{method:"POST",body:JSON.stringify({email:$("loginEmail").value,password:$("loginPassword").value})});state.token=d.accessToken;state.user=d;state.role=d.roles?.includes("PLATFORM_ADMIN")?"master":d.roles?.some(x=>["COMPANY_OWNER","COMPANY_ADMIN","PROFESSIONAL"].includes(x))?"professional":"client";await enter()}catch(err){$("loginError").textContent=err.message}}
+async function register(e){e.preventDefault();$("registerError").textContent="";try{const n=$("regName").value,c=$("regCompany").value||n;const body={ownerName:n,email:$("regEmail").value,password:$("regPassword").value,companyName:c,companySlug:c.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,""),companyEmail:$("regEmail").value,timezone:"America/Sao_Paulo",accountType:$("regType").value,niche:$("regNiche").value};const d=await api("/api/v1/auth/register",{method:"POST",body:JSON.stringify(body)});state.token=d.authentication.accessToken;state.user=d.authentication;state.role=$("regType").value==="CUSTOMER"?"client":"professional";await enter()}catch(err){$("registerError").textContent=err.message}}
+async function enter(){$("authView").classList.add("hidden");$("appView").classList.remove("hidden");$("logoutBtn").classList.remove("hidden");renderNav();await route("home")}
+function logout(){state.token=null;state.user=null;$("appView").classList.add("hidden");$("authView").classList.remove("hidden");$("logoutBtn").classList.add("hidden")}
+document.querySelectorAll("[data-role]").forEach(b=>b.addEventListener("click",()=>setRole(b.dataset.role)));
+document.querySelectorAll("[data-auth]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("[data-auth]").forEach(x=>x.classList.toggle("active",x===b));$("loginForm").classList.toggle("hidden",b.dataset.auth!=="login");$("registerForm").classList.toggle("hidden",b.dataset.auth!=="register")}));
+$("loginForm").addEventListener("submit",login);$("registerForm").addEventListener("submit",register);$("logoutBtn").addEventListener("click",logout);$("themeBtn").addEventListener("click",()=>document.body.classList.toggle("light"));$("regType").addEventListener("change",()=>$("businessFields").classList.toggle("hidden",$("regType").value==="CUSTOMER"));
