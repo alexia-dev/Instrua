@@ -43,7 +43,7 @@ async function opportunities(){
   if(company){try{items=await api("/api/v1/companies/"+company+"/vacancy-opportunities/public")}catch{}}
   return '<div class="page-title"><div><span class="eyebrow">⚡ Oportunidades</span><h1>Vagas disponíveis</h1><p>O Leilão de Vagas é opcional e o desconto só aparece quando o estabelecimento oferece.</p></div></div>'+
     '<div class="feature-grid">'+
-    (items.length?items.map(x=>'<div class="card feature opportunity-card"><span>⚡</span><h3>'+esc(x.serviceId||"Horário disponível")+'</h3><p>'+esc(x.employeeId||"Profissional não informado")+'</p><strong>'+money(x.finalPrice ?? x.regularPrice)+'</strong><small>'+esc(x.status)+" • slots: "+esc(x.slots)+"</small><button class="primary compact" data-opportunity="+esc(x.id)+">Quero essa vaga</button></div>").join("")
+    (items.length?items.map(x=>'<div class="card feature opportunity-card"><span>⚡</span><h3>'+esc(x.serviceId||"Horário disponível")+'</h3><p>'+esc(x.employeeId||"Profissional não informado")+'</p><strong>'+money(x.finalPrice ?? x.regularPrice)+'</strong><small>'+esc(x.status)+" • slots: "+esc(x.slots)+"</small><button class="primary compact" data-opportunity="'+esc(x.id)+'">Quero essa vaga</button></div>").join("")
     :'<div class="card empty">Nenhuma oportunidade ativa encontrada.</div>')+
     '</div>'
 }
