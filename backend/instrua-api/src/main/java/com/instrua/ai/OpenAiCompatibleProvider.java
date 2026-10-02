@@ -23,19 +23,19 @@ public class OpenAiCompatibleProvider implements AiProvider {
 
     public OpenAiCompatibleProvider(ObjectMapper mapper,
         @Value("${app.ai.api-key:}") String apiKey,
-        @Value("${app.ai.base-url:https://api.openai.com/v1/chat/completions}") String baseUrl,
-        @Value("${app.ai.model:gpt-5.6-mini}") String model){
+        @Value("${app.ai.base-url:https://api.openai.com/v1/responses}") String baseUrl,
+        @Value("${app.ai.model:gpt-6-luna}") String model){
         this.mapper=mapper;this.apiKey=apiKey;this.baseUrl=baseUrl;this.model=model;}
     public boolean configured(){return apiKey!=null&&!apiKey.isBlank();}
     @Override public AiProviderResponse complete(AiProviderRequest request){
         if(!configured()) return new AiProviderResponse("Provedor externo não configurado.","GENERAL","none",Map.of(),false);
         try{
-            String body=mapper.writeValueAsString(Map.of("model",model,"temperature",0.1,"messages",List.of(Map.of("role","system","content",request.systemPrompt()+" Return ONLY JSON with keys text,intent,tool,arguments,requiresConfirmation. Allowed tools: "+request.allowedTools()),Map.of("role","user","content",request.userMessage()))));
+            String body=mapper.writeValueAsString(Map.of("model",model,"instructions",request.systemPrompt()+" Return ONLY JSON with keys text,intent,tool,arguments,requiresConfirmation. Allowed tools: "+request.allowedTools(),"input",request.userMessage()));
             HttpRequest http=HttpRequest.newBuilder(URI.create(baseUrl)).header(HttpHeaders.AUTHORIZATION,"Bearer "+apiKey).header(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE).POST(HttpRequest.BodyPublishers.ofString(body)).build();
             HttpResponse<String> response=client.send(http,HttpResponse.BodyHandlers.ofString());
             if(response.statusCode()<200||response.statusCode()>=300) throw new IllegalStateException("AI provider HTTP "+response.statusCode());
             JsonNode root=mapper.readTree(response.body());
-            String content=root.path("choices").path(0).path("message").path("content").asText();
+            String content=root.path("output").path(0).path("content").path(0).path("text").asText();
             JsonNode parsed=mapper.readTree(content);
             String tool=parsed.path("tool").asText("none");
             if(!request.allowedTools().contains(tool)) tool="none";
