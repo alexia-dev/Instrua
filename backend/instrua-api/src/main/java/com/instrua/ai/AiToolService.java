@@ -14,7 +14,7 @@ public class AiToolService {
     public Map<String,Object> listBookings(UUID userId){
         List<Map<String,Object>> rows=jdbc.queryForList("""
             select id, starts_at as "startsAt", status from appointments
-            where customer_id=? order by starts_at asc limit 20
+            where client_id in (select id from clients where lower(email)=(select lower(email) from users where id=?)) order by starts_at asc limit 20
             """,userId);
         return Map.of("bookings",rows);
     }
@@ -32,7 +32,7 @@ public class AiToolService {
         List<Map<String,Object>> rows=jdbc.queryForList("""
             select i.id,i.title,i.body,i.phase from instructions i
             join appointments a on a.service_offering_id=i.service_offering_id
-            where a.customer_id=? order by a.starts_at asc limit 20
+            where a.client_id in (select id from clients where lower(email)=(select lower(email) from users where id=?)) order by a.starts_at asc limit 20
             """,userId);
         return Map.of("instructions",rows);
     }
