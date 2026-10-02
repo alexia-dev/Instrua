@@ -112,3 +112,10 @@ O desenho de integração usa conexão por profissional/estabelecimento, armazen
 - Infra: Docker
 - API: REST
 - Auth: JWT
+
+
+## Instrua AI
+
+O Instrua possui um AI Core separado do NEXA. Ele usa ferramentas autorizadas pela sessão para consultar agendamentos, horários e instruções, sem acesso direto ao banco pela IA. Por padrão funciona com um provider mock determinístico. Para usar um provider compatível com a API de chat, configure `AI_API_KEY`, `AI_BASE_URL` e `AI_MODEL` no ambiente; nunca versionar a chave.
+
+Ações mutáveis exigem confirmação e o próximo estágio é derivar toda ação do usuário autenticado, em vez de aceitar identificadores de usuário fornecidos pelo cliente.
