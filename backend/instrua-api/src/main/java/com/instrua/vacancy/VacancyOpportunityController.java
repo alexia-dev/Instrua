@@ -4,6 +4,11 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.instrua.companies.CompanyService;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,13 +16,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/companies/{companyId}/vacancy-opportunities")
 public class VacancyOpportunityController {
     private final JdbcTemplate jdbc;
+    private final CompanyService companies;
 
-    public VacancyOpportunityController(JdbcTemplate jdbc) {
+    public VacancyOpportunityController(JdbcTemplate jdbc, CompanyService companies) {
         this.jdbc = jdbc;
+        this.companies = companies;
     }
 
     @GetMapping
     public List<Map<String,Object>> list(@PathVariable UUID companyId) {
+        companies.requireAccess(companyId);
         return jdbc.queryForList("""
             select id, service_offering_id as "serviceId", employee_id as "employeeId",
                    starts_at as "startsAt", ends_at as "endsAt", slots,
@@ -47,7 +55,9 @@ public class VacancyOpportunityController {
     }
 
     @PostMapping
+    @Transactional
     public Map<String,Object> create(@PathVariable UUID companyId, @RequestBody CreateOpportunityRequest request) {
+        companies.requireAccess(companyId);
         final boolean discounted = request.discountType() != null;
         if (discounted && (request.discountValue() == null || request.discountValue().signum() < 0)) {
             throw new IllegalArgumentException("Desconto inválido");
@@ -77,8 +87,10 @@ public class VacancyOpportunityController {
     }
 
     @PostMapping("/{opportunityId}/reserve")
+    @Transactional
     public Map<String,Object> reserve(@PathVariable UUID companyId, @PathVariable UUID opportunityId,
                                       @RequestParam UUID userId, @RequestParam(defaultValue = "5") int minutes) {
+        if (minutes < 1 || minutes > 60) throw new IllegalArgumentException("Tempo de reserva inválido");
         jdbc.update("""
             update vacancy_reservations set status='EXPIRED', updated_at=now()
             where opportunity_id=? and status='HELD' and expires_at<=now()
