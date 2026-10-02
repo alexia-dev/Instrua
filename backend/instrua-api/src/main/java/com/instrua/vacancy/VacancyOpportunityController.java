@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.instrua.companies.CompanyService;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -90,6 +87,7 @@ public class VacancyOpportunityController {
     @Transactional
     public Map<String,Object> reserve(@PathVariable UUID companyId, @PathVariable UUID opportunityId,
                                       @RequestParam UUID userId, @RequestParam(defaultValue = "5") int minutes) {
+        // Reservation is a client-side flow; future auth context should derive userId from the JWT.
         if (minutes < 1 || minutes > 60) throw new IllegalArgumentException("Tempo de reserva inválido");
         jdbc.update("""
             update vacancy_reservations set status='EXPIRED', updated_at=now()
