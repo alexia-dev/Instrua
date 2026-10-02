@@ -30,13 +30,17 @@ public class OpenAiCompatibleProvider implements AiProvider {
     @Override public AiProviderResponse complete(AiProviderRequest request){
         if(!configured()) return new AiProviderResponse("Provedor externo não configurado.","GENERAL","none",Map.of(),false);
         try{
-            String body=mapper.writeValueAsString(Map.of("model",model,"temperature",0.1,"messages",List.of(Map.of("role","system","content",request.systemPrompt()),Map.of("role","user","content",request.userMessage()))));
+            String body=mapper.writeValueAsString(Map.of("model",model,"temperature",0.1,"messages",List.of(Map.of("role","system","content",request.systemPrompt()+" Return ONLY JSON with keys text,intent,tool,arguments,requiresConfirmation. Allowed tools: "+request.allowedTools()),Map.of("role","user","content",request.userMessage()))));
             HttpRequest http=HttpRequest.newBuilder(URI.create(baseUrl)).header(HttpHeaders.AUTHORIZATION,"Bearer "+apiKey).header(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE).POST(HttpRequest.BodyPublishers.ofString(body)).build();
             HttpResponse<String> response=client.send(http,HttpResponse.BodyHandlers.ofString());
             if(response.statusCode()<200||response.statusCode()>=300) throw new IllegalStateException("AI provider HTTP "+response.statusCode());
             JsonNode root=mapper.readTree(response.body());
-            String text=root.path("choices").path(0).path("message").path("content").asText();
-            return new AiProviderResponse(text,"GENERAL","none",Map.of(),false);
+            String content=root.path("choices").path(0).path("message").path("content").asText();
+            JsonNode parsed=mapper.readTree(content);
+            String tool=parsed.path("tool").asText("none");
+            if(!request.allowedTools().contains(tool)) tool="none";
+            Map<String,Object> args=parsed.path("arguments").isObject()?mapper.convertValue(parsed.path("arguments"),Map.class):Map.of();
+            return new AiProviderResponse(parsed.path("text").asText(content),parsed.path("intent").asText("GENERAL"),tool,args,parsed.path("requiresConfirmation").asBoolean(false));
         }catch(Exception ex){return new AiProviderResponse("Não foi possível consultar o provedor de IA agora. O aplicativo continua funcionando sem ele.","PROVIDER_ERROR","none",Map.of(),false);}
     }
 }
