@@ -22,7 +22,7 @@ public class AiToolService {
     public Map<String,Object> checkAvailability(UUID userId){
         List<Map<String,Object>> rows=jdbc.queryForList("""
             select id, starts_at as "startsAt", ends_at as "endsAt", status
-            from appointments where customer_id=? and starts_at>=now()
+            from appointments where client_id in (select id from clients where lower(email)=(select lower(email) from users where id=?)) and starts_at>=now()
             order by starts_at asc limit 10
             """,userId);
         return Map.of("upcoming",rows);
@@ -30,9 +30,9 @@ public class AiToolService {
 
     public Map<String,Object> getInstructions(UUID userId){
         List<Map<String,Object>> rows=jdbc.queryForList("""
-            select i.id,i.title,i.body,i.phase from instructions i
+            select i.id,i.title,i.content,i.display_order as "displayOrder" from instructions i
             join appointments a on a.service_offering_id=i.service_offering_id
-            where a.client_id in (select id from clients where lower(email)=(select lower(email) from users where id=?)) order by a.starts_at asc limit 20
+            where a.client_id in (select id from clients where lower(email)=(select lower(email) from users where id=?)) and i.active=true order by a.starts_at asc limit 20
             """,userId);
         return Map.of("instructions",rows);
     }
