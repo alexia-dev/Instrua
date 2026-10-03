@@ -78,16 +78,46 @@ public class AiService {
                 throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Falha ao consultar o provedor de IA");
             }
             JsonNode root = objectMapper.readTree(response.body());
-            JsonNode outputText = root.get("output_text");
-            if (outputText == null || outputText.asText().isBlank()) {
+            String outputText = extractOutputText(root);
+            if (outputText == null || outputText.isBlank()) {
                 throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "O provedor de IA não retornou texto");
             }
-            return outputText.asText().trim();
+            return outputText.trim();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "A chamada à IA foi interrompida");
         } catch (IOException e) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Não foi possível comunicar com o provedor de IA");
         }
+    }
+
+    private String extractOutputText(JsonNode root) {
+        JsonNode convenience = root.get("output_text");
+        if (convenience != null && convenience.isTextual()) {
+            return convenience.asText();
+        }
+
+        JsonNode output = root.get("output");
+        if (output == null || !output.isArray()) {
+            return null;
+        }
+
+        StringBuilder text = new StringBuilder();
+        for (JsonNode item : output) {
+            JsonNode content = item.get("content");
+            if (content == null || !content.isArray()) {
+                continue;
+            }
+            for (JsonNode part : content) {
+                JsonNode value = part.get("text");
+                if (value != null && value.isTextual()) {
+                    if (text.length() > 0) {
+                        text.append("\n");
+                    }
+                    text.append(value.asText());
+                }
+            }
+        }
+        return text.toString();
     }
 }
