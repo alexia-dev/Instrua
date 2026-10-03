@@ -25,3 +25,8 @@ app:
     # Defina JWT_SECRET em produção. O valor padrão só permite execução local.
     jwt-secret: ${JWT_SECRET:instrua-local-development-secret-change-before-production-2026}
     jwt-expiration-seconds: ${JWT_EXPIRATION_SECONDS:86400}
+
+app:
+  ai:
+    openai-api-key: ${OPENAI_API_KEY:}
+    model: ${OPENAI_MODEL:gpt-6-luna}
