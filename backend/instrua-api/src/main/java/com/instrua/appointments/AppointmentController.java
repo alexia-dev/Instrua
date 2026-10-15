@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -25,13 +26,16 @@ public class AppointmentController {
     public AppointmentController(AppointmentService appointments) { this.appointments = appointments; }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('PLATFORM_ADMIN','COMPANY_OWNER','COMPANY_ADMIN','RECEPTION','PROFESSIONAL','CLINICAL')")
     public List<AppointmentResponse> list(@PathVariable UUID companyId) { return appointments.list(companyId).stream().map(AppointmentResponse::from).toList(); }
     @PostMapping
+    @PreAuthorize("hasAnyRole('PLATFORM_ADMIN','COMPANY_OWNER','COMPANY_ADMIN','RECEPTION','PROFESSIONAL')")
     @ResponseStatus(HttpStatus.CREATED)
     public AppointmentResponse create(@PathVariable UUID companyId, @Valid @RequestBody AppointmentRequest request) {
         return AppointmentResponse.from(appointments.create(companyId, request.clientId(), request.employeeId(), request.serviceId(), request.startsAt(), request.notes()));
     }
     @PatchMapping("/{appointmentId}/status")
+    @PreAuthorize("hasAnyRole('PLATFORM_ADMIN','COMPANY_OWNER','COMPANY_ADMIN','RECEPTION','PROFESSIONAL')")
     public AppointmentResponse changeStatus(@PathVariable UUID companyId, @PathVariable UUID appointmentId, @Valid @RequestBody StatusRequest request) {
         return AppointmentResponse.from(appointments.changeStatus(companyId, appointmentId, request.status(), request.reason()));
     }
