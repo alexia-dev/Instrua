@@ -5,7 +5,9 @@ public enum Role {
     COMPANY_OWNER,
     COMPANY_ADMIN,
     RECEPTION,
+    PROFESSIONAL,
     CLINICAL,
     BILLING,
+    AUDITOR,
     PATIENT
 }
