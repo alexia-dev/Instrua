@@ -18,7 +18,7 @@ O **Instrua** é uma plataforma para organizar a jornada entre pacientes, profis
 - **Oportunidades**, com publicação e candidatura/reserva — não é um leilão;
 - **Dante IA**, com sugestões sujeitas à revisão humana.
 
-O escopo do PDF é a referência do produto, mas não significa que todos os módulos ou integrações já estejam implementados. Consulte o [contrato de domínio e plano de alinhamento](docs/INSTRUA-PDF-DOMAIN-ALIGNMENT.md).
+O escopo do PDF é a referência do produto, mas não significa que todos os módulos ou integrações já estejam implementados. Consulte o [contrato de domínio](docs/INSTRUA-PDF-DOMAIN-ALIGNMENT.md) e o [estado de implementação por etapa](docs/INSTRUA-PDF-IMPLEMENTATION-STATUS.md).
 
 ## Arquitetura
 
@@ -75,6 +75,12 @@ backend/
 docs/
 └── INSTRUA-PDF-DOMAIN-ALIGNMENT.md
 ```
+
+## Frontend de demonstração
+
+A pasta `frontend/` contém uma interface navegável responsiva em HTML, CSS e JavaScript, alinhada às páginas do PDF: perfis, busca, agenda, oportunidades de preço fixo, instruções, notificações, equipe e acessibilidade. Para experimentar, abra `frontend/index.html` no navegador ou publique a pasta em um servidor estático.
+
+**Importante:** esta primeira interface usa dados de demonstração em memória. Reservas, convites, notificações, preferências e alterações ainda não são persistidos nem enviados à API. Consulte o [estado de implementação](docs/INSTRUA-PDF-IMPLEMENTATION-STATUS.md) antes de considerar qualquer fluxo pronto para produção.
 
 ## Validação
 
