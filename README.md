@@ -1,66 +1,63 @@
 # INSTRUA
 
-### Módulo do NEXA para jornada clínica, agendamento e comunicação
+### Orientação, conexão e confiança.
 
-O **Instrua** é o módulo clínico do **NEXA**. O foco é acompanhar a jornada entre clínica e paciente: agendamento, confirmação, check-in, instruções, notificações e histórico do compromisso.
+O **Instrua** é uma plataforma para organizar a jornada entre pacientes, profissionais e estabelecimentos. Este repositório contém o backend Java/Spring Boot. A experiência visual e os fluxos de produto são definidos pelo PDF oficial do Instrua; a API deve oferecer contratos estáveis para essas telas sem misturar dados de demonstração com dados reais.
 
-> O Instrua não incorpora faturamento. O domínio financeiro permanece no **Nexa Bill**.
+## Escopo do produto
 
-## Objetivos do módulo
+- Área pública, autenticação, convites e permissões;
+- área do paciente e área do profissional;
+- recepção, agenda, agendamentos, confirmações, cancelamentos e check-in;
+- instruções pré-atendimento e notificações;
+- administração do estabelecimento e administração da plataforma;
+- documentos e registros com permissões e auditoria;
+- **Instrua Clínico**, área restrita a profissionais autorizados;
+- **Instrua Protege**, registros de jornada, ocorrências, divergências e solicitações de correção;
+- área financeira/fiscal de acordo com o responsável legal, permissões e fronteira de integração;
+- **Oportunidades**, com publicação e candidatura/reserva — não é um leilão;
+- **Dante IA**, com sugestões sujeitas à revisão humana.
 
-- Organizar agenda e compromissos;
-- manter cadastro de pacientes;
-- confirmar presença;
-- apoiar check-in;
-- distribuir instruções personalizadas;
-- enviar notificações;
-- registrar histórico e alterações;
-- preparar integrações futuras.
+O escopo do PDF é a referência do produto, mas não significa que todos os módulos ou integrações já estejam implementados. Consulte o [contrato de domínio e plano de alinhamento](docs/INSTRUA-PDF-DOMAIN-ALIGNMENT.md).
 
-## Perfis
-
-- **PLATFORM_ADMIN** — administração da plataforma;
-- **COMPANY_OWNER** — responsável pela clínica;
-- **COMPANY_ADMIN** — administração da clínica;
-- **RECEPTION** — agenda, cadastro e confirmação;
-- **CLINICAL** — fluxo clínico e instruções;
-- **BILLING** — acesso financeiro quando o perfil possuir o módulo;
-- **PATIENT** — acesso apenas aos próprios dados e compromissos.
-
-## Arquitetura atual
+## Arquitetura
 
 - Java 21
 - Spring Boot
 - Spring Security
 - Spring Data JPA
-- REST API
+- API REST
 - PostgreSQL
 - Flyway
 - Docker
+- Monólito modular com limites de domínio explícitos
 
-A direção arquitetural do NEXA é **monólito modular**: os domínios ficam separados no código, mas compartilham uma API e um banco central na primeira fase.
+O backend existente deve ser evoluído por etapas, preservando funcionalidades compatíveis e criando migrações versionadas para mudanças de banco. Não remover módulos ou migrar domínios financeiros sem antes confirmar as fronteiras de integração.
 
-## Regras de segurança
+## Perfis de referência
 
-Como o módulo pode lidar com dados pessoais e potencialmente dados de saúde:
+- **PLATFORM_ADMIN** — administração global estritamente administrativa;
+- **COMPANY_OWNER / COMPANY_ADMIN** — administração do estabelecimento conforme permissões;
+- **RECEPTION** — agenda, cadastro mínimo, confirmações e check-in;
+- **PROFESSIONAL** — agenda própria e dados necessários ao atendimento;
+- **CLINICAL** — acesso clínico autorizado;
+- **BILLING** — financeiro/fiscal nos estabelecimentos autorizados;
+- **PATIENT** — acesso aos próprios dados e compromissos;
+- **AUDITOR** — leitura autorizada de trilhas e registros.
 
-- aplicar isolamento por clínica/tenant em todas as consultas;
-- usar autenticação e autorização por papel;
-- manter auditoria para alterações relevantes;
-- nunca versionar dados reais no repositório público;
-- armazenar segredos fora do código;
-- preparar backups e políticas de retenção antes de produção.
+Papéis não substituem permissões granulares. A autorização precisa ser aplicada no servidor em cada requisição; ocultar botões na interface não é controle de segurança.
 
-## Próximos passos
+## Segurança e privacidade
 
-1. Formalizar o contexto de tenant no backend.
-2. Completar RBAC por módulo.
-3. Criar auditoria.
-4. Evoluir pacientes, agenda, confirmação e instruções.
-5. Documentar a API com OpenAPI.
-6. Integrar o Instrua ao NEXA Core sem misturar o domínio do Nexa Bill.
+- Validar o tenant e o vínculo do usuário no servidor para toda consulta ou alteração.
+- Aplicar menor privilégio, validação de entrada e minimização de dados.
+- Auditar alterações e acessos sensíveis.
+- Não registrar segredos, dados clínicos completos ou documentos pessoais em logs.
+- Não versionar dados reais.
+- Não declarar como reais pagamentos, emissão fiscal, controle oficial de jornada, envio de mensagens ou ações de IA sem integrações e validações efetivas.
+- Exigir revisão humana para ações sensíveis sugeridas pelo Dante IA.
 
-## Estrutura
+## Estrutura atual
 
 ```text
 backend/
@@ -75,6 +72,12 @@ backend/
     ├── integrations/
     ├── reports/
     └── common/
+docs/
+└── INSTRUA-PDF-DOMAIN-ALIGNMENT.md
 ```
+
+## Validação
+
+Antes de considerar um módulo pronto, verificar regras de domínio, persistência/migração, autorização, contrato de API, auditoria e testes. Executar testes Maven e testes de isolamento entre organizações antes de publicar para produção.
 
 🚧 Projeto em desenvolvimento.
