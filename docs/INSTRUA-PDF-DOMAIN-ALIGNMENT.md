@@ -106,3 +106,13 @@ Estados definitivos devem ser harmonizados com o contrato da interface e com as 
 ## 10. Critério de pronto
 
 Um módulo só é considerado implementado quando tiver regras de domínio, autorização no servidor, persistência/migração quando necessária, contrato de API, auditoria apropriada e testes. Uma tela ou endpoint isolado não comprova que o fluxo está funcional.
+
+
+## 11. Primeira alteração de código aplicada nesta branch
+
+- Adicionados os papéis `PROFESSIONAL` e `AUDITOR` ao enum de usuários para representar melhor a área profissional e a leitura de auditoria descritas no produto.
+- Habilitada a autorização por método do Spring Security.
+- Protegidas as rotas de agenda com autorização por papel: leitura para administração, recepção, profissionais e equipe clínica; criação e mudança de estado para administração, recepção e profissionais.
+- O controle por papel complementa — não substitui — a validação de vínculo com o estabelecimento feita pelos serviços de tenant.
+
+**Validação pendente:** os testes Maven ainda precisam ser executados. Também é necessário revisar os demais controllers e adicionar testes negativos de acesso para garantir que PATIENT e BILLING não consigam operar a agenda por estas rotas, além de validar a matriz de permissões com o PDF.
