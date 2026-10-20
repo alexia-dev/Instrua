@@ -7,7 +7,7 @@ A entrada de frontend redireciona para [demo.html](./demo.html). Para executar l
 - Site público, busca de serviços, entrada e cadastro simulados.
 - Alternância de perfil: cliente, profissional, estabelecimento e administração.
 - Agenda, criação e cancelamento de agendamentos.
-- Leilão de Vagas: publicação, edição, prazo, preço fixo, desconto opcional e solicitação de reserva.
+- Oportunidades: publicação, edição, prazo, preço fixo, desconto opcional e solicitação de reserva.
 - Biblioteca de instruções com autoria, versão e estado de leitura.
 - Equipe, serviços e clientes.
 - Instrua Financeiro: recebimentos, despesas, repasses e status.
