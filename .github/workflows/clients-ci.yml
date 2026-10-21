@@ -1,0 +1,57 @@
+name: Instrua client build
+
+on:
+  push:
+    branches: [main, feat/instrua-backend-foundation]
+    paths:
+      - "clients/instrua-app/**"
+      - ".github/workflows/clients-ci.yml"
+  pull_request:
+    paths:
+      - "clients/instrua-app/**"
+      - ".github/workflows/clients-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Type-check and build shared UI
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: clients/instrua-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Build React application
+        run: npm run build
+
+  desktop-windows:
+    name: Package Windows desktop app
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: clients/instrua-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Install frontend dependencies
+        run: npm install
+      - name: Build Windows installers
+        run: npm run desktop:build
+      - name: Upload Windows installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrua-windows-installers
+          path: clients/instrua-app/src-tauri/target/release/bundle/**
+          if-no-files-found: error
