@@ -19,13 +19,13 @@ O Instrua é um único produto disponível em três clientes: **site web**, **ap
 |---|---|
 | Backend | Java 21 + Spring Boot, API REST, Spring Security, PostgreSQL e Flyway |
 | Site | React + TypeScript, responsivo e acessível |
-| Mobile | Kotlin + Jetpack Compose para Android; considerar cliente iOS próprio quando entrar no escopo |
-| Desktop | Tauri + React + TypeScript para Windows, com distribuição assinada; avaliar macOS/Linux conforme a necessidade |
+| Mobile (primeira entrega) | React + TypeScript empacotado com Tauri 2 para Android; avaliar telas nativas específicas quando houver necessidade comprovada |
+| Desktop (primeira entrega) | Tauri 2 + React + TypeScript para Windows; avaliar macOS/Linux conforme a necessidade |
 | API contracts | OpenAPI como contrato único; tipos gerados/validados para clientes |
 | Auth | OAuth2/OIDC quando definido, tokens de acesso curtos, renovação segura, MFA para áreas sensíveis |
 | Release | CI para testes, empacotamento e distribuição separados por plataforma |
 
-Esta é uma proposta de stack para decidir e implementar; ela não afirma que os três clientes já existam. A entrega atual nesta branch continua concentrada no backend e seus contratos.
+A primeira fundação executável dos clientes foi iniciada em `clients/instrua-app/`: frontend React + TypeScript compartilhado, configuração Tauri 2 para Windows/Android, telas responsivas e instruções de execução. A interface já navega entre áreas, mas usa dados fictícios e ainda não é uma aplicação operacional integrada ponta a ponta. A web completa e o cliente iOS continuam fora desta entrega.
 
 ## Clientes e áreas
 
