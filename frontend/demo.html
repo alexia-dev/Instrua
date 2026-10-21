@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#414A35">
 <meta name="description" content="Instrua — demonstração interativa de produto.">
+<meta name="theme-color" content="#414A35">
+<meta name="instrua-api-base" content="">
+<meta name="color-scheme" content="light">
 <title>instrua — demonstração interativa</title>
 <style>/* Instrua Design Tokens — cores oficiais do PDF */
 :root {
@@ -309,6 +312,56 @@ $('#notificationBtn').addEventListener('click',()=>go('notifications'));
 $('#primaryAction').addEventListener('click',()=>go($('#primaryAction').dataset.view));
 $('#modalForm').addEventListener('submit',e=>{if(e.submitter&&e.submitter.value==='cancel')return});
 render();
+})();
+</script>
+<script>
+/* Instrua API bootstrap: safe, configurable base URL; no secrets stored in the browser. */
+(function () {
+  "use strict";
+  const meta = document.querySelector('meta[name="instrua-api-base"]');
+  const fallback = new URLSearchParams(window.location.search).get("api");
+  const configured = meta && meta.content ? meta.content.trim() : "";
+  const apiBase = (configured || fallback || "").replace(/\/$/, "");
+  window.InstruaConfig = Object.freeze({
+    apiBase,
+    palette: Object.freeze({
+      moss: "#414A35", olive: "#69704B", sage: "#96977B",
+      sand: "#D6C9AD", terra: "#A66F4B", amber: "#C18A43", paper: "#F5F1E8"
+    })
+  });
+  window.instruaApi = Object.freeze({
+    async request(path, options) {
+      if (!window.InstruaConfig.apiBase) {
+        throw new Error("API do Instrua não configurada. Defina a URL-base da API no ambiente.");
+      }
+      const token = sessionStorage.getItem("instrua.accessToken");
+      const response = await fetch(window.InstruaConfig.apiBase + path, {
+        ...(options || {}),
+        headers: {
+          "Content-Type": "application/json",
+          ...((options && options.headers) || {}),
+          ...(token ? { "Authorization": "Bearer " + token } : {})
+        }
+      });
+      if (!response.ok) {
+        let detail = "Falha na API do Instrua (" + response.status + ").";
+        try { const body = await response.json(); if (body && body.message) detail = body.message; } catch (_) {}
+        throw new Error(detail);
+      }
+      if (response.status === 204) return null;
+      return response.json();
+    },
+    health() { return this.request("/api/v1/health"); },
+    login(email, password) {
+      return this.request("/api/v1/auth/login", {
+        method: "POST", body: JSON.stringify({ email, password })
+      }).then(result => {
+        if (result && result.accessToken) sessionStorage.setItem("instrua.accessToken", result.accessToken);
+        return result;
+      });
+    },
+    logout() { sessionStorage.removeItem("instrua.accessToken"); }
+  });
 })();
 </script>
 </body>
