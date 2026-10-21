@@ -66,7 +66,7 @@ public class JourneyController {
         try { row=jdbc.queryForMap("select status, requested_by from journey_correction_requests where id = ? and company_id = ?", requestId, companyId); }
         catch(org.springframework.dao.EmptyResultDataAccessException ex) { throw new NotFoundException("Solicitação de correção não encontrada."); }
         JourneyCorrectionPolicy.Status current=JourneyCorrectionPolicy.Status.valueOf(String.valueOf(row.get("status")));
-        boolean requester=reviewer.getId().equals(UUID.fromString(String.valueOf(row.get("requested_by"))));
+        boolean requester=reviewer.getId().equals(row.get("requested_by") instanceof UUID u ? u : UUID.fromString(String.valueOf(row.get("requested_by"))));
         corrections.decide(current, request.status(), true, requester);
         jdbc.update("update journey_correction_requests set status = ?, decided_by = ?, decided_at = now(), updated_at = now() where id = ? and company_id = ? and status = 'PENDING'", request.status().name(), reviewer.getId(), requestId, companyId);
         return jdbc.queryForMap("select id, requested_by, journey_event_id, requested_change, justification, status, decided_by, decided_at, created_at from journey_correction_requests where id = ?", requestId);
