@@ -147,6 +147,8 @@ Integrações com pagamentos e reembolsos, emissão fiscal/NFS-e, WhatsApp Busin
 - [Arquitetura multiplataforma](docs/PLATFORM_CLIENTS_ARCHITECTURE.md)
 - [Implementação inicial do backend](docs/INSTRUA_BACKEND_IMPLEMENTATION.md)
 - [Demonstração web](frontend/DEMO.md)
+- [Aplicativos desktop e Android](clients/instrua-app/README.md)
+- [Índice dos clientes](clients/README.md)
 
 ## Próximas etapas sugeridas
 
@@ -155,7 +157,7 @@ Integrações com pagamentos e reembolsos, emissão fiscal/NFS-e, WhatsApp Busin
 3. Validar as migrações de banco em instalação limpa e em atualização.
 4. Conectar os fluxos prioritários do protótipo à API real.
 5. Completar testes automatizados de backend, integração e segurança.
-6. Implementar os clientes mobile e desktop conforme a arquitetura.
+6. Completar a integração dos clientes desktop/Android em `clients/instrua-app/`, incluindo autenticação segura e conexão real dos módulos à API.
 7. Integrar serviços externos somente com os controles de segurança, privacidade e operação necessários.
 
 ---
