@@ -86,3 +86,18 @@ Superfície padrão sugerida: `#FFFCF6`; texto principal: `#34382D`; texto secun
 - `frontend/demo.html`: protótipo interativo com a paleta oficial aplicada.
 - `frontend/styles.css`: tokens da identidade visual para novos componentes.
 - `docs/INSTRUA_DESIGN_SYSTEM.md`: referência de design multiplataforma.
+
+## Configuração do backend a partir do protótipo
+
+O protótipo contém um bootstrap `window.instruaApi` para facilitar a evolução sem embutir uma URL de produção. Configure a meta `instrua-api-base` em `frontend/demo.html` por ambiente; para teste local também é possível passar `?api=http://localhost:8080` na URL (se o navegador permitir CORS).
+
+Exemplo de uso no navegador:
+```js
+// A API precisa estar configurada; não coloque segredos aqui.
+const status = await window.instruaApi.health();
+const session = await window.instruaApi.login(email, password);
+```
+
+O token demonstrativo fica em `sessionStorage`, e não deve ser tratado como armazenamento final de produção. Antes de usar dados reais, definir renovação/expiração de sessão, proteção contra XSS, estratégia de logout, políticas de CSP/CORS e controles de autenticação adequados.
+
+Os fluxos atuais da demo continuam usando dados locais para preservar a demonstração existente. O bootstrap apenas prepara um ponto único de integração; ele não significa que todas as telas foram conectadas ao backend. O cliente precisa detectar API não configurada/indisponível e nunca exibir dados fictícios como se fossem dados do servidor.
