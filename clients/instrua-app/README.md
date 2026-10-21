@@ -1,70 +1,75 @@
-# Instrua — aplicativos desktop e Android
+# Instrua — aplicativos desktop, Android e iOS
 
-Este projeto compartilha a mesma interface React + TypeScript entre **Windows desktop** e **Android** através do Tauri 2. A adaptação ao celular é feita por layout responsivo; regras de negócio e dados reais devem continuar no backend central.
+Este projeto compartilha a interface React + TypeScript entre **Windows desktop, Android e iOS** através do Tauri 2. A interface se adapta a telas grandes e pequenas; regras de negócio e dados reais devem continuar no backend central.
 
-## O que já está neste primeiro pacote
+## O que existe nesta primeira base
 
-- Interface adaptável para telas grandes e celulares.
-- Navegação inicial por Início, Agenda, Pacientes, Orientações, Financeiro, Protege e Configurações.
+- Interface responsiva com navegação inicial por Início, Agenda, Pacientes, Orientações, Financeiro, Protege e Configurações.
 - Identidade visual oficial Instrua.
-- Tela de configuração da URL da API.
-- Base Tauri para desktop Windows e inicialização de alvo Android.
-- Fluxos demonstrativos claramente identificados; sem usar dados reais.
+- Tela de configuração da URL base da API.
+- Configuração Tauri 2 para desktop Windows e scripts de inicialização/build Android e iOS.
+- Fluxos demonstrativos claramente identificados; não usar dados de pacientes reais.
 
-## Requisitos
+## Requisitos gerais
 
 - Node.js LTS e npm.
 - Para Windows: Rust estável com toolchain MSVC, Microsoft C++ Build Tools e WebView2.
-- Para Android: Android Studio/SDK, JDK suportado pelo toolchain instalado e dependências Android do Tauri. Consulte os pré-requisitos oficiais do Tauri 2: https://v2.tauri.app/start/prerequisites/
+- Para Android: Android Studio/SDK, JDK suportado e toolchain Android.
+- Para iOS: **um Mac com Xcode instalado e configurado**, ferramentas de linha de comando Xcode, Rust com os targets Apple necessários e assinatura/configuração de desenvolvimento Apple para instalar em dispositivo físico ou distribuir. O build iOS não é suportado nativamente em Windows.
+
+Consulte os pré-requisitos oficiais do Tauri 2: https://v2.tauri.app/start/prerequisites/
 
 ## Executar a interface no navegador
 
 ```bash
-cd clients/instrua-app
 npm install
 npm run dev
 ```
 
-## Executar o desktop
+## Windows desktop
 
 ```bash
-cd clients/instrua-app
-npm install
 npm run desktop
-``
-
-Gerar instalador Windows:
-
-```bash
 npm run desktop:build
 ```
 
 Os instaladores são gerados em `src-tauri/target/release/bundle/`.
 
-## Preparar e executar Android
+## Android
 
-Execute uma vez para gerar o projeto Android nativo a partir da configuração Tauri:
+Inicialize uma vez e execute:
 
 ```bash
-cd clients/instrua-app
-npm install
 npm run android:init
 npm run android:dev
-```
-
-Gerar o pacote Android:
-
-```bash
 npm run android:build
 ```
 
-A primeira configuração Android pode exigir downloads do SDK/Gradle/Rust e configuração do ambiente. O projeto usa o mesmo frontend nos dois clientes, mas os artefatos finais precisam ser compilados no ambiente de build.
+A configuração Android requer Android Studio/SDK e as dependências do Tauri. O pacote final precisa ser compilado e testado no ambiente configurado.
+
+## iOS (iPhone)
+
+A configuração inicial do alvo iOS deve ser feita em um Mac com Xcode:
+
+```bash
+npm install
+npm run ios:init
+npm run ios:dev
+```
+
+Para gerar a build iOS:
+
+```bash
+npm run ios:build
+```
+
+A geração de build não equivale a um app pronto para a App Store. Antes de instalar em iPhone ou distribuir, configure Bundle ID, equipe de assinatura, certificados/provisioning conforme o método de distribuição, permissões de privacidade, ícones e metadados; valide em simulador e dispositivo real. Publicação na App Store exige conta e revisão da Apple. Nenhum arquivo IPA assinado é prometido por este repositório neste momento.
 
 ## Backend
 
-A configuração inicial aponta para `http://localhost:8080`. Em Configurações, é possível guardar outra URL localmente. Isso **não significa que todos os módulos já estejam integrados**: os dados mostrados nas telas são fictícios até a ligação de cada fluxo à API, autenticação e autorização reais.
+A configuração inicial aponta para `http://localhost:8080`. Em Configurações, é possível guardar outra URL localmente. Isso **não significa que todos os módulos estejam integrados**: os dados das telas são fictícios até cada fluxo ser ligado à API com autenticação e autorização reais.
 
-Para usar no celular físico, `localhost` refere-se ao próprio celular, não ao computador. Configure um endereço de API acessível pela rede de desenvolvimento ou um endpoint HTTPS de ambiente. Não exponha a API à internet sem TLS, autenticação e regras de acesso.
+Em dispositivos físicos, `localhost` refere-se ao próprio dispositivo, não ao computador. Use um endereço de API acessível na rede de desenvolvimento ou HTTPS em ambiente seguro. Não exponha a API à internet sem TLS, autenticação e controles de acesso.
 
 ## Segurança antes de produção
 
@@ -72,5 +77,5 @@ Para usar no celular físico, `localhost` refere-se ao próprio celular, não ao
 - Não colocar tokens, senhas, chaves de provedores ou credenciais no frontend.
 - Implementar sessão segura e armazenamento nativo protegido antes de autenticação real.
 - Confirmar autorização no backend em cada endpoint, inclusive por organização, unidade e contexto assistencial.
-- Validar CSP, CORS, política de atualizações, assinatura de instaladores e tratamento de logs antes de distribuir.
-- Pagamentos, NFS-e, WhatsApp, push e IA externa não são conectados por esta base visual.
+- Validar CSP, CORS, atualizações, assinatura dos instaladores e tratamento de logs antes de distribuir.
+- Pagamentos, NFS-e, WhatsApp, push e IA externa não são integrações operacionais nesta base visual.
