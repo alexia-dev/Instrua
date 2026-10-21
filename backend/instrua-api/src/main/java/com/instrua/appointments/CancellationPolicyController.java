@@ -3,6 +3,9 @@ package com.instrua.appointments;
 import com.instrua.companies.CompanyService;
 import com.instrua.common.exception.BusinessException;
 import com.instrua.common.exception.NotFoundException;
+import com.instrua.common.security.DomainAccessService;
+import com.instrua.users.Role;
+import com.instrua.users.User;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -23,10 +26,11 @@ import java.util.*;
 public class CancellationPolicyController {
     private final CompanyService companies;
     private final CompanyRepository companyRepository;
+    private final DomainAccessService access;
     private final JdbcTemplate jdbc;
 
-    public CancellationPolicyController(CompanyService companies, CompanyRepository companyRepository, JdbcTemplate jdbc) {
-        this.companies = companies; this.companyRepository = companyRepository; this.jdbc = jdbc;
+    public CancellationPolicyController(CompanyService companies, CompanyRepository companyRepository, DomainAccessService access, JdbcTemplate jdbc) {
+        this.companies = companies; this.companyRepository = companyRepository; this.access = access; this.jdbc = jdbc;
     }
 
     @GetMapping("/cancellation-policies")
