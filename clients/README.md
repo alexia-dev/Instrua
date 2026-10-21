@@ -2,14 +2,17 @@
 
 O Instrua é um produto integrado com experiências adaptadas ao dispositivo, não aplicativos isolados com contas diferentes.
 
-- [Cliente compartilhado desktop/mobile](./instrua-app/README.md): React + TypeScript + Tauri 2, com base inicial para Windows e scripts de inicialização/build Android e iOS.
-- [Arquitetura multiplataforma](../docs/PLATFORM_CLIENTS_ARCHITECTURE.md): estratégia para web, iPhone, iPad, Mac, Apple Watch (futuro) e outras plataformas.
+- [Cliente compartilhado desktop/mobile](./instrua-app/README.md): React + TypeScript + Tauri 2, base inicial para Windows e scripts de inicialização/build Android e iOS.
+- [Arquitetura multiplataforma](../docs/PLATFORM_CLIENTS_ARCHITECTURE.md): estratégia para web, iPhone/iPad, Mac, Android, tablets, dobráveis e dispositivos complementares.
 
-## Escopo Apple
+## Cobertura planejada
 
-- **iPhone e iPad:** alvo iOS/iPadOS a validar em Mac com Xcode e em dispositivos reais. O layout deve ser testado em tamanhos, orientações e modos multitarefa relevantes.
-- **Mac:** exige alvo macOS, configuração, build, assinatura e testes próprios; não é considerado pronto só porque existe uma build Windows.
-- **Apple Watch:** não implementado nesta fase. Planejado como possível app complementar para notificações e ações rápidas, sem prontuário completo.
-- **Apple Vision Pro:** sem suporte prometido; avaliar apenas se houver caso de uso e validação técnica.
+- **Android — celulares:** validar em fabricantes, tamanhos de tela, densidades, versões de sistema, recortes e navegação por gestos/botões.
+- **Android — tablets e dobráveis:** layouts adaptáveis, orientação, redimensionamento, continuidade de estado e multitarefa conforme suportados.
+- **Wear OS:** não implementado; avaliar futuramente para lembretes e ações rápidas sem exposição de dados clínicos.
+- **iPhone/iPad:** exige geração e validação em macOS/Xcode e testes reais.
+- **Mac:** exige alvo macOS, configuração, build, assinatura e testes próprios.
+- **Apple Watch:** não implementado; possível complemento futuro.
+- **Web e desktop Windows:** clientes separados que compartilham conta, backend e regras.
 
-A base atual é inicial: usa dados demonstrativos e ainda precisa ser conectada ao backend com autenticação/autorização reais antes de uso operacional. Nenhuma build assinada ou publicação em loja é garantida neste momento.
+A base atual é inicial, usa dados demonstrativos e ainda precisa de integração real com autenticação/autorização antes de uso operacional. Nenhuma build assinada ou publicação em loja é garantida neste momento.
