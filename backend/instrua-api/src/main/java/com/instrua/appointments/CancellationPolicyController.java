@@ -86,7 +86,7 @@ public class CancellationPolicyController {
         return jdbc.queryForMap("select id, appointment_id, policy_id, accepted_by_user_id, accepted_at, policy_snapshot, acceptance_channel from appointment_policy_acceptances where id = ?", acceptanceId);
     }
 
-    public record PolicyRequest(@NotNull UUID serviceOfferingId, @NotBlank String title, @NotBlank String policyText,
+    public record PolicyRequest(UUID serviceOfferingId, @NotBlank String title, @NotBlank String policyText,
             @DecimalMin("0.00") BigDecimal depositAmount, @Min(0) Integer cancellationDeadlineMinutes,
             @DecimalMin("0.00") BigDecimal lateCancellationFee, @DecimalMin("0.00") BigDecimal noShowFee,
             @NotBlank String currency, @NotNull Instant effectiveFrom, Instant effectiveUntil) {
