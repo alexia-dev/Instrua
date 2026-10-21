@@ -45,4 +45,4 @@ jobs:
           cache: maven
           cache-dependency-path: backend/instrua-api/pom.xml
       - name: Verify backend
-        run: ./mvnw --batch-mode --no-transfer-progress verify
+        run: bash ./mvnw --batch-mode --no-transfer-progress verify
