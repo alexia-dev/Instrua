@@ -2,6 +2,8 @@
 
 > Esta branch adiciona uma fundação de domínio ao backend existente. Não é uma declaração de prontidão para produção.
 
+**Formato do produto:** o Instrua precisa existir como site, aplicativo mobile e aplicativo desktop. Todos usam uma API única e contas/permissões compartilhadas. A proposta de clientes e stack está em [PLATFORM_CLIENTS_ARCHITECTURE.md](PLATFORM_CLIENTS_ARCHITECTURE.md); esta PR implementa backend, não os três clientes.
+
 ## Decisões refletidas no backend
 - Uma identidade por pessoa e múltiplos papéis/vínculos contextuais; conta, vínculo, papel e permissão são conceitos distintos.
 - Saúde é o domínio central; outros estabelecimentos podem reutilizar catálogo/agenda/serviços, mas nunca ganham acesso ao prontuário.
