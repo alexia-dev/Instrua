@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 type Page = "Início" | "Agenda" | "Pacientes" | "Orientações" | "Financeiro" | "Protege" | "Configurações";
 const nav: { label: Page; icon: string; group: string }[] = [
@@ -71,6 +71,6 @@ function App() {
   </div>;
 }
 function Stat({icon,label,value,delta,tone}:{icon:string;label:string;value:string;delta:string;tone:string}){return <div className="stat-card"><div className="stat-top"><span className={"stat-icon "+tone}>{icon}</span><span className="stat-menu">•••</span></div><span className="stat-label">{label}</span><strong className="stat-value">{value}</strong><small className="stat-delta">{delta}</small></div>}
-function PageHeading({title,subtitle,action}:{title:string;subtitle:string;action?:React.ReactNode}){return <div className="welcome-row page-heading"><div><div className="eyebrow">INSTRUA · ÁREA DE TRABALHO</div><h1>{title}</h1><p>{subtitle}</p></div>{action}</div>}
+function PageHeading({title,subtitle,action}:{title:string;subtitle:string;action?:ReactNode}){return <div className="welcome-row page-heading"><div><div className="eyebrow">INSTRUA · ÁREA DE TRABALHO</div><h1>{title}</h1><p>{subtitle}</p></div>{action}</div>}
 function GenericPage({title,subtitle,icon,items,onAction}:{title:string;subtitle:string;icon:string;items:string[];onAction:()=>void}){return <><PageHeading title={title} subtitle={subtitle} action={<button className="primary-btn" onClick={onAction}>＋ Nova ação</button>}/><section className="panel generic-panel"><div className="generic-hero"><span>{icon}</span><div><h2>{title}</h2><p>Estrutura inicial pronta para conectar aos serviços do Instrua.</p></div><span className="subtle-tag">BASE INICIAL</span></div>{items.map((item,i)=><button className="setting-item" key={item} onClick={onAction}><span className="setting-item-icon">{["▦","♙","▤","◈"][i%4]}</span><span><strong>{item}</strong><small>Área preparada para implementação e integração</small></span><b>↗</b></button>)}</section></>}
 export default App;
