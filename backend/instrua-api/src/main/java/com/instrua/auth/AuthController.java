@@ -67,7 +67,8 @@ public class AuthController {
 
     public record RegisterRequest(@NotBlank String ownerName, @Email @NotBlank String email, @NotBlank @Size(min = 8) String password,
                                   @NotBlank String companyName, @NotBlank String companySlug, @Email String companyEmail, String companyPhone, String timezone) { }
-    public record PatientRegisterRequest(@NotBlank String name, @Email @NotBlank String email, @NotBlank @Size(min = 8) String password) { }\n    public record LoginRequest(@Email @NotBlank String email, @NotBlank String password) { }
+    public record PatientRegisterRequest(@NotBlank String name, @Email @NotBlank String email, @NotBlank @Size(min = 8) String password) { }
+    public record LoginRequest(@Email @NotBlank String email, @NotBlank String password) { }
     public record AuthResponse(String accessToken, String tokenType, Instant expiresAt, java.util.UUID userId, String name, String email, Set<Role> roles) { }
     public record RegistrationResponse(AuthResponse authentication, CompanyResponse company) { }
 }
