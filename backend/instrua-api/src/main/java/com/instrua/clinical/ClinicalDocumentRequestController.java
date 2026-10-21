@@ -64,7 +64,7 @@ public class ClinicalDocumentRequestController {
         if (target == ClinicalDocumentWorkflow.Status.ISSUED || target == ClinicalDocumentWorkflow.Status.DELIVERED)
             throw new BusinessException("A emissão/entrega exige o serviço de documentos com armazenamento seguro e trilha de entrega, ainda não habilitado.");
         User actor = access.requireUser();
-        UUID assignedId = existing.get("assigned_clinician_id") == null ? null : UUID.fromString(String.valueOf(existing.get("assigned_clinician_id")));
+        UUID assignedId = existing.get("assigned_clinician_id") == null ? null : (existing.get("assigned_clinician_id") instanceof UUID u ? u : UUID.fromString(String.valueOf(existing.get("assigned_clinician_id"))));
         boolean isAssigned = assignedId != null && assignedId.equals(actor.getId());
         boolean canManage = actor.getRoles().contains(Role.COMPANY_OWNER) || actor.getRoles().contains(Role.COMPANY_ADMIN) || actor.getRoles().contains(Role.RECEPTION) || actor.getRoles().contains(Role.PLATFORM_ADMIN);
         workflow.transition(current, target, isAssigned, canManage);
