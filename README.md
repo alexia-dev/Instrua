@@ -50,6 +50,16 @@ A interface segue o sistema visual oficial do Instrua, com cores naturais, acess
 
 Documentação: [Sistema de design](docs/INSTRUA_DESIGN_SYSTEM.md).
 
+## Estrutura do repositório
+
+- `backend/instrua-api/`: API Java/Spring Boot, migrações Flyway e testes.
+- `frontend/`: demonstração web navegável; partes ainda usam dados locais.
+- `docker/compose.yaml`: PostgreSQL local para desenvolvimento.
+- `docs/`: documentação de produto, arquitetura, implementação e design.
+- `.github/workflows/`: automação de CI.
+
+Consulte o [índice da documentação](docs/README.md) e o [mapa detalhado de pastas](docs/PROJECT_STRUCTURE.md) antes de adicionar arquivos. O código antigo em `backend/instrua-api/legacy/` é arquivo histórico; não use esse diretório para novas funcionalidades.
+
 ## Estado técnico atual
 
 ### Backend
