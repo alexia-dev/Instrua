@@ -25,7 +25,7 @@ O Instrua é um único produto disponível em três clientes: **site web**, **ap
 | Auth | OAuth2/OIDC quando definido, tokens de acesso curtos, renovação segura, MFA para áreas sensíveis |
 | Release | CI para testes, empacotamento e distribuição separados por plataforma |
 
-A primeira fundação executável dos clientes foi iniciada em `clients/instrua-app/`: frontend React + TypeScript compartilhado, configuração Tauri 2 para Windows/Android, telas responsivas e instruções de execução. A interface já navega entre áreas, mas usa dados fictícios e ainda não é uma aplicação operacional integrada ponta a ponta. A web completa e o cliente iOS continuam fora desta entrega.
+A primeira fundação executável dos clientes foi iniciada em `clients/instrua-app/`: frontend React + TypeScript compartilhado, configuração Tauri 2 para Windows e scripts de inicialização/build para Android e iOS. A interface navega entre áreas, mas usa dados fictícios e ainda não é uma aplicação operacional integrada ponta a ponta. O build iOS exige macOS/Xcode e assinatura Apple; a web completa também continua separada.
 
 ## Clientes e áreas
 
