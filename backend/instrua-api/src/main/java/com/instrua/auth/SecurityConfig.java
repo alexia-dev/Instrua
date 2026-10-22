@@ -16,15 +16,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
-        return http.csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/api/v1/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/v1/health").permitAll()
-                        .anyRequest().authenticated())
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+        return http.csrf(csrf->csrf.disable())
+            .cors(cors->{})
+            .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth->auth
+                .requestMatchers("/actuator/health","/api/v1/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET,"/api/v1/health","/api/v1/discovery/**").permitAll()
+                .anyRequest().authenticated())
+            .addFilterBefore(jwtFilter,UsernamePasswordAuthenticationFilter.class).build();
     }
-
-    @Bean PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+    @Bean PasswordEncoder passwordEncoder(){return new BCryptPasswordEncoder();}
 }
