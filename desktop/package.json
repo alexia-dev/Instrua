@@ -1,0 +1,44 @@
+{
+  "name": "instrua-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Instrua desktop app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "br.instrua.desktop",
+    "productName": "Instrua",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../frontend",
+        "to": "frontend",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "artifactName": "Instrua-${version}-${os}-${arch}.${ext}"
+  }
+}
