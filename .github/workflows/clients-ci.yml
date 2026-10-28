@@ -47,6 +47,8 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Install frontend dependencies
         run: npm install
+      - name: Generate platform icons from the source SVG
+        run: npx tauri icon src-tauri/icons/instrua.svg --output src-tauri/icons
       - name: Build Windows installers
         run: npm run desktop:build
       - name: Upload Windows installers
