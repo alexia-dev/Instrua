@@ -100,3 +100,76 @@
 .site.theme-contrast .auth-form-wrap h2,.site.theme-contrast .auth-form label{color:#25271f}
 .site.theme-contrast .auth-form input,.site.theme-contrast .auth-form select{background:#fffdf7;color:#25271f;border-color:#777565}
 .site.theme-contrast .auth-subtitle,.site.theme-contrast .auth-disclaimer{color:#34372d}
+
+/* Restored official Instrua palette: moss leads; sage, sand, clay and amber add hierarchy. */
+.workspace-app,.site{
+  --instrua-moss:#414A35;--instrua-olive:#69704B;--instrua-sage:#96977B;--instrua-mist:#C2C3AA;
+  --instrua-sand:#D6C9AD;--instrua-beige:#B5A17F;--instrua-clay:#A66F4B;--instrua-brown:#87542F;
+  --instrua-amber:#C18A43;--instrua-paper:#F5F1E8;--instrua-card:#FCFAF4;--instrua-text:#34382D;
+  --instrua-muted:#686858;--instrua-border:#DDD7C8;
+}
+.workspace-app:not(.dark):not(.theme-contrast){background:var(--instrua-paper);color:var(--instrua-text)}
+.workspace-app:not(.dark):not(.theme-contrast) .app-sidebar,
+.workspace-app:not(.dark):not(.theme-contrast) .app-topbar{background:var(--instrua-card);border-color:var(--instrua-border)}
+.workspace-app:not(.dark):not(.theme-contrast) .surface-card,
+.workspace-app:not(.dark):not(.theme-contrast) .home-card,
+.workspace-app:not(.dark):not(.theme-contrast) .stat-card{background:var(--instrua-card);border-color:var(--instrua-border)}
+/* Color is used intentionally for category and status, not as decoration everywhere. */
+.home-card:nth-child(1) .home-card-icon{background:#e3e8da;color:var(--instrua-moss);border:1px solid #c2c9b4}
+.home-card:nth-child(2) .home-card-icon{background:#f4e3d5;color:var(--instrua-clay);border:1px solid #e2bda2}
+.home-card:nth-child(3) .home-card-icon{background:#eee3d2;color:var(--instrua-brown);border:1px solid #d9c1a0}
+.home-card:nth-child(4) .home-card-icon{background:#f5e8ca;color:#80551f;border:1px solid #e5ca8e}
+.workspace-app:not(.dark) .welcome-banner{background:linear-gradient(105deg,#e5e9dc 0%,#f2e8d8 100%);border:1px solid #c9d0bd}
+.workspace-app:not(.dark) .welcome-flower{color:var(--instrua-olive)}
+.workspace-app:not(.dark) .quote-card{background:#f1e4d6;border:1px solid #e1c7b1}
+.workspace-app:not(.dark) .quote-card>span{color:var(--instrua-clay)}
+.workspace-app:not(.dark) .step-icon{background:#eee3d2;color:var(--instrua-brown)}
+.workspace-app:not(.dark) .appointment-symbol{background:#e4e8da;color:var(--instrua-moss)}
+.workspace-app:not(.dark) .status-pill{background:#e6ebdf;color:#414a35;border:1px solid #c8d2bc}
+.workspace-app:not(.dark) .opportunity-icon.opp1{background:#f5e8ca;color:#80551f;border:1px solid #e5ca8e}
+.workspace-app:not(.dark) .opportunity-icon.opp2{background:#f4e3d5;color:#87542f;border:1px solid #e2bda2}
+.workspace-app:not(.dark) .opportunity-icon.opp3{background:#e3e8da;color:#414a35;border:1px solid #c2c9b4}
+.workspace-app:not(.dark) .post-tag{background:#f1e4d6;color:#87542f;border:1px solid #e4c8b1}
+.workspace-app:not(.dark) .settings-symbol{background:#e4e8da;color:#414a35;border:1px solid #c2c9b4}
+.workspace-app:not(.dark) .trend-spark{background:#f5e8ca;color:#87542f;border:1px solid #e5ca8e}
+.workspace-app:not(.dark) .home-update-note{background:#e4e8da;border:1px solid #c2c9b4}
+.workspace-app:not(.dark) .round-action{background:#f1e4d6;color:#414a35;border:1px solid #dfc5b1}
+.workspace-app:not(.dark) .round-action:hover{background:#e4e8da;border-color:#aab49b}
+.workspace-app:not(.dark) .app-nav-item.active{background:#e4e8da;color:#414a35;border-left:3px solid #69704B}
+.workspace-app:not(.dark) .app-nav-item.active>span{color:#414a35}
+.workspace-app:not(.dark) .btn-primary{background:#414A35;color:#fffdf7;border:1px solid #414A35}
+.workspace-app:not(.dark) .btn-primary:hover{background:#303829}
+.workspace-app:not(.dark) .btn-outline{border-color:#b5a17f;color:#414a35}
+.workspace-app:not(.dark) .btn-outline:hover{background:#f1e4d6;border-color:#a66f4b}
+.workspace-app.dark{--ink:#edf0e6;--surface:#2b3327;--line:#46503f}
+.workspace-app.dark .home-card:nth-child(1) .home-card-icon{background:#394532;color:#dfe8d3;border-color:#697b58}
+.workspace-app.dark .home-card:nth-child(2) .home-card-icon{background:#4c382c;color:#f2c6a7;border-color:#8c6249}
+.workspace-app.dark .home-card:nth-child(3) .home-card-icon{background:#4a4030;color:#ead5b4;border-color:#8c7855}
+.workspace-app.dark .home-card:nth-child(4) .home-card-icon{background:#4b402b;color:#f1d39a;border-color:#8e7548}
+.workspace-app.dark .welcome-banner{background:linear-gradient(105deg,#35412f 0%,#45372c 100%);border:1px solid #59684b}
+.workspace-app.dark .quote-card{background:#43352b;border:1px solid #77563f}
+.workspace-app.dark .quote-card>span{color:#e3a879}
+.workspace-app.dark .step-icon{background:#493a2d;color:#f0c8a6}
+.workspace-app.dark .appointment-symbol{background:#394532;color:#dfe8d3}
+.workspace-app.dark .status-pill{background:#35412d;color:#e1ead7;border:1px solid #59684b}
+.workspace-app.dark .post-tag{background:#49372b;color:#f0c8a6;border:1px solid #79563f}
+.workspace-app.dark .trend-spark{background:#4b402b;color:#f1d39a;border:1px solid #8e7548}
+.workspace-app.dark .home-update-note{background:#35412f;color:#edf0e6;border:1px solid #59684b}
+.workspace-app.dark .round-action{background:#303a2b;color:#edf0e6;border:1px solid #59684b}
+.workspace-app.dark .appearance-options button.selected{background:#3b4932;border-color:#c3d3ae}
+.workspace-app.theme-contrast .home-card:nth-child(1) .home-card-icon{background:#e4e8da;color:#20231b;border:2px solid #414a35}
+.workspace-app.theme-contrast .home-card:nth-child(2) .home-card-icon{background:#f4e3d5;color:#542d19;border:2px solid #87542f}
+.workspace-app.theme-contrast .home-card:nth-child(3) .home-card-icon{background:#eee3d2;color:#50371e;border:2px solid #87542f}
+.workspace-app.theme-contrast .home-card:nth-child(4) .home-card-icon{background:#f5e8ca;color:#50371e;border:2px solid #87542f}
+.workspace-app.theme-contrast .welcome-banner{background:linear-gradient(105deg,#e4e8da 0%,#f1e4d6 100%);border:2px solid #414a35}
+.workspace-app.theme-contrast .quote-card{background:#f1e4d6;border:2px solid #87542f;color:#20231b}
+.workspace-app.theme-contrast .step-icon{background:#eee3d2;color:#50371e;border:1px solid #87542f}
+.workspace-app.theme-contrast .appointment-symbol{background:#e4e8da;color:#20231b;border:1px solid #414a35}
+.workspace-app.theme-contrast .status-pill{background:#e4e8da;color:#20231b;border:2px solid #414a35}
+.workspace-app.theme-contrast .post-tag{background:#f1e4d6;color:#50371e;border:1px solid #87542f}
+.workspace-app.theme-contrast .trend-spark{background:#f5e8ca;color:#50371e;border:1px solid #87542f}
+.workspace-app.theme-contrast .home-update-note{background:#e4e8da;border:2px solid #414a35;color:#20231b}
+.workspace-app.theme-contrast .round-action{background:#f1e4d6;color:#20231b;border:2px solid #414a35}
+.appearance-trigger{font-size:20px;font-weight:700}
+.appearance-trigger::after{content:"";position:absolute;right:7px;bottom:7px;width:5px;height:5px;border-radius:50%;background:#C18A43}
+.appearance-trigger{position:relative}
