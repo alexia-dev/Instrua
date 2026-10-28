@@ -49,7 +49,6 @@ function App() {
   const [appearance,setAppearance] = useState<"light"|"dark"|"contrast">(()=>{ const saved=localStorage.getItem("instrua-appearance"); return saved==="dark"||saved==="contrast"?saved:"light"; });
   const [showAppearance,setShowAppearance] = useState(false);
   const [fontScale,setFontScale] = useState<number>(()=>{ const saved=Number(localStorage.getItem("instrua-font-scale")); return saved>=0.9&&saved<=1.3?saved:1; });
-  const dark = appearance === "dark";
   useEffect(()=>{ localStorage.setItem("instrua-appearance",appearance); document.documentElement.dataset.instruaAppearance=appearance; },[appearance]);
   useEffect(()=>{ localStorage.setItem("instrua-font-scale",String(fontScale)); document.documentElement.style.setProperty("--instrua-font-scale",String(fontScale)); },[fontScale]);
   const [notifications,setNotifications] = useState(true);
