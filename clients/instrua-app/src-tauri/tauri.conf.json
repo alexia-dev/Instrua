@@ -3,33 +3,7 @@
   "productName": "Instrua",
   "version": "0.1.0",
   "identifier": "br.com.instrua.app",
-  "build": {
-    "beforeDevCommand": "npm run dev",
-    "devUrl": "http://localhost:5173",
-    "beforeBuildCommand": "npm run build",
-    "frontendDist": "../dist"
-  },
-  "app": {
-    "windows": [
-      {
-        "title": "Instrua",
-        "width": 1360,
-        "height": 900,
-        "minWidth": 360,
-        "minHeight": 640,
-        "resizable": true,
-        "center": true
-      }
-    ],
-    "security": {
-      "csp": "default-src 'self'; img-src 'self' asset: data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src ipc: http://ipc.localhost http://localhost:8080 https:;"
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": ["nsis", "msi"],
-    "category": "Productivity",
-    "shortDescription": "Orientação, conexão e confiança.",
-    "longDescription": "Plataforma integrada Instrua para organizar atendimentos, orientações e operações."
-  }
+  "build": { "beforeDevCommand": "npm run dev", "devUrl": "http://localhost:5173", "beforeBuildCommand": "npm run build", "frontendDist": "../dist" },
+  "app": { "windows": [{ "title": "Instrua", "width": 1360, "height": 900, "minWidth": 360, "minHeight": 640, "resizable": true, "center": true }], "security": { "csp": "default-src 'self'; img-src 'self' asset: data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src ipc: http://ipc.localhost http://localhost:8080 https:;" } },
+  "bundle": { "active": true, "targets": ["nsis", "msi"], "category": "Productivity", "shortDescription": "Orientação, conexão e confiança.", "longDescription": "Plataforma integrada Instrua para organizar atendimentos, orientações e operações.", "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"] }
 }
