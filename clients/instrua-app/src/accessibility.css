@@ -48,3 +48,55 @@
 .site.dark .landing-footer{border-color:#41493b}
 .site.dark .landing-nav nav,.site.dark .landing-footer>span{color:#c6cebb}
 @media(max-width:650px){.appearance-menu{position:fixed;top:118px;right:12px}.font-size-control{gap:2px}.font-size-control button{min-width:29px}.topbar-tools{gap:7px}.today-label{display:none}}
+
+/* Perfil com foto: o mesmo retrato acompanha o usuário em todos os pontos da interface. */
+.photo-avatar{overflow:hidden;padding:0;flex:0 0 auto;border:1px solid #d8dece}
+.photo-avatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
+.role-avatar.photo-avatar{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#dfe6d6;color:#293324;font-weight:700}
+.top-avatar.photo-avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#dfe6d6;color:#293324;font-weight:700}
+.settings-theme-options{margin:12px 0 16px}
+.settings-theme-options> b{display:block;font-size:12px;margin-bottom:10px}
+.settings-font-size{width:max-content;margin:12px 0 18px}
+.settings-font-size>span{min-width:44px;text-align:center;font-size:11px}
+.settings-card input[type=file]{display:block;width:100%;margin-top:7px;font-size:11px;color:var(--ink)}
+.settings-card label>small{display:block;font-size:10px;line-height:1.5;color:#777d6b;margin-top:5px}
+.workspace-app.dark .settings-card label,.workspace-app.dark .settings-card h3,.workspace-app.dark .settings-card p,.workspace-app.dark .settings-card b,.workspace-app.dark .settings-card .settings-link,.workspace-app.dark .sidebar-user b,.workspace-app.dark .sidebar-user small,.workspace-app.dark .role-switch select,.workspace-app.dark .role-switch small,.workspace-app.dark .nav-group>p,.workspace-app.dark .app-brand,.workspace-app.dark .app-brand small,.workspace-app.dark .surface-heading h2,.workspace-app.dark .surface-card h2,.workspace-app.dark .surface-card h3,.workspace-app.dark .step-row b,.workspace-app.dark .appointment-detail b,.workspace-app.dark .post-author b,.workspace-app.dark .community-row b,.workspace-app.dark .welcome-banner b,.workspace-app.dark .queue-card h2,.workspace-app.dark .timeline-step b{color:#edf2e6}
+.workspace-app.dark .settings-card input:not([type=checkbox]),.workspace-app.dark .settings-card select,.workspace-app.dark .composer textarea,.workspace-app.dark input:not([type=checkbox]),.workspace-app.dark select,.workspace-app.dark textarea{background:#252d22;color:#f0f4e9;border-color:#59634f}
+.workspace-app.dark input::placeholder,.workspace-app.dark textarea::placeholder{color:#b8c1ae}
+.workspace-app.dark .settings-card input[type=file]{color:#dfe6d6}
+.workspace-app.dark .settings-card label>small,.workspace-app.dark .settings-card p,.workspace-app.dark .settings-card .soft-callout p,.workspace-app.dark .settings-card .settings-link span{color:#c6d0bd}
+.workspace-app.dark .settings-symbol,.workspace-app.dark .home-card-icon,.workspace-app.dark .step-icon,.workspace-app.dark .appointment-symbol,.workspace-app.dark .post-avatar,.workspace-app.dark .community-row>span{background:#3b4932;color:#e7efdd}
+.workspace-app.dark .floating-card,.workspace-app.dark .hero-note,.workspace-app.dark .phone-search,.workspace-app.dark .phone-tiles span,.workspace-app.dark .phone-appointment,.workspace-app.dark .phone-progress{background:#2d3528;color:#edf2e6;border-color:#48533e}
+.workspace-app.dark .phone-brand,.workspace-app.dark .phone-greeting,.workspace-app.dark .phone-appointment b,.workspace-app.dark .phone-progress span{color:#edf2e6}
+.workspace-app.dark .phone-appointment small,.workspace-app.dark .phone-tiles small,.workspace-app.dark .muted{color:#c6cebb}
+.workspace-app.dark .quote-card h2,.workspace-app.dark .quote-card p,.workspace-app.dark .quote-card small{color:#edf2e6}
+.workspace-app.dark .soft-callout{background:#2d3528;border-color:#48533e;color:#edf2e6}
+.workspace-app.dark .soft-callout p{color:#c6cebb}
+.workspace-app.dark .appearance-menu>p,.workspace-app.dark .appearance-hint{color:#d0d8c7}
+.workspace-app.dark .appearance-options button>small{color:#d0d8c7}
+.workspace-app.dark .appearance-options button.selected{color:#fff}
+.workspace-app.theme-contrast .settings-card label,.workspace-app.theme-contrast .settings-card h3,.workspace-app.theme-contrast .settings-card p,.workspace-app.theme-contrast .settings-card b,.workspace-app.theme-contrast .settings-card .settings-link,.workspace-app.theme-contrast .sidebar-user b,.workspace-app.theme-contrast .sidebar-user small,.workspace-app.theme-contrast .role-switch select,.workspace-app.theme-contrast .nav-group>p,.workspace-app.theme-contrast .app-brand,.workspace-app.theme-contrast .surface-heading h2,.workspace-app.theme-contrast .surface-card h2,.workspace-app.theme-contrast .surface-card h3,.workspace-app.theme-contrast .step-row b,.workspace-app.theme-contrast .appointment-detail b,.workspace-app.theme-contrast .post-author b,.workspace-app.theme-contrast .community-row b{color:#20231b}
+.workspace-app.theme-contrast input:not([type=checkbox]),.workspace-app.theme-contrast select,.workspace-app.theme-contrast textarea,.workspace-app.theme-contrast .settings-card input:not([type=checkbox]),.workspace-app.theme-contrast .settings-card select{background:#fffdf7;color:#20231b;border-color:#626554}
+.workspace-app.theme-contrast .settings-card label>small,.workspace-app.theme-contrast .settings-card p,.workspace-app.theme-contrast .settings-card .soft-callout p{color:#35392e}
+.workspace-app.theme-contrast .settings-card,.workspace-app.theme-contrast .app-sidebar,.workspace-app.theme-contrast .app-topbar,.workspace-app.theme-contrast .surface-card,.workspace-app.theme-contrast .home-card{box-shadow:none}
+.workspace-app.theme-contrast .welcome-banner b,.workspace-app.theme-contrast .queue-card h2,.workspace-app.theme-contrast .quote-card h2,.workspace-app.theme-contrast .quote-card p{color:#20231b}
+.workspace-app.theme-contrast .soft-callout{background:#eee4d1;border:1px solid #626554;color:#20231b}
+.site.dark .hero-note,.site.dark .floating-card{background:#222820;color:#edf0e7;border-color:#41493b}
+.site.dark .hero-note b,.site.dark .floating-card b{color:#edf0e7}
+.site.dark .hero-note small,.site.dark .floating-card small{color:#c6cebb}
+.site.dark .phone-brand,.site.dark .phone-greeting,.site.dark .phone-appointment b{color:#edf0e7}
+.site.dark .phone-search,.site.dark .phone-tiles span,.site.dark .phone-appointment{background:#2d3528;color:#edf0e7}
+.site.dark .phone-tiles small,.site.dark .phone-appointment small,.site.dark .muted{color:#c6cebb}
+.site.dark .category-strip{border-color:#41493b}
+.site.dark .category-strip>span,.site.dark .category-strip button{color:#d0d8c7}
+.site.dark .auth-main{background:#171b16;color:#edf0e7}
+.site.dark .auth-form-wrap h2,.site.dark .auth-form label{color:#edf0e7}
+.site.dark .auth-form input,.site.dark .auth-form select{background:#222820;color:#edf0e7;border-color:#41493b}
+.site.dark .auth-subtitle,.site.dark .auth-disclaimer{color:#c6cebb}
+.site.theme-contrast .category-strip>span,.site.theme-contrast .category-strip button,.site.theme-contrast .landing-nav nav,.site.theme-contrast .landing-footer>span{color:#292b23}
+.site.theme-contrast .journey-card,.site.theme-contrast .journey-card p{color:#25271f}
+.site.theme-contrast .journey-card p{color:#34372d}
+.site.theme-contrast .auth-main{background:#f5f0e5;color:#25271f}
+.site.theme-contrast .auth-form-wrap h2,.site.theme-contrast .auth-form label{color:#25271f}
+.site.theme-contrast .auth-form input,.site.theme-contrast .auth-form select{background:#fffdf7;color:#25271f;border-color:#777565}
+.site.theme-contrast .auth-subtitle,.site.theme-contrast .auth-disclaimer{color:#34372d}
