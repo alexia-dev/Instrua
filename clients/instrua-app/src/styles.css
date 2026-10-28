@@ -52,3 +52,25 @@ img, video, canvas, svg { max-width: 100%; }
 @media (hover: none) and (pointer: coarse) { .nav-item, .quick-actions>button, .module-card, .setting-item { padding-top: 13px; padding-bottom: 13px; } }
 @media (forced-colors: active) { .nav-item.active, .pill, .primary-btn { border: 1px solid ButtonText; } }
 @media (prefers-reduced-motion: reduce) { html:focus-within { scroll-behavior: auto; } }
+
+
+/* Local-first appointment workflow */
+.date-label{display:block;margin-top:3px;color:var(--muted);font-size:9px}
+.status-select{max-width:145px;border:1px solid var(--border);background:var(--surface);color:var(--moss);border-radius:8px;padding:8px;font-size:11px}
+.empty-state{padding:36px 20px;text-align:center;color:var(--moss)}
+.empty-state p{font-size:12px;color:var(--muted);margin:8px 0 18px}
+.modal-backdrop{position:fixed;inset:0;z-index:60;background:#20251dcc;display:grid;place-items:center;padding:18px;overflow-y:auto}
+.appointment-modal{width:min(100%,560px);background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;box-shadow:0 24px 80px #17201035}
+.modal-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+.modal-heading h2{font:800 24px Manrope;color:var(--moss);margin:0}
+.modal-heading p{font-size:12px;color:var(--muted);margin:7px 0 0}
+.modal-close{border:1px solid var(--border);background:transparent;border-radius:9px;width:34px;height:34px;font-size:22px;color:var(--moss)}
+.appointment-form{display:flex;flex-direction:column;gap:16px}
+.appointment-form label{display:flex;flex-direction:column;gap:7px;font-size:11px;font-weight:700;color:var(--moss)}
+.appointment-form input{width:100%;min-height:42px;border:1px solid #dcd8cc;border-radius:9px;padding:10px 12px;background:#fff;color:#34382d;font-size:13px}
+.appointment-form input:focus,.status-select:focus{outline:2px solid var(--olive);outline-offset:2px}
+.form-two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-note{padding:12px;border-radius:9px;background:#f4f0e5;color:#766c57;font-size:11px;line-height:1.6}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;padding-top:4px}
+.outline-btn{border:1px solid var(--border);background:var(--surface);color:var(--moss);border-radius:8px;padding:9px 12px;font-size:11px;font-weight:700}
+@media(max-width:680px){.appointment-modal{padding:20px}.form-two{grid-template-columns:1fr}.appointment.full{flex-wrap:wrap;gap:10px}.status-select{max-width:unset}.modal-actions{flex-wrap:wrap}.modal-actions button{flex:1}}
