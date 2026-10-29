@@ -113,3 +113,41 @@ Começar pela fundação de identidade única, papéis, vínculos profissionais,
 
 ## Critério permanente de paridade
 Cada requisito solicitado deve ser entregue no backend/persistência quando aplicável e nos clientes Web, Android, iOS e Desktop, adaptado à tecnologia e UX de cada plataforma. Registrar exceções técnicas reais e alternativas; nunca omitir uma plataforma silenciosamente. Um mockup, classe, tabela ou endpoint isolado não comprova conclusão.
+
+
+## 23. Padrão único visual, de produto e de backend — obrigatório em todas as branches
+
+Esta seção é normativa para todas as branches e todas as versões do Instrua. Não pode haver uma identidade ou regra de negócio paralela apenas para a demonstração.
+
+### 23.1 Fonte única de verdade
+- Este repositório mantém um único produto Instrua. A branch de demonstração é uma apresentação do mesmo produto, não um produto independente.
+- Antes de implementar uma feature, comparar a branch com a especificação mestre, identificar divergências e preservar alterações específicas que ainda sejam válidas.
+- Não copiar cegamente código entre branches nem sobrescrever trabalho existente. Aplicar a regra e adaptar a implementação à arquitetura real daquela branch.
+- Requisitos e contratos compartilhados devem ser versionados no repositório; divergências intencionais precisam ser documentadas e aprovadas.
+
+### 23.2 Sistema visual compartilhado
+- Manter marca, símbolo circular com check, escrita “instrua”, slogan “Orientação, conexão e confiança.” e a mesma linguagem editorial em todas as superfícies.
+- Tokens de referência: moss #414A35, olive #69704B, sage #96977B, mist #C2C3AA, sand #D6C9AD, beige #B5A17F, clay #A66F4B, amber #C18A43, off-white #F5F1E8, card #FCFAF4, text #34382D, secondary #686858, border #DDD7C8.
+- Centralizar tokens e componentes equivalentes para cores, tipografia, espaçamento, bordas, botões, campos, cartões, navegação, estados de carregamento/erro/vazio, diálogos, notificações e acessibilidade.
+- Responsividade e padrões de interação devem ser adaptados à Web, Android, iOS e Desktop; não precisam ser pixel a pixel idênticos, mas devem manter a mesma marca, hierarquia, linguagem e comportamento funcional.
+- A tela de carregamento de login deve usar a mesma marca e padrão de animação em todas as plataformas. O estado de carregamento deve refletir uma operação real quando houver autenticação real; demonstrações devem ser identificadas como demonstração.
+- Não inventar telas de sucesso, dados ou estados que não correspondam ao backend real.
+
+### 23.3 Contrato único do backend
+- Backend/API é a fonte de verdade para identidade, papéis, permissões, organizações, unidades, agendamentos, status, validações, auditoria e dados compartilhados.
+- Todos os clientes usam contratos de API versionados e autenticados; não duplicar regras críticas no cliente nem guardar segredos em aplicativos.
+- Padronizar nomes, formatos de datas/horas com timezone, paginação, filtros, erros, validação, idempotência, logs de correlação e versões de API.
+- Regras de autorização e isolamento multi-tenant são verificadas no servidor em toda operação. Uma demonstração pode usar fixtures locais explicitamente marcadas, mas nunca apresentá-las como dados sincronizados ou operações reais.
+- Migrações de banco devem ser versionadas e compatíveis com dados existentes. Integrações externas devem ter configuração, estados de falha, observabilidade e instruções documentadas.
+- Clientes Web, Android, iOS e Desktop devem consumir o mesmo backend de produção quando configurados para produção; ambientes demo/staging precisam ser claramente separados e identificados, não forks de regras de negócio.
+
+### 23.4 Critérios de aceite por alteração
+- [ ] Identificar todas as branches existentes afetadas e comparar os arquivos relacionados antes de editar.
+- [ ] Aplicar o mesmo requisito e os mesmos tokens/contratos a todas as branches aplicáveis, preservando funcionalidades locais.
+- [ ] Web, Android, iOS e Desktop cobertos, ou limitação técnica documentada com alternativa.
+- [ ] Backend/API/persistência e segurança atualizados quando aplicável.
+- [ ] Testes e builds executados por alvo; relatar claramente o que passou e o que não foi possível executar.
+- [ ] A branch demo/cloud segue a mesma especificação visual e funcional; somente dados e serviços de demonstração podem variar, claramente identificados.
+- [ ] Não declarar deploy nem paridade completa sem evidência.
+
+A existência deste documento padroniza os requisitos, mas não prova que todo o código de cada branch já esteja alinhado. A paridade real exige revisão e implementação do código, seguida de testes.
