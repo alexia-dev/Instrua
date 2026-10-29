@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#414a35">
+  <meta name="description" content="Instrua — orientação, conexão e confiança.">
+  <title>instrua · Seu próximo passo</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Pular para o conteúdo</a>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Instrua, início"><span class="brand-mark" aria-hidden="true">✓</span><span>instrua</span></a>
+    <div class="topbar-actions">
+      <button class="icon-button" id="text-down" aria-label="Diminuir texto" title="Diminuir texto">A−</button>
+      <button class="icon-button" id="text-up" aria-label="Aumentar texto" title="Aumentar texto">A+</button>
+      <button class="icon-button" id="theme-toggle" aria-label="Alternar tema" title="Alternar tema">◐</button>
+      <button class="icon-button" id="contrast-toggle" aria-label="Alternar alto contraste" title="Alto contraste">◑</button>
+      <button class="icon-button" id="notifications-button" aria-label="Abrir notificações" title="Notificações">♧ <span class="dot"></span></button>
+      <span class="user-chip" id="user-name">Clara Lima</span>
+    </div>
+  </header>
+  <div class="app-layout">
+    <aside class="sidebar" aria-label="Navegação principal">
+      <div class="sidebar-profile"><span class="eyebrow">SEU ESPAÇO</span><strong id="role-label">Cliente</strong></div>
+      <label class="field-label" for="profile-select">Perfil ativo</label>
+      <select id="profile-select" class="profile-select">
+        <option value="client">Cliente</option><option value="professional">Profissional</option><option value="company">Estabelecimento</option><option value="admin">Administração</option>
+      </select>
+      <nav id="nav-list" class="nav-list"></nav>
+      <div class="help-card"><strong>Precisa de orientação?</strong><p>Acesse a central de ajuda quando precisar.</p><button class="button button-secondary button-full" data-view="help">Central de ajuda</button></div>
+      <button class="collapse-button" id="sidebar-toggle">‹ Recolher menu</button>
+    </aside>
+    <main id="main" tabindex="-1">
+      <div class="page-heading">
+        <div><p class="eyebrow" id="breadcrumb">INSTRUA / CLIENTE</p><h1 id="page-title">Olá, Clara. Vamos ao próximo passo?</h1><p class="muted" id="page-subtitle">Seu próximo passo, no seu tempo.</p></div>
+        <button class="button button-primary" id="primary-action">Encontrar um serviço</button>
+      </div>
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+      <section id="page-content" aria-live="polite"></section>
+      <footer class="footer"><span>instrua · Orientação, conexão e confiança.</span><div><button data-view="help">Ajuda</button><button data-view="accessibility">Acessibilidade</button><button data-view="privacy">Privacidade</button><button data-view="terms">Termos de uso</button></div><small>Protótipo de interface. Dados de demonstração; nenhuma reserva ou notificação real é enviada.</small></footer>
+    </main>
+  </div>
+  <nav class="mobile-nav" aria-label="Navegação móvel" id="mobile-nav"></nav>
+  <dialog id="confirm-dialog" class="dialog">
+    <form method="dialog" id="confirm-form">
+      <p class="eyebrow">CONFIRMAR AÇÃO</p><h2 id="dialog-title">Confirmar?</h2><p id="dialog-message" class="muted"></p>
+      <div class="dialog-actions"><button class="button button-secondary" value="cancel">Voltar</button><button class="button button-primary" id="dialog-confirm" value="confirm">Confirmar</button></div>
+    </form>
+  </dialog>
+  <script src="./app.js" defer></script>
+</body>
+</html>
