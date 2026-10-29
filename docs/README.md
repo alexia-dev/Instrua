@@ -11,6 +11,7 @@ Use este índice para encontrar rapidamente a documentação do projeto.
 
 - [Sistema de design](INSTRUA_DESIGN_SYSTEM.md) — paleta oficial, tokens, acessibilidade e regras visuais.
 - [Arquitetura multiplataforma](PLATFORM_CLIENTS_ARCHITECTURE.md) — arquitetura proposta para site, mobile, desktop e API.
+- [Paridade multiplataforma e critérios obrigatórios de aceite](PLATFORM_PARITY_AND_ACCEPTANCE.md) — toda solicitação deve ser implementada e validada para Web, Android, iOS, Desktop e backend quando aplicável.
 - [Demonstração web](../frontend/DEMO.md) — como abrir o protótipo e quais são suas limitações.
 
 ## Backend
