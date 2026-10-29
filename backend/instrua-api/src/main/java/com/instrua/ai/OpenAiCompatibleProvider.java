@@ -1,0 +1,46 @@
+package com.instrua.ai;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.List;
+import java.util.Map;
+
+@Component
+public class OpenAiCompatibleProvider implements AiProvider {
+    private final ObjectMapper mapper;
+    private final String apiKey;
+    private final String baseUrl;
+    private final String model;
+    private final HttpClient client=HttpClient.newHttpClient();
+
+    public OpenAiCompatibleProvider(ObjectMapper mapper,
+        @Value("${app.ai.api-key:}") String apiKey,
+        @Value("${app.ai.base-url:https://api.openai.com/v1/responses}") String baseUrl,
+        @Value("${app.ai.model:gpt-6-luna}") String model){
+        this.mapper=mapper;this.apiKey=apiKey;this.baseUrl=baseUrl;this.model=model;}
+    public boolean configured(){return apiKey!=null&&!apiKey.isBlank();}
+    @Override public AiProviderResponse complete(AiProviderRequest request){
+        if(!configured()) return new AiProviderResponse("Provedor externo não configurado.","GENERAL","none",Map.of(),false);
+        try{
+            String body=mapper.writeValueAsString(Map.of("model",model,"instructions",request.systemPrompt()+" Return ONLY JSON with keys text,intent,tool,arguments,requiresConfirmation. Allowed tools: "+request.allowedTools(),"input",request.userMessage()));
+            HttpRequest http=HttpRequest.newBuilder(URI.create(baseUrl)).header(HttpHeaders.AUTHORIZATION,"Bearer "+apiKey).header(HttpHeaders.CONTENT_TYPE,MediaType.APPLICATION_JSON_VALUE).POST(HttpRequest.BodyPublishers.ofString(body)).build();
+            HttpResponse<String> response=client.send(http,HttpResponse.BodyHandlers.ofString());
+            if(response.statusCode()<200||response.statusCode()>=300) throw new IllegalStateException("AI provider HTTP "+response.statusCode());
+            JsonNode root=mapper.readTree(response.body());
+            String content=root.path("output").path(0).path("content").path(0).path("text").asText();
+            JsonNode parsed=mapper.readTree(content);
+            String tool=parsed.path("tool").asText("none");
+            if(!request.allowedTools().contains(tool)) tool="none";
+            Map<String,Object> args=parsed.path("arguments").isObject()?mapper.convertValue(parsed.path("arguments"),Map.class):Map.of();
+            return new AiProviderResponse(parsed.path("text").asText(content),parsed.path("intent").asText("GENERAL"),tool,args,parsed.path("requiresConfirmation").asBoolean(false));
+        }catch(Exception ex){return new AiProviderResponse("Não foi possível consultar o provedor de IA agora. O aplicativo continua funcionando sem ele.","PROVIDER_ERROR","none",Map.of(),false);}
+    }
+}

@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,6 +32,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
+    @Transactional
     public RegistrationResponse register(@Valid @RequestBody RegisterRequest request) {
         if(users.existsByEmailIgnoreCase(request.email())) throw new BusinessException("Já existe uma conta com este e-mail");
         boolean customer="CUSTOMER".equalsIgnoreCase(request.accountType());
