@@ -90,7 +90,17 @@ function App() {
         setNotice("Recuperação demonstrativa: nenhum e-mail foi enviado. A recuperação real precisa de um serviço de identidade e envio de mensagens.");
         return;
       }
-      enterDemo(event);
+      // A transição também acontece ao enviar o formulário: não trocar de tela instantaneamente.
+      // Este cliente ainda é demonstrativo; a pausa apenas apresenta o estado de carregamento.
+      setNotice("");
+      setLoginTransition(true);
+      window.setTimeout(() => {
+        setName(email.split("@")[0]?.split(/[._-]/)[0] || "Alexia");
+        setScreen("app");
+        setView("Início");
+        setNotice("Você está no ambiente demonstrativo. Nenhum dado foi enviado a um serviço real.");
+        setLoginTransition(false);
+      }, 1400);
     };
     return <div className="auth-screen">
       {loginTransition && <div className="login-transition" role="status" aria-live="polite" aria-label="Carregando o acesso ao Instrua"><div className="login-transition-brand"><span className="brand-mark">✓</span><span><b>instrua</b><small>Orientação, conexão e confiança.</small></span></div><div className="login-loader" aria-hidden="true"><span/><span/><span/></div><p>Preparando seu espaço...</p></div>}
