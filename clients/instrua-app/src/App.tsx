@@ -58,7 +58,6 @@ function App() {
   const goToLogin = () => { setNotice(""); setLoginTransition(true); setScreen("login"); window.setTimeout(()=>setLoginTransition(false),1100); };
   const goToSignup = () => { setScreen("signup"); setNotice(""); };
   const goToRecover = () => { setScreen("recover"); setNotice(""); };
-  const enterDemo = (event?:FormEvent) => { event?.preventDefault(); setName(email.split("@")[0]?.split(/[._-]/)[0] || "Alexia"); setScreen("app"); setView("Início"); setNotice("Você está no ambiente demonstrativo. Nenhum dado foi enviado a um serviço real."); };
   const nav = (next:View) => { setView(next); setNotice(""); setShowComposer(false); };
   const publishPost = (event:FormEvent) => { event.preventDefault(); if(!postText.trim()) return; setPosts([{id:Date.now(),author:name || "Você",role:"Sua jornada",time:"agora",text:postText.trim(),tag:"Minha jornada",likes:0,liked:false},...posts]); setPostText(""); setShowComposer(false); setNotice("Publicação adicionada somente nesta demonstração."); };
   const toggleLike = (id:number) => setPosts(old=>old.map(p=>p.id===id?{...p,liked:!p.liked,likes:p.likes+(p.liked?-1:1)}:p));
