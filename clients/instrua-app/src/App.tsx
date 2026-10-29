@@ -31,6 +31,7 @@ const opportunities = [
 ];
 function App() {
   const [screen,setScreen] = useState<"landing"|"login"|"signup"|"recover"|"app">("landing");
+  const [loginTransition,setLoginTransition] = useState(false);
   const [view,setView] = useState<View>("Início");
   const [role,setRole] = useState<Role>("Paciente");
   const [name,setName] = useState("Alexia");
@@ -54,7 +55,7 @@ function App() {
   const [notifications,setNotifications] = useState(true);
   const [queueChecked,setQueueChecked] = useState(false);
   const date = useMemo(()=>new Intl.DateTimeFormat("pt-BR",{weekday:"long",day:"numeric",month:"long"}).format(new Date()),[]);
-  const goToLogin = () => { setScreen("login"); setNotice(""); };
+  const goToLogin = () => { setNotice(""); setLoginTransition(true); setScreen("login"); window.setTimeout(()=>setLoginTransition(false),1100); };
   const goToSignup = () => { setScreen("signup"); setNotice(""); };
   const goToRecover = () => { setScreen("recover"); setNotice(""); };
   const enterDemo = (event?:FormEvent) => { event?.preventDefault(); setName(email.split("@")[0]?.split(/[._-]/)[0] || "Alexia"); setScreen("app"); setView("Início"); setNotice("Você está no ambiente demonstrativo. Nenhum dado foi enviado a um serviço real."); };
@@ -92,6 +93,7 @@ function App() {
       enterDemo(event);
     };
     return <div className="auth-screen">
+      {loginTransition && <div className="login-transition" role="status" aria-live="polite" aria-label="Carregando o acesso ao Instrua"><div className="login-transition-brand"><span className="brand-mark">✓</span><span><b>instrua</b><small>Orientação, conexão e confiança.</small></span></div><div className="login-loader" aria-hidden="true"><span/><span/><span/></div><p>Preparando seu espaço...</p></div>}
       <div className="auth-side">
         <button className="back-link" onClick={()=>setScreen("landing")}>← Voltar ao site</button>
         <a className="brand auth-brand" href="#" onClick={e=>{e.preventDefault();setScreen("landing");}}><span className="brand-mark">✓</span><span><b>instrua</b><small>Orientação, conexão e confiança.</small></span></a>
