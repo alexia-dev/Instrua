@@ -9,4 +9,5 @@ import java.util.UUID;
 public interface PatientRepository extends JpaRepository<Patient, UUID> {
     List<Patient> findAllByCompanyIdOrderByNameAsc(UUID companyId);
     Optional<Patient> findByIdAndCompanyIdAndActiveTrue(UUID id, UUID companyId);
+    Optional<Patient> findFirstByCompanyIdAndUserIdAndActiveTrue(UUID companyId, UUID userId);
 }
