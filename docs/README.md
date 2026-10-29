@@ -5,6 +5,7 @@ Use este índice para encontrar rapidamente a documentação do projeto.
 ## Começar por aqui
 
 - [README principal](../README.md) — visão do produto, estado atual e links essenciais.
+- [Especificação mestre do Instrua](INSTRUA_MASTER_REQUIREMENTS.md) — requisitos funcionais e técnicos das 22 seções da especificação frontend + backend.
 - [Estrutura do repositório](PROJECT_STRUCTURE.md) — organização das pastas e convenções.
 
 ## Produto e interface
