@@ -1,0 +1,69 @@
+name: Android APK (teste)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/android-apk-test-build
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    name: Gerar APK para Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar Android NDK
+        run: sdkmanager "ndk;27.2.12479018" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Configurar variáveis Android
+        run: |
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+          echo "NDK_HOME=$ANDROID_SDK_ROOT/ndk/27.2.12479018" >> "$GITHUB_ENV"
+
+      - name: Configurar Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Instalar dependências do app
+        working-directory: clients/instrua-app
+        run: npm install
+
+      - name: Inicializar projeto Android do Tauri
+        working-directory: clients/instrua-app
+        env:
+          CI: true
+        run: npm run android:init -- --ci
+
+      - name: Compilar APK arm64
+        working-directory: clients/instrua-app
+        env:
+          CI: true
+        run: npm run android:build -- --apk --target aarch64 --ci
+
+      - name: Publicar APK como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: instrua-android-apk
+          path: clients/instrua-app/src-tauri/gen/android/app/build/outputs/**/*.apk
+          if-no-files-found: error
+          retention-days: 14
