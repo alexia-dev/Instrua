@@ -93,7 +93,7 @@
 .startup-splash::before{transform:scale(1.35)}
 .startup-splash::after{transform:scale(1.75)}
 .startup-splash-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:13px;animation:startup-enter .55s ease-out both}
-.startup-mark{display:grid;place-items:center;width:92px;height:92px;border-radius:50%;background:#f5f1e8;color:#414a35;font-family:Arial,sans-serif;font-size:62px;font-weight:700;line-height:1;box-shadow:0 12px 36px #18201635}
+.startup-mark{display:grid;place-items:center;width:104px;height:104px;border:6px solid #f5f1e8;border-radius:50%;background:#414a35;color:#fffdf5;font-family:Arial,sans-serif;font-size:62px;font-weight:700;line-height:1;box-shadow:0 12px 36px #18201635}
 .startup-wordmark{font-size:35px;letter-spacing:-1.7px;font-weight:600}
 .startup-tagline{font-size:12px;letter-spacing:.15px;color:#e3e6d9}
 .startup-progress{width:76px;height:2px;margin-top:27px;border-radius:9px;background:#ffffff30;overflow:hidden}
