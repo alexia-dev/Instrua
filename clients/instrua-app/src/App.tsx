@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { isTauri } from "@tauri-apps/api/core";
 import "./accessibility.css";
 
 type View = "Início" | "Agenda" | "Minha vez" | "Rede Social" | "Comunidades" | "Oportunidades" | "Orientações" | "Pacientes" | "Pessoas e acessos" | "Solicitações" | "Radar" | "Dante" | "Financeiro" | "Fiscal" | "Protege" | "Relatórios" | "Suporte" | "Configurações";
@@ -34,6 +35,12 @@ const opportunities = [
   {id:3,type:"Evento",title:"Roda de conversa: autocuidado",place:"Comunidade Vida Leve",when:"Sábado, 10:00",detail:"Encontro gratuito de bem-estar",tag:"Comunidade"}
 ];
 function App() {
+  const [showStartupSplash,setShowStartupSplash] = useState(() => isTauri());
+  useEffect(() => {
+    if (!showStartupSplash) return;
+    const timer = window.setTimeout(() => setShowStartupSplash(false), 1250);
+    return () => window.clearTimeout(timer);
+  }, [showStartupSplash]);
   const [screen,setScreen] = useState<"landing"|"login"|"signup"|"recover"|"app">("landing");
   const [loginTransition,setLoginTransition] = useState(false);
   const [view,setView] = useState<View>("Início");
@@ -72,6 +79,7 @@ function App() {
   const toggleLike = (id:number) => setPosts(old=>old.map(p=>p.id===id?{...p,liked:!p.liked,likes:p.likes+(p.liked?-1:1)}:p));
   const filteredOpps = opportunities.filter(o=>(o.title+" "+o.place+" "+o.type).toLowerCase().includes(search.toLowerCase()));
   const startDemo = () => { setScreen("app"); setView("Início"); setNotice("Bem-vinda à demonstração do Instrua. Os dados exibidos são fictícios."); };
+  if (showStartupSplash) return <main className="startup-splash" role="status" aria-live="polite" aria-label="Abrindo o Instrua"><div className="startup-splash-content"><span className="startup-mark" aria-hidden="true">✓</span><strong className="startup-wordmark">instrua</strong><span className="startup-tagline">Orientação, conexão e confiança.</span><span className="startup-progress" aria-hidden="true"><i /></span></div></main>;
   if(screen==="landing") return <div className={`site ${appearance==="dark"?"dark":""} ${appearance==="contrast"?"theme-contrast":""}`}>
     <header className="landing-nav"><a className="brand" href="#top" onClick={e=>{e.preventDefault();window.scrollTo({top:0,behavior:"smooth"});}}><span className="brand-mark">✓</span><span><b>instrua</b><small>Orientação, conexão e confiança.</small></span></a><nav><a href="#jornadas">Jornadas</a><a href="#modulos">O que você encontra</a><a href="#comunidade">Comunidade</a></nav><div className="landing-actions"><button className="btn btn-quiet" onClick={goToLogin}>Entrar</button><button className="btn btn-primary" onClick={goToSignup}>Começar agora <span>↗</span></button></div></header>
     <main id="top">

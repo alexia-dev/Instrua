@@ -86,3 +86,18 @@
 .dante-prompt{display:block;width:100%;text-align:left;padding:12px 0;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font-weight:600;font-size:12px}
 .dante-prompt:hover{color:var(--olive)}
 @media(max-width:700px){.context-switch{margin:0 12px 14px}.dante-composer{flex-direction:column}.dante-message{max-width:96%}.invite-actions{width:100%;padding-left:48px}}
+
+/* Native app opening: brand-only splash, shown by Tauri builds. */
+.startup-splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;min-height:100vh;min-height:100dvh;padding:24px;background:#414a35;color:#fffdf5;overflow:hidden}
+.startup-splash::before,.startup-splash::after{content:"";position:absolute;width:min(78vw,360px);aspect-ratio:1;border:1px solid #ffffff12;border-radius:50%;pointer-events:none}
+.startup-splash::before{transform:scale(1.35)}
+.startup-splash::after{transform:scale(1.75)}
+.startup-splash-content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:13px;animation:startup-enter .55s ease-out both}
+.startup-mark{display:grid;place-items:center;width:104px;height:104px;border:6px solid #f5f1e8;border-radius:50%;background:#414a35;color:#fffdf5;font-family:Arial,sans-serif;font-size:62px;font-weight:700;line-height:1;box-shadow:0 12px 36px #18201635}
+.startup-wordmark{font-size:35px;letter-spacing:-1.7px;font-weight:600}
+.startup-tagline{font-size:12px;letter-spacing:.15px;color:#e3e6d9}
+.startup-progress{width:76px;height:2px;margin-top:27px;border-radius:9px;background:#ffffff30;overflow:hidden}
+.startup-progress i{display:block;width:38%;height:100%;border-radius:9px;background:#f5f1e8;animation:startup-progress 1.05s ease-in-out both}
+@keyframes startup-enter{from{opacity:0;transform:translateY(7px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes startup-progress{from{transform:translateX(-110%)}to{transform:translateX(270%)}}
+@media(prefers-reduced-motion:reduce){.startup-splash-content,.startup-progress i{animation:none}}
