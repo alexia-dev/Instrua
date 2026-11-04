@@ -51,17 +51,22 @@ public class AppointmentWaitlistEntry extends BaseEntity {
         if (status != WaitlistStatus.WAITING) throw new IllegalStateException("Entrada não está aguardando");
         offeredAppointment = appointment; offerExpiresAt = expiresAt; status = WaitlistStatus.OFFERED;
     }
-    public void accept(Instant now) {
+
+    public void accept(Instant now, Appointment replacementAppointment) {
         if (status != WaitlistStatus.OFFERED) throw new IllegalStateException("Não existe oferta ativa");
         if (offerExpiresAt != null && now.isAfter(offerExpiresAt)) {
             status = WaitlistStatus.EXPIRED;
             throw new IllegalStateException("A oferta da vaga expirou");
         }
-        acceptedAt = now; status = WaitlistStatus.ACCEPTED;
+        acceptedAt = now;
+        offeredAppointment = replacementAppointment;
+        status = WaitlistStatus.ACCEPTED;
     }
+
     public void decline() {
         if (status != WaitlistStatus.OFFERED) throw new IllegalStateException("Não existe oferta ativa");
         status = WaitlistStatus.DECLINED;
     }
+
     public void expire() { if (status == WaitlistStatus.OFFERED) status = WaitlistStatus.EXPIRED; }
 }
