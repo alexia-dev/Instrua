@@ -30,3 +30,11 @@ Esta é uma demo frontend: os dados são fictícios e as alterações ficam no `
 7. Exportar JSON/CSV e restaurar os dados iniciais.
 
 A demo não substitui testes automatizados, revisão de segurança, integração com backend nem validação de acessibilidade antes de produção.
+
+## Publicação Cloudflare Pages
+O projeto `instrua-demo` usa a branch `feat/instrua-demo-showcase` como produção e publica a pasta `frontend` como site estático:
+- **Root directory:** `frontend`
+- **Build command:** vazio (HTML/CSS/JS estático)
+- **Build output directory:** `.`
+
+A publicação deve ser considerada concluída somente quando o deployment do Cloudflare Pages mostrar build e deploy como `success` e a URL pública carregar a versão esperada.
