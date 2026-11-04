@@ -1,0 +1,7 @@
+package com.instrua.waitlist;
+import org.springframework.beans.factory.annotation.Value; import org.springframework.http.HttpHeaders; import org.springframework.http.MediaType; import org.springframework.stereotype.Service; import org.springframework.web.client.RestClient;
+@Service public class WhatsAppCloudService {
+ private final RestClient client; private final String phoneNumberId,token,apiVersion;
+ public WhatsAppCloudService(@Value("\${instrua.whatsapp.base-url:https://graph.facebook.com}") String baseUrl,@Value("\${instrua.whatsapp.phone-number-id:}") String phoneNumberId,@Value("\${instrua.whatsapp.access-token:}") String token,@Value("\${instrua.whatsapp.api-version:v22.0}") String apiVersion){this.client=RestClient.builder().baseUrl(baseUrl).build();this.phoneNumberId=phoneNumberId;this.token=token;this.apiVersion=apiVersion;}
+ public void sendAvailabilityMessage(String recipient,String patientName,String entryId){if(phoneNumberId.isBlank()||token.isBlank())throw new IllegalStateException("WhatsApp Cloud API não configurada: defina as variáveis de ambiente");String body="Olá, "+patientName+"! Surgiu uma vaga para seu exame. Responda SIM para confirmar ou NÃO para recusar. Ref: "+entryId;client.post().uri("/{version}/{phoneNumberId}/messages",apiVersion,phoneNumberId).header(HttpHeaders.AUTHORIZATION,"Bearer "+token).contentType(MediaType.APPLICATION_JSON).body(java.util.Map.of("messaging_product","whatsapp","recipient_type","individual","to",recipient,"type","text","text",java.util.Map.of("body",body))).retrieve().toBodilessEntity();}
+}
