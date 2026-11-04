@@ -55,15 +55,19 @@ public class AppointmentWaitlistService {
         companies.requireAccess(companyId);
         AppointmentWaitlistEntry entry = waitlist.findByIdAndCompanyId(entryId, companyId)
                 .orElseThrow(() -> new NotFoundException("Entrada da fila não encontrada"));
-        Appointment appointment = appointments.findByIdAndCompanyId(appointmentId, companyId)
+        Appointment slot = appointments.findByIdAndCompanyId(appointmentId, companyId)
                 .orElseThrow(() -> new NotFoundException("Agendamento/vaga não encontrado"));
-        if (!entry.getServiceOffering().getId().equals(appointment.getServiceOffering().getId()))
+        if (!entry.getServiceOffering().getId().equals(slot.getServiceOffering().getId()))
             throw new BusinessException("A vaga não corresponde ao exame solicitado");
-        if (appointment.getStatus() != AppointmentStatus.CANCELLED)
+        if (slot.getStatus() != AppointmentStatus.CANCELLED)
             throw new BusinessException("A vaga precisa estar liberada antes de ser oferecida");
+        if (entry.getPreferredFrom() != null && slot.getStartsAt().isBefore(entry.getPreferredFrom()))
+            throw new BusinessException("A vaga está fora do período preferido pelo paciente");
+        if (entry.getPreferredUntil() != null && slot.getStartsAt().isAfter(entry.getPreferredUntil()))
+            throw new BusinessException("A vaga está fora do período preferido pelo paciente");
         if (expiresAt == null || !expiresAt.isAfter(Instant.now()))
             throw new BusinessException("Informe um prazo futuro para aceitar a oferta");
-        entry.offer(appointment, expiresAt);
+        entry.offer(slot, expiresAt);
         return entry;
     }
 
@@ -72,9 +76,17 @@ public class AppointmentWaitlistService {
         companies.requireAccess(companyId);
         AppointmentWaitlistEntry entry = waitlist.findByIdAndCompanyId(entryId, companyId)
                 .orElseThrow(() -> new NotFoundException("Oferta não encontrada"));
-        try { entry.accept(Instant.now()); }
+        Appointment slot = entry.getOfferedAppointment();
+        if (slot == null || slot.getStatus() != AppointmentStatus.CANCELLED)
+            throw new BusinessException("A vaga não está mais disponível");
+        Instant now = Instant.now();
+        if (entry.getOfferExpiresAt() != null && now.isAfter(entry.getOfferExpiresAt()))
+            throw new BusinessException("A oferta da vaga expirou");
+        Appointment replacement = appointments.save(new Appointment(slot.getCompany(), entry.getClient(),
+                slot.getEmployee(), slot.getServiceOffering(), slot.getStartsAt(), slot.getEndsAt(),
+                "Remanejamento via fila de espera. " + (entry.getNotes() == null ? "" : entry.getNotes())));
+        try { entry.accept(now, replacement); }
         catch (IllegalStateException e) { throw new BusinessException(e.getMessage()); }
-        // Reatribuição do agendamento será integrada à operação de remanejamento na próxima etapa.
         return entry;
     }
 
