@@ -101,3 +101,9 @@
 @keyframes startup-enter{from{opacity:0;transform:translateY(7px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes startup-progress{from{transform:translateX(-110%)}to{transform:translateX(270%)}}
 @media(prefers-reduced-motion:reduce){.startup-splash-content,.startup-progress i{animation:none}}
+
+/* Shared official Instrua symbol in legacy QA views, never a separate logo. */
+.ins-brand-asset{object-fit:contain!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;line-height:0}
+.brand-mark.ins-brand-asset{width:36px;height:36px;min-width:36px;min-height:36px;border-radius:50%}
+.brand-mark.mini.ins-brand-asset{width:23px;height:23px;min-width:23px;min-height:23px}
+.startup-mark.ins-brand-asset{width:86px;height:86px;min-width:86px;min-height:86px;border-radius:50%;margin:0 auto 16px}
