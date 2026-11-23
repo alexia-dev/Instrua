@@ -147,3 +147,11 @@
  .real-sidebar-module-title{overflow:visible}
  .real-workspace-layout .real-tabs button.real-settings-trigger{margin:0;border-top:0}
 }
+
+
+.real-sidebar-module-title{display:grid;gap:4px;line-height:1.3}
+.real-sidebar-module-title strong{font-size:.77rem;font-weight:730}
+.real-sidebar-module-title small{display:inline-flex;align-items:center;gap:5px;color:#a16f34;font-size:.62rem;font-weight:650;white-space:nowrap}
+.real-sidebar-module-title .real-sidebar-inprogress{width:6px;height:6px;display:inline-block}
+.real-workspace-layout .real-tabs button.real-sidebar-module.selected .real-sidebar-module-title small{color:#ffe3b7}
+@media(max-width:1020px){.real-sidebar-module-title{display:flex;align-items:center;gap:6px}.real-sidebar-module-title small{font-size:.62rem}}
