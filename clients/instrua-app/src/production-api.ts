@@ -65,8 +65,12 @@ export async function api<T>(
 ): Promise<T> {
   if (!API_URL) throw new Error("A API de produção ainda não está configurada. Defina VITE_INSTRUA_API_URL na implantação.");
   let response: Response;
+  const controller = new AbortController();
+  // Never leave the login/registration button spinning indefinitely if a free-tier API is asleep or unreachable.
+  const timeoutId = window.setTimeout(() => controller.abort(), 75000);
   try {
     response = await fetch(`${API_URL}/api/v1${path}`, {
+      signal: controller.signal,
       method,
       headers: {
         Accept: "application/json",
@@ -76,8 +80,13 @@ export async function api<T>(
       body: body === undefined ? undefined : JSON.stringify(body),
       cache: "no-store"
     });
-  } catch {
-    throw new Error("Não foi possível conectar ao servidor Instrua. Verifique a conexão ou a configuração da API.");
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("O servidor Instrua demorou para responder. Ele pode estar iniciando. Tente entrar novamente.");
+    }
+    throw new Error("Não foi possível conectar ao servidor Instrua. Verifique sua internet ou tente novamente.");
+  } finally {
+    window.clearTimeout(timeoutId);
   }
   if (!response.ok) {
     const data = await response.json().catch(() => null) as {message?: string} | null;
