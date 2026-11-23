@@ -1,9 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
+import SiteHome from "./SiteHome";
+import AuthPage, {type AuthMode} from "./AuthPage";
+import ModulesHub from "./ModulesHub";
 import { api, API_URL, type Appointment, type AppointmentStatus, type CatalogCompany, type CancellationPolicy, type Client, type Company, type Professional, type Service, type Session } from "./production-api";
 import "./production.css";
 
-type Tab = "painel" | "agenda" | "clientes" | "equipe" | "servicos";
-type Mode = "login" | "empresa" | "cliente";
+type Tab = "painel" | "agenda" | "clientes" | "equipe" | "servicos" | "modulos";
 const labelStatus: Record<AppointmentStatus,string> = {SCHEDULED:"Agendado",CONFIRMED:"Confirmado",CANCELLED:"Cancelado",COMPLETED:"Concluído",NO_SHOW:"Falta"};
 const money=(n:number|null)=> n==null?"Sob consulta":new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(n));
 const when=(d:string)=>new Intl.DateTimeFormat("pt-BR",{dateStyle:"short",timeStyle:"short"}).format(new Date(d));
@@ -12,7 +14,10 @@ const message=(e:unknown)=>e instanceof Error?e.message:"Falha inesperada. Tente
 const prefix=(companyId:string)=>"/companies/"+companyId;
 
 export default function ProductionApp() {
-  const [mode,setMode]=useState<Mode>("login");
+  const [route,setRoute]=useState(()=>window.location.hash.replace(/^#/,"")||"/");
+  const mode:AuthMode=route==="/cadastro/empresa"?"empresa":route==="/cadastro/pessoa"?"cliente":"login";
+  useEffect(()=>{const onHash=()=>setRoute(window.location.hash.replace(/^#/,"")||"/");window.addEventListener("hashchange",onHash);return()=>window.removeEventListener("hashchange",onHash);},[]);
+  function navigate(next:string){window.location.hash="#"+next;setRoute(next);window.scrollTo({top:0,behavior:"auto"});}
   const [session,setSession]=useState<Session|null>(null);
   const [authForm,setAuthForm]=useState({name:"",email:"",password:"",companyName:"",slug:""});
   const [companies,setCompanies]=useState<Company[]>([]);
@@ -49,7 +54,7 @@ export default function ProductionApp() {
   const catalogBusiness=catalog.find(c=>c.id===selectedCatalog);
 
   function clearMessages(){setError("");setSuccess("");}
-  function logout(){setStaffWorkspace(false);setInviteCode("");setSession(null);setAuthForm(f=>({...f,password:""}));setCompanies([]);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
+  function logout(){navigate("/");setStaffWorkspace(false);setInviteCode("");setSession(null);setAuthForm(f=>({...f,password:""}));setCompanies([]);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
   async function authenticate(e:FormEvent){
     e.preventDefault();if(busy)return;setBusy(true);clearMessages();
     try{
@@ -60,7 +65,7 @@ export default function ProductionApp() {
         const data=await api<{authentication:Session;company:Company}>("/auth/register",undefined,"POST",{ownerName:authForm.name.trim(),email:authForm.email.trim(),password:authForm.password,companyName:authForm.companyName.trim(),companySlug:authForm.slug.trim().toLowerCase(),companyEmail:authForm.email.trim(),timezone:"America/Sao_Paulo"});
         account=data.authentication;setCompanies([data.company]);setSelected(data.company.id);
       }
-      setAuthForm(f=>({...f,password:""}));setSession(account);setTab("painel");setSuccess("Conta conectada ao Instrua.");
+      setAuthForm(f=>({...f,password:""}));setSession(account);navigate("/app");setTab("painel");setSuccess("Conta conectada ao Instrua.");
     }catch(e){setError(message(e));}finally{setBusy(false);}
   }
   useEffect(()=>{
@@ -145,33 +150,24 @@ export default function ProductionApp() {
     catch(err){setError(message(err));}finally{setBusy(false);}
   }
   return <div className="real-app">
-    <header className="real-header"><div className="real-brand"><span className="real-mark" aria-hidden="true">✓</span><div><strong>instrua</strong><small>Kiyubi Technologies</small></div></div>
-      {session?<div className="real-header-actions"><span>{session.name}</span>{hasPatientRole&&<button type="button" className="real-secondary" onClick={()=>{setStaffWorkspace(v=>!v);clearMessages();}}>{staffWorkspace?"Minha jornada":"Área profissional"}</button>}<button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>
-    <main className="real-container">
+    {session&&<header className="real-header"><div className="real-brand"><img src="/brand-icon.svg" className="real-mark-image" alt="" /><div><strong>instrua</strong><small>Kiyubi Technologies</small></div></div>
+      {session?<div className="real-header-actions"><span>{session.name}</span>{hasPatientRole&&<button type="button" className="real-secondary" onClick={()=>{setStaffWorkspace(v=>!v);clearMessages();}}>{staffWorkspace?"Minha jornada":"Área profissional"}</button>}<button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>}
+    <main className={session?"real-container":"real-public-main"}>
       {error&&<p role="alert" className="real-alert real-error">{error}<button type="button" aria-label="Fechar aviso" onClick={()=>setError("")}>×</button></p>}
       {success&&<p role="status" className="real-alert real-success">{success}<button type="button" aria-label="Fechar aviso" onClick={()=>setSuccess("")}>×</button></p>}
       {!API_URL&&<p role="alert" className="real-alert real-error">API não configurada. Defina VITE_INSTRUA_API_URL para habilitar o ambiente real. Nenhum dado fictício será usado.</p>}
 
-      {!session&&<div className="real-entry"><section className="real-intro"><p className="real-eyebrow">INSTRUA · PLATAFORMA OPERACIONAL</p><h1>Seu atendimento organizado. Sua empresa em movimento.</h1><p>Cadastre clientes, equipe, serviços e agendamentos em um só lugar, com banco de dados real e acesso protegido por conta.</p><div className="real-features"><span>✓ Agenda conectada</span><span>✓ Equipe e serviços</span><span>✓ Regras protegidas no servidor</span></div><p className="real-small">Recursos de terceiros e módulos ainda não entregues não são exibidos como ativos.</p></section>
-        <section className="real-panel real-auth"><div className="real-auth-modes">
-          <button type="button" className={mode==="login"?"selected":""} onClick={()=>setMode("login")}>Entrar</button>
-          <button type="button" className={mode==="empresa"?"selected":""} onClick={()=>setMode("empresa")}>Sou empresa</button>
-          <button type="button" className={mode==="cliente"?"selected":""} onClick={()=>setMode("cliente")}>Sou cliente</button>
-        </div><h2>{mode==="login"?"Acesse sua conta":mode==="empresa"?"Cadastre seu negócio":"Crie sua conta"}</h2>
-        <form className="real-form" onSubmit={authenticate}>
-          {mode!=="login"&&<label>Nome completo<input required autoComplete="name" value={authForm.name} onChange={e=>setAuthForm({...authForm,name:e.target.value})}/></label>}
-          {mode==="empresa"&&<><label>Nome do estabelecimento<input required value={authForm.companyName} onChange={e=>setAuthForm({...authForm,companyName:e.target.value})}/></label><label>Identificador da empresa<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="nome-do-estabelecimento" value={authForm.slug} onChange={e=>setAuthForm({...authForm,slug:e.target.value.toLowerCase()})}/></label></>}
-          <label>E-mail<input required type="email" autoComplete="email" value={authForm.email} onChange={e=>setAuthForm({...authForm,email:e.target.value})}/></label>
-          <label>Senha<input required type="password" minLength={mode==="login"?1:8} autoComplete={mode==="login"?"current-password":"new-password"} value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})}/></label>
-          <button className="real-primary" type="submit" disabled={busy||!API_URL}>{busy?"Aguarde...":mode==="login"?"Entrar":"Criar conta"}</button>
-        </form></section></div>}
+      {!session&&(route==="/entrar"||route==="/cadastro/empresa"||route==="/cadastro/pessoa")?
+        <AuthPage mode={mode} form={authForm} setForm={setAuthForm} onSubmit={authenticate} onNavigate={navigate} busy={busy} apiAvailable={!!API_URL}/>:
+        <SiteHome onNavigate={navigate}/>}
 
       {session&&!isPatient&&<><div className="real-topline"><div><p className="real-eyebrow">PAINEL COMERCIAL</p><h1>{business?.name||"Estabelecimentos"}</h1></div>
         {companies.length>0&&<label>Estabelecimento<select value={selected} onChange={e=>setSelected(e.target.value)}>{companies.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>}</div>
         {companies.length===0?<section className="real-panel"><h2>Sem estabelecimento vinculado</h2><p>Entre com a conta administradora cadastrada para sua empresa.</p></section>:<>
-          <nav className="real-tabs" aria-label="Painel da empresa">{([["painel","Painel"],["agenda","Agenda"],["clientes","Clientes"],["equipe","Equipe"],["servicos","Serviços"]] as [Tab,string][]).map(([key,title])=><button type="button" key={key} className={tab===key?"selected":""} aria-current={tab===key?"page":undefined} onClick={()=>{setTab(key);clearMessages();}}>{title}</button>)}</nav>
+          <nav className="real-tabs" aria-label="Painel da empresa">{([["painel","Painel"],["agenda","Agenda"],["clientes","Clientes"],["equipe","Equipe"],["servicos","Serviços"],["modulos","Todos os módulos"]] as [Tab,string][]).map(([key,title])=><button type="button" key={key} className={tab===key?"selected":""} aria-current={tab===key?"page":undefined} onClick={()=>{setTab(key);clearMessages();}}>{title}</button>)}</nav>
           {loading&&<p role="status">Sincronizando com o servidor...</p>}
           {tab==="painel"&&<><div className="real-stats"><div><span>Agendamentos</span><b>{appointments.length}</b></div><div><span>Confirmados</span><b>{appointments.filter(a=>a.status==="CONFIRMED").length}</b></div><div><span>Profissionais</span><b>{professionals.length}</b></div><div><span>Clientes</span><b>{clients.length}</b></div></div><section className="real-panel"><h2>Próximos agendamentos</h2><Bookings list={appointments.filter(a=>new Date(a.startsAt).getTime()>=Date.now()&&a.status!=="CANCELLED").slice(0,8)}/><button type="button" className="real-secondary" onClick={()=>setTab("agenda")}>Abrir agenda</button></section></>}
+          {tab==="modulos"&&<ModulesHub openTab={nextTab=>{setTab(nextTab);clearMessages();}}/>}
           {tab==="clientes"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar cliente</h2><form className="real-form" onSubmit={createClient}>
             <label>Nome<input required value={newClient.name} onChange={e=>setNewClient({...newClient,name:e.target.value})}/></label><label>E-mail<input type="email" value={newClient.email} onChange={e=>setNewClient({...newClient,email:e.target.value})}/></label><label>Telefone<input type="tel" value={newClient.phone} onChange={e=>setNewClient({...newClient,phone:e.target.value})}/></label><button className="real-primary" type="submit" disabled={busy}>Salvar cliente</button></form></section>
             <section className="real-panel"><h2>Clientes ({clients.length})</h2><Records list={clients.map(c=>({id:c.id,title:c.name,subtitle:c.phone||c.email||"Sem contato"}))}/></section></div>}
@@ -210,7 +206,7 @@ export default function ProductionApp() {
           <p className="real-small">A disponibilidade é confirmada no servidor no momento da reserva. Sem cobrança online nesta versão.</p>
         </section></div>}
     </main>
-    <footer className="real-footer">Instrua · Kiyubi Technologies · Ações desta área são enviadas à API, sem dados de demonstração.</footer>
+    {session&&<footer className="real-footer">Instrua · Kiyubi Technologies · Orientação, conexão e confiança.</footer>}
   </div>;
 }
 
