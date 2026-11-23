@@ -32,3 +32,31 @@
 .real-alert{border-radius:16px}
 .real-company-select{width:min(260px,100%)}
 @media(max-width:650px){.real-header{padding:12px 17px;min-height:77px}.real-header-actions{gap:7px;flex-wrap:wrap;justify-content:end}.real-header-actions button{padding:9px 13px;font-size:.7rem;min-height:40px}.real-panel{border-radius:24px 15px 26px 16px;padding:21px}.real-tabs button{padding:11px 15px}.real-container{padding:24px 13px 45px}.real-stats>div{padding:17px}}
+
+/* 2026 reference alignment: organic surfaces across browser and Android. */
+.real-app{--r-forest:#414A35;--r-moss:#697A55;--r-cream:#F5F1E8;--r-clay:#A66F4B;--r-stroke:#e6dfd1}
+.real-container{max-width:1450px}
+.real-app :is(.real-panel,.real-stats>div){border-radius:26px 18px 29px 20px;background:#fffdf8;box-shadow:0 16px 35px #414a3509;border:1px solid #e5e0d4}
+.real-app .real-stats>div:nth-child(2){background:#eff2e8}
+.real-app .real-stats>div:nth-child(3){background:#f8f1e5}
+.real-app .real-stats>div:nth-child(4){background:#f0eae2}
+.real-app :is(.real-primary,.real-secondary){border-radius:12px}
+.real-app .real-topline h1{font-family:Georgia,serif;font-weight:500;letter-spacing:-.045em}
+.real-schedule-full{grid-column:1/-1;min-width:0}
+.real-workspace-caption{font-size:.76rem;color:#73816e;font-weight:600}
+.real-personal-hero{position:relative;overflow:hidden;background:linear-gradient(115deg,#e4ebd9,#f8f3e9);padding:clamp(24px,4vw,44px);border-radius:37px 20px 42px 23px;margin-bottom:18px;color:#414a35}
+.real-personal-hero::after{content:"";position:absolute;right:-110px;top:-90px;width:280px;height:300px;transform:rotate(25deg);background:#c6d5b6;border-radius:60% 40% 50% 50%/40% 55% 45% 60%;opacity:.7;pointer-events:none}
+.real-personal-hero>*{position:relative;z-index:1}
+.real-personal-hero h1{font-family:Georgia,serif;font-weight:500;letter-spacing:-.04em;margin:5px 0 9px}
+.real-personal-hero>p:not(.real-eyebrow){color:#66735f;margin:0 0 22px}
+.real-personal-summary{display:flex;gap:10px;flex-wrap:wrap}
+.real-personal-summary>div{display:grid;gap:7px;padding:14px 20px;background:#fffdf9c9;border:1px solid #e2e7d8;border-radius:16px;min-width:155px}
+.real-personal-summary small{color:#6a7863;font-size:.73rem}.real-personal-summary strong{color:#414a35;font-size:1.7rem;line-height:1}
+.real-personal-links{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}
+.real-personal-links>a,.real-personal-links>span{min-height:88px;padding:18px 15px;background:#fffdf8;border:1px solid #e6dfd1;border-radius:23px 15px 22px 18px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:6px;font-weight:800;font-size:.86rem;color:#414a35;text-decoration:none}
+.real-personal-links>a{background:#e7efdc}.real-personal-links>a:hover{background:#dce8d0}
+.real-personal-links small{font-size:.65rem;font-weight:500;color:#8a765f}
+.real-patient #real-my-bookings{scroll-margin-top:20px}
+@media(max-width:840px){.real-personal-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.real-personal-links{gap:8px}.real-personal-links>a,.real-personal-links>span{min-height:76px;padding:14px 10px;font-size:.75rem}.real-personal-hero{border-radius:28px 16px 30px 18px}}
+@media(prefers-reduced-motion:reduce){.real-personal-links>a{scroll-behavior:auto}}
