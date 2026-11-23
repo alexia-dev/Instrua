@@ -6,3 +6,29 @@
 .real-bookings{display:grid;gap:10px;max-height:75vh;overflow-y:auto}.real-booking{border:1px solid #E0E0D3;border-radius:14px;background:#F8F8F1;padding:14px}.real-booking h3{font-size:.99rem;margin:10px 0 4px}.real-booking p{font-size:.82rem;margin:0 0 5px;color:#64715d}.real-booking-head{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:.82rem;flex-wrap:wrap}.real-status{background:#E5EBDC;color:#416042;border-radius:20px;padding:5px 10px;font-size:.7rem;font-weight:700}.real-row-actions{display:flex;gap:7px;margin-top:13px;flex-wrap:wrap}.real-row-actions button{border:1px solid #AAB39C;background:white;border-radius:9px;color:var(--r-forest);min-height:42px;padding:7px 12px;font-size:.75rem;font-weight:700}.real-booking small{font-size:.72rem;color:#697061}.real-patient{max-width:800px;margin:auto}.real-patient>.real-panel{margin-top:15px}.real-policy{background:#F4F2EA;border:1px solid #C3C6B9;border-radius:12px;padding:16px}.real-policy h3{font-size:1rem}.real-policy p{white-space:pre-wrap}.real-checkbox{display:flex!important;flex-direction:row;align-items:center;gap:10px}.real-checkbox input{width:20px;height:20px;min-height:20px}.real-spaced{display:block;margin:10px 0}.real-footer{border-top:1px solid var(--r-stroke);text-align:center;padding:25px 15px;color:#757F69;background:#FFFDF8;font-size:.71rem}
 @media(max-width:760px){.real-entry,.real-columns{grid-template-columns:minmax(0,1fr)}.real-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.real-header-actions>span{display:none}.real-container{padding:22px 14px 50px}.real-intro{padding-top:6px}.real-intro h1{font-size:2.5rem}.real-panel{border-radius:18px}.real-topline{align-items:start}}
 @media(prefers-reduced-motion:reduce){.real-app *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Brand harmony — production console, site, Android WebView and desktop share organic tokens. */
+.real-app{background:#f6f3eb;color:#34382d}
+.real-public-main{max-width:none;width:100%;padding:0;margin:0;min-height:calc(100dvh - 10px)}
+.real-mark-image{height:45px;width:45px;display:block;flex:none}
+.real-app:has(.ins-home) .real-alert,.real-app:has(.ins-auth-page) .real-alert{max-width:950px;margin:12px auto;position:relative;z-index:5}
+.real-header{border-bottom:1px solid #e6e2d6;background:#fffdf7}
+.real-panel{border-radius:30px 17px 33px 20px;border-color:#e4dfd2;box-shadow:0 14px 32px #414a350a}
+.real-panel:nth-child(even){border-radius:19px 32px 24px 32px}
+.real-topline h1{font-family:Georgia,serif;font-weight:500;letter-spacing:-.04em}
+.real-tabs{border-bottom:1px solid #e5e2d9;padding-bottom:17px;gap:11px}
+.real-tabs button{border-radius:999px;padding:13px 20px;border-color:#dedbcf;transition:background .16s,color .16s}
+.real-stats>div{border-radius:23px 14px 25px 16px;padding:23px}
+.real-stats>div:nth-child(even){border-radius:14px 26px 16px 24px;background:#f5f5ea}
+.real-stats b{font-family:Georgia,serif;font-weight:500}
+.real-records li{background:#f5f5ed;border-radius:20px 12px 22px 15px;padding:16px}
+.real-booking{background:#f5f5ed;border-radius:23px 12px 21px 15px;padding:19px}
+.real-booking:nth-child(even){border-radius:13px 23px 13px 22px}
+.real-primary{border-radius:14px 21px 14px 19px;min-height:49px}
+.real-secondary{border-radius:99px;min-height:46px}
+.real-form label{gap:9px}
+.real-app input,.real-app select,.real-app textarea{border-radius:12px 18px 12px 15px;background:#fffefa}
+.real-app input:focus,.real-app select:focus,.real-app textarea:focus{border-color:#829374}
+.real-alert{border-radius:16px}
+.real-company-select{width:min(260px,100%)}
+@media(max-width:650px){.real-header{padding:12px 17px;min-height:77px}.real-header-actions{gap:7px;flex-wrap:wrap;justify-content:end}.real-header-actions button{padding:9px 13px;font-size:.7rem;min-height:40px}.real-panel{border-radius:24px 15px 26px 16px;padding:21px}.real-tabs button{padding:11px 15px}.real-container{padding:24px 13px 45px}.real-stats>div{padding:17px}}
