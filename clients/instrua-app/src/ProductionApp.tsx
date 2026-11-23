@@ -157,9 +157,11 @@ export default function ProductionApp() {
       {success&&<p role="status" className="real-alert real-success">{success}<button type="button" aria-label="Fechar aviso" onClick={()=>setSuccess("")}>×</button></p>}
       {!API_URL&&<p role="alert" className="real-alert real-error">API não configurada. Defina VITE_INSTRUA_API_URL para habilitar o ambiente real. Nenhum dado fictício será usado.</p>}
 
-      {!session&&(route==="/entrar"||route==="/cadastro/empresa"||route==="/cadastro/pessoa")?
+      {!session && (
+        route==="/entrar"||route==="/cadastro/empresa"||route==="/cadastro/pessoa"?
         <AuthPage mode={mode} form={authForm} setForm={setAuthForm} onSubmit={authenticate} onNavigate={navigate} busy={busy} apiAvailable={!!API_URL}/>:
-        <SiteHome onNavigate={navigate}/>}
+        <SiteHome onNavigate={navigate}/>
+      )}
 
       {session&&!isPatient&&<><div className="real-topline"><div><p className="real-eyebrow">PAINEL COMERCIAL</p><h1>{business?.name||"Estabelecimentos"}</h1></div>
         {companies.length>0&&<label>Estabelecimento<select value={selected} onChange={e=>setSelected(e.target.value)}>{companies.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>}</div>
