@@ -1,7 +1,7 @@
 import "./modules-hub.css";
-type ReadyTab="agenda"|"clientes"|"equipe"|"servicos";
-type Area="Operação"|"Automações"|"Pessoas e cuidados"|"Comunidade"|"Gestão e tecnologia";
-type Module={name:string;description:string;icon:string;area:Area;tab?:ReadyTab};
+export type ReadyTab="agenda"|"clientes"|"equipe"|"servicos";
+export type Area="Operação"|"Automações"|"Pessoas e cuidados"|"Comunidade"|"Gestão e tecnologia";
+export type Module={name:string;description:string;icon:string;area:Area;tab?:ReadyTab};
 export const modules:Module[]=[
 {name:"Agenda Inteligente",description:"Agenda real com profissionais, procedimentos, confirmação e cancelamento.",icon:"◷",area:"Operação",tab:"agenda"},
 {name:"Gestão de clientes e fichas",description:"Cadastro de clientes e dados básicos com acesso por estabelecimento.",icon:"♙",area:"Operação",tab:"clientes"},
@@ -38,12 +38,13 @@ export const modules:Module[]=[
 {name:"Gestão multissetorial",description:"Organizações, unidades e serviços para diferentes ocupações e profissões.",icon:"⋈",area:"Gestão e tecnologia"},
 {name:"Auditoria e privacidade",description:"Trilhas de acesso, permissões, exportação e governança LGPD.",icon:"☑",area:"Gestão e tecnologia"}
 ];
-const areaOrder:Area[]=["Operação","Automações","Pessoas e cuidados","Comunidade","Gestão e tecnologia"];
-export default function ModulesHub({openTab}:{openTab:(tab:ReadyTab)=>void}){
+export const moduleKey=(module:Module)=>"module:"+module.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+export const areaOrder:Area[]=["Operação","Automações","Pessoas e cuidados","Comunidade","Gestão e tecnologia"];
+export default function ModulesHub({openTab}:{openTab:(tab:string)=>void}){
 return <section className="ins-modules">
   <div className="ins-modules-intro"><div><span className="ins-module-eyebrow">ECOSSISTEMA INSTRUA</span><h2>Um universo de possibilidades, <em>sem perder a simplicidade.</em></h2></div><p>Todos os módulos usam o mesmo projeto. Os disponíveis podem ser abertos aqui; os demais seguem no planejamento e serão ativados somente quando forem seguros e funcionais.</p></div>
   <div className="ins-modules-legend"><span><i className="ins-status-dot is-ready"/>Base conectada à API</span><span><i className="ins-status-dot is-planned"/>Em desenvolvimento</span></div>
-  {areaOrder.map(area=><div key={area} className="ins-module-group"><h3>{area}</h3><div className="ins-module-grid">{modules.filter(m=>m.area===area).map(m=><article key={m.name} className="ins-module-item"><span className="ins-module-symbol" aria-hidden="true">{m.icon}</span><span className="ins-module-tag">{m.tab?"Base conectada":"Em desenvolvimento"}</span><h4>{m.name}</h4><p>{m.description}</p>{m.tab&&<button type="button" onClick={()=>openTab(m.tab!)}>Abrir módulo <span aria-hidden="true">↗</span></button>}</article>)}</div></div>)}
+  {areaOrder.map(area=><div key={area} className="ins-module-group"><h3>{area}</h3><div className="ins-module-grid">{modules.filter(m=>m.area===area).map(m=><article key={m.name} className="ins-module-item"><span className="ins-module-symbol" aria-hidden="true">{m.icon}</span><span className="ins-module-tag">{m.tab?"Base conectada":"🟠 Em desenvolvimento"}</span><h4>{m.name}</h4><p>{m.description}</p><button type="button" onClick={()=>openTab(m.tab||moduleKey(m))}>Abrir área <span aria-hidden="true">↗</span></button></article>)}</div></div>)}
   <aside className="ins-module-feedback"><div><span className="ins-module-eyebrow">BETA INSTRUA</span><h3>Encontrou um erro ou teve uma ideia?</h3><p>Durante os testes, registre problemas e sugestões para evoluirmos o mesmo sistema. Nunca inclua nomes de pacientes, documentos, senhas ou outros dados privados.</p></div><a href="https://github.com/alexia-dev/Instrua/issues/new" target="_blank" rel="noreferrer">Registrar feedback <span aria-hidden="true">↗</span></a></aside>
   <p className="ins-module-disclaimer">Os módulos apresentados como “Em desenvolvimento” não simulam dados nem prometem uma integração que ainda não está disponível. O objetivo é manter a arquitetura e a identidade do Instrua alinhadas enquanto cada função é entregue.</p>
 </section>;
