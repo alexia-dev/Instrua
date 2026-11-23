@@ -27,7 +27,13 @@ public class AppointmentController {
     public AppointmentController(AppointmentService appointments, CompanyPermissionService permissions) { this.appointments = appointments; this.permissions = permissions; }
 
     @GetMapping
-    public List<AppointmentResponse> list(@PathVariable UUID companyId) { return appointments.list(companyId).stream().map(AppointmentResponse::from).toList(); }
+    public List<AppointmentResponse> list(@PathVariable UUID companyId) {
+        UUID clinicalEmployeeId = permissions.requireSchedulingView(companyId);
+        return appointments.list(companyId).stream()
+                .filter(appointment -> clinicalEmployeeId == null ||
+                        (appointment.getEmployee() != null && clinicalEmployeeId.equals(appointment.getEmployee().getId())))
+                .map(AppointmentResponse::from).toList();
+    }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AppointmentResponse create(@PathVariable UUID companyId, @Valid @RequestBody AppointmentRequest request) {
