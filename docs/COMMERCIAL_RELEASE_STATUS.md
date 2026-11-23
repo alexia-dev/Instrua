@@ -7,6 +7,7 @@
 - Painel real para empresa com clientes, equipe/profissionais, serviços e agendamentos via API Spring Boot e PostgreSQL.
 - Visualização de agenda, confirmação, conclusão e cancelamento por usuário autorizado.
 - Jornada do cliente: busca de estabelecimentos ativos, serviços e profissionais; reserva na API; consulta/cancelamento dos próprios agendamentos, com aceite de política vigente quando aplicável.
+- Convites de equipe com código único, validade de 7 dias e aceite autenticado pelo e-mail convidado. O colaborador pode usar a mesma conta pessoal para entrar na área profissional; envio do código é manual até existir provedor de mensagens.
 - Restrições de escrita por pertencimento real ao estabelecimento, limite de 20 reservas por profissional/dia, transação e bloqueio de linha no agendamento, e restrição de sobreposição no próprio PostgreSQL.
 - Teste de integração `CommercialFlowIntegrationTest` com PostgreSQL e MockMvc, abrangendo cadastro real, acesso por empresa, concorrência de horários e reserva do cliente.
 - Empacotamento Docker da API e do site, com PostgreSQL, Caddy HTTPS e variáveis de ambiente externas.
@@ -44,7 +45,7 @@ Para a versão Android apontar para a mesma API externa, configure `VITE_INSTRUA
 ## Bloqueios para ativar clientes reais
 
 1. Testar implantação e operações em servidor real com HTTPS, banco persistente, logs e backup/restauração comprovada.
-2. Finalizar convites e contas próprias para recepção e profissionais, redefinição de senha, rate limiting de autenticação e gerenciamento de sessões.
+2. Validar convite e acessos da equipe em aparelhos reais; finalizar redefinição de senha, rate limiting de autenticação e gerenciamento de sessões.
 3. Revisar autorização e privacidade de **todos os endpoints antigos** antes de permitir dados clínicos; não misturar prontuários entre empresas.
 4. Configurar expediente, salas, feriados e disponibilidade antes de permitir agendamento público irrestrito; o formulário atual tenta o horário escolhido e recebe erro do servidor se houver conflito.
 5. Implementar o envio verdadeiro de notificações/confirmar recebimento. WhatsApp, e-mail, push e remanejamento automatizado **não** são prometidos como operacionais nesta versão.
