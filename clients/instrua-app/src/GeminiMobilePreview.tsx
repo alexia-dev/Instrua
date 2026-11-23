@@ -166,7 +166,7 @@ export default function GeminiMobilePreview() {
 
   return <div className="gmp" style={{ fontSize: largeText ? "112.5%" : "100%" }}>
     <header className="gmp-header">
-      <div className="gmp-brand"><span className="gmp-symbol" aria-hidden="true">✓</span><div><strong>instrua</strong><small>Orientação, conexão e confiança.</small></div></div>
+      <div className="gmp-brand"><img className="gmp-symbol ins-brand-asset" src="/brand-icon.svg" alt="" /><div><strong>instrua</strong><small>Orientação, conexão e confiança.</small></div></div>
       <button type="button" className="gmp-icon-button" aria-label="Abrir todas as seções" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>☰</button>
     </header>
     <div className="gmp-demo-note" role="note">PRÉVIA GEMINI · Apenas dados fictícios · Sem conexão com sistemas reais</div>
