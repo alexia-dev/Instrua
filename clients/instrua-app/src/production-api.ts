@@ -1,9 +1,10 @@
 /**
- * Single source for all authenticated Instrua API calls.
- * Production deliberately has no silent localhost or demo fallback.
+ * Shared API endpoint for Android and web. Explicit build-time configuration
+ * takes precedence; the public beta endpoint is a convenience for QA APKs.
+ * Never embeds credentials or private database endpoints in the client.
  */
 export const API_URL = (import.meta.env.VITE_INSTRUA_API_URL ||
-  (import.meta.env.DEV ? "http://localhost:8080" : "")).replace(/\/$/, "");
+  (import.meta.env.DEV ? "http://localhost:8080" : "https://instrua-api-kiyubi.onrender.com")).replace(/\/$/, "");
 
 export type UserRole = "PATIENT" | "COMPANY_OWNER" | "COMPANY_ADMIN" | "RECEPTION" | "CLINICAL" | "BILLING" | "PLATFORM_ADMIN";
 
