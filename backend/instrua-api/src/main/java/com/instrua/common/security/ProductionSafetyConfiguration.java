@@ -23,7 +23,9 @@ public class ProductionSafetyConfiguration {
             if (neonUrl.isBlank() && (dbPassword.isBlank() || "instrua_dev".equals(dbPassword) || "instrua".equals(dbPassword))) {
                 throw new IllegalStateException("Senha de banco de desenvolvimento não pode ser usada em produção.");
             }
-            if (corsOrigins.isBlank() || corsOrigins.contains("localhost") || !corsOrigins.startsWith("https://")) {
+            if (corsOrigins.isBlank() || !corsOrigins.startsWith("https://") ||
+                    java.util.Arrays.stream(corsOrigins.split(",")).map(String::trim)
+                            .anyMatch(origin -> origin.startsWith("http://") && !origin.equals("http://tauri.localhost"))) {
                 throw new IllegalStateException("Configure APP_SECURITY_CORS_ALLOWED_ORIGINS com origem HTTPS de produção.");
             }
         };
