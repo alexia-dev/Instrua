@@ -14,6 +14,7 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,6 +39,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
+    @Transactional
     public RegistrationResponse register(@Valid @RequestBody RegisterRequest request) {
         if (users.existsByEmailIgnoreCase(request.email())) throw new BusinessException("Já existe uma conta com este e-mail");
         User user = users.save(new User(request.ownerName(), request.email(), passwordEncoder.encode(request.password()), Set.of(Role.COMPANY_OWNER)));
