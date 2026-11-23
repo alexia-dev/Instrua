@@ -27,7 +27,7 @@ public class ServiceOfferingController {
     public ServiceOfferingController(CompanyService companies, ServiceOfferingRepository services, CompanyPermissionService permissions) { this.companies = companies; this.services = services; this.permissions = permissions; }
 
     @GetMapping
-    public List<ServiceResponse> list(@PathVariable UUID companyId) { companies.requireAccess(companyId); return services.findAllByCompanyIdOrderByNameAsc(companyId).stream().map(ServiceResponse::from).toList(); }
+    public List<ServiceResponse> list(@PathVariable UUID companyId) { permissions.requireScheduling(companyId); return services.findAllByCompanyIdOrderByNameAsc(companyId).stream().map(ServiceResponse::from).toList(); }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
