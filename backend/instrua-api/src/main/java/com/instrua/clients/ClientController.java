@@ -2,6 +2,7 @@ package com.instrua.clients;
 
 import com.instrua.companies.Company;
 import com.instrua.companies.CompanyService;
+import com.instrua.common.security.CompanyPermissionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -21,8 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClientController {
     private final CompanyService companies;
     private final ClientRepository clients;
+    private final CompanyPermissionService permissions;
 
-    public ClientController(CompanyService companies, ClientRepository clients) { this.companies = companies; this.clients = clients; }
+    public ClientController(CompanyService companies, ClientRepository clients, CompanyPermissionService permissions) { this.companies = companies; this.clients = clients; this.permissions = permissions; }
 
     @GetMapping
     public List<ClientResponse> list(@PathVariable UUID companyId) {
@@ -33,7 +35,7 @@ public class ClientController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ClientResponse create(@PathVariable UUID companyId, @Valid @RequestBody ClientRequest request) {
-        Company company = companies.requireAccess(companyId);
+        Company company = permissions.requireScheduling(companyId);
         return ClientResponse.from(clients.save(new Client(company, request.name(), request.email(), request.phone(), request.documentNumber(), request.notes())));
     }
 
