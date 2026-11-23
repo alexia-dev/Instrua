@@ -1,0 +1,207 @@
+import { useEffect, useState, type FormEvent } from "react";
+import { api, API_URL, type Appointment, type AppointmentStatus, type CatalogCompany, type CancellationPolicy, type Client, type Company, type Professional, type Service, type Session } from "./production-api";
+import "./production.css";
+
+type Tab = "painel" | "agenda" | "clientes" | "equipe" | "servicos";
+type Mode = "login" | "empresa" | "cliente";
+const labelStatus: Record<AppointmentStatus,string> = {SCHEDULED:"Agendado",CONFIRMED:"Confirmado",CANCELLED:"Cancelado",COMPLETED:"Concluído",NO_SHOW:"Falta"};
+const money=(n:number|null)=> n==null?"Sob consulta":new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(n));
+const when=(d:string)=>new Intl.DateTimeFormat("pt-BR",{dateStyle:"short",timeStyle:"short"}).format(new Date(d));
+const tomorrow=()=>{const d=new Date(Date.now()+86400000);return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")+"T14:00";};
+const message=(e:unknown)=>e instanceof Error?e.message:"Falha inesperada. Tente novamente.";
+const prefix=(companyId:string)=>"/companies/"+companyId;
+
+export default function ProductionApp() {
+  const [mode,setMode]=useState<Mode>("login");
+  const [session,setSession]=useState<Session|null>(null);
+  const [authForm,setAuthForm]=useState({name:"",email:"",password:"",companyName:"",slug:""});
+  const [companies,setCompanies]=useState<Company[]>([]);
+  const [selected,setSelected]=useState("");
+  const [clients,setClients]=useState<Client[]>([]);
+  const [professionals,setProfessionals]=useState<Professional[]>([]);
+  const [services,setServices]=useState<Service[]>([]);
+  const [appointments,setAppointments]=useState<Appointment[]>([]);
+  const [catalog,setCatalog]=useState<CatalogCompany[]>([]);
+  const [ownAppointments,setOwnAppointments]=useState<Appointment[]>([]);
+  const [tab,setTab]=useState<Tab>("painel");
+  const [error,setError]=useState("");
+  const [success,setSuccess]=useState("");
+  const [loading,setLoading]=useState(false);
+  const [busy,setBusy]=useState(false);
+  const [revision,setRevision]=useState(0);
+  const [newClient,setNewClient]=useState({name:"",email:"",phone:""});
+  const [newProfessional,setNewProfessional]=useState({name:"",title:"",email:""});
+  const [newService,setNewService]=useState({name:"",durationMinutes:"30",price:""});
+  const [newBooking,setNewBooking]=useState({clientId:"",employeeId:"",serviceId:"",startsAt:tomorrow(),notes:""});
+  const [cancelReason,setCancelReason]=useState("");
+  const [selectedCatalog,setSelectedCatalog]=useState("");
+  const [patientBooking,setPatientBooking]=useState({serviceId:"",employeeId:"",startsAt:tomorrow(),accepted:false});
+  const [policy,setPolicy]=useState<CancellationPolicy|null>(null);
+  const [patientCancelReason,setPatientCancelReason]=useState("");
+  const isPatient=!!session?.roles.includes("PATIENT")&&!session.roles.includes("COMPANY_OWNER");
+  const business=companies.find(c=>c.id===selected);
+  const catalogBusiness=catalog.find(c=>c.id===selectedCatalog);
+
+  function clearMessages(){setError("");setSuccess("");}
+  function logout(){setSession(null);setAuthForm(f=>({...f,password:""}));setCompanies([]);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
+  async function authenticate(e:FormEvent){
+    e.preventDefault();if(busy)return;setBusy(true);clearMessages();
+    try{
+      let account:Session;
+      if(mode==="login"){account=await api<Session>("/auth/login",undefined,"POST",{email:authForm.email.trim(),password:authForm.password});}
+      else if(mode==="cliente"){account=await api<Session>("/auth/register/patient",undefined,"POST",{name:authForm.name.trim(),email:authForm.email.trim(),password:authForm.password});}
+      else{
+        const data=await api<{authentication:Session;company:Company}>("/auth/register",undefined,"POST",{ownerName:authForm.name.trim(),email:authForm.email.trim(),password:authForm.password,companyName:authForm.companyName.trim(),companySlug:authForm.slug.trim().toLowerCase(),companyEmail:authForm.email.trim(),timezone:"America/Sao_Paulo"});
+        account=data.authentication;setCompanies([data.company]);setSelected(data.company.id);
+      }
+      setAuthForm(f=>({...f,password:""}));setSession(account);setTab("painel");setSuccess("Conta conectada ao Instrua.");
+    }catch(e){setError(message(e));}finally{setBusy(false);}
+  }
+  useEffect(()=>{
+    if(!session)return;let active=true;
+    async function load(){
+      try{
+        if(isPatient){
+          const [a,c]=await Promise.all([api<Appointment[]>("/me/appointments",session!.accessToken),api<CatalogCompany[]>("/catalog",session!.accessToken)]);
+          if(active){setOwnAppointments(a);setCatalog(c);}
+        }else{
+          const c=await api<Company[]>("/companies",session!.accessToken);
+          if(active){setCompanies(c);setSelected(prev=>c.some(x=>x.id===prev)?prev:(c[0]?.id||""));}
+        }
+      }catch(e){if(active)setError(message(e));}
+    }
+    void load();return()=>{active=false;};
+  },[session,isPatient,revision]);
+  useEffect(()=>{
+    if(!session||isPatient||!selected)return;let active=true;setLoading(true);
+    async function load(){
+      try{
+        const p=prefix(selected);
+        const [c,e,s,a]=await Promise.all([
+          api<Client[]>(p+"/clients",session!.accessToken),
+          api<Professional[]>(p+"/employees",session!.accessToken),
+          api<Service[]>(p+"/services",session!.accessToken),
+          api<Appointment[]>(p+"/appointments",session!.accessToken)
+        ]);
+        if(active){setClients(c);setProfessionals(e);setServices(s);setAppointments(a);}
+      }catch(err){if(active)setError(message(err));}
+      finally{if(active)setLoading(false);}
+    }
+    void load();return()=>{active=false;};
+  },[session,selected,isPatient,revision]);
+  useEffect(()=>{setSelectedCatalog(old=>catalog.some(c=>c.id===old)?old:(catalog[0]?.id||""));},[catalog]);
+  useEffect(()=>{
+    if(!catalogBusiness)return;
+    setPatientBooking(old=>({...old,serviceId:catalogBusiness.services.some(s=>s.id===old.serviceId)?old.serviceId:(catalogBusiness.services[0]?.id||""),employeeId:catalogBusiness.professionals.some(p=>p.id===old.employeeId)?old.employeeId:(catalogBusiness.professionals[0]?.id||""),accepted:false}));
+  },[catalogBusiness]);
+  useEffect(()=>{
+    if(!isPatient||!session||!selectedCatalog||!patientBooking.serviceId){setPolicy(null);return;}
+    let active=true;setPolicy(null);
+    void api<CancellationPolicy[]>(prefix(selectedCatalog)+"/cancellation-policies?serviceId="+encodeURIComponent(patientBooking.serviceId),session.accessToken)
+    .then(list=>{if(active)setPolicy(list.find(p=>new Date(p.effective_from).getTime()<=Date.now())||null);})
+    .catch(e=>{if(active)setError(message(e));});
+    return()=>{active=false;};
+  },[session,isPatient,selectedCatalog,patientBooking.serviceId]);
+
+  async function commit<T>(fn:()=>Promise<T>,ok:string,after?:()=>void){
+    if(busy)return;setBusy(true);clearMessages();
+    try{await fn();after?.();setSuccess(ok);setRevision(r=>r+1);}
+    catch(e){setError(message(e));}finally{setBusy(false);}
+  }
+  function createClient(e:FormEvent){e.preventDefault();if(!session||!selected)return;
+    void commit(()=>api<Client>(prefix(selected)+"/clients",session.accessToken,"POST",newClient),"Cliente salvo no PostgreSQL.",()=>setNewClient({name:"",email:"",phone:""}));}
+  function createProfessional(e:FormEvent){e.preventDefault();if(!session||!selected)return;
+    void commit(()=>api<Professional>(prefix(selected)+"/employees",session.accessToken,"POST",{...newProfessional,accessRole:"CLINICAL"}),"Profissional salvo no PostgreSQL.",()=>setNewProfessional({name:"",title:"",email:""}));}
+  function createService(e:FormEvent){e.preventDefault();if(!session||!selected)return;
+    void commit(()=>api<Service>(prefix(selected)+"/services",session.accessToken,"POST",{name:newService.name,durationMinutes:Number(newService.durationMinutes),price:newService.price===""?null:Number(newService.price)}),"Serviço salvo no PostgreSQL.",()=>setNewService({name:"",durationMinutes:"30",price:""}));}
+  function createAppointment(e:FormEvent){e.preventDefault();if(!session||!selected)return;
+    if(!newBooking.clientId||!newBooking.employeeId||!newBooking.serviceId){setError("Escolha cliente, profissional e serviço.");return;}
+    void commit(()=>api<Appointment>(prefix(selected)+"/appointments",session.accessToken,"POST",{...newBooking,startsAt:new Date(newBooking.startsAt).toISOString()}),"Agendamento gravado no servidor.",()=>setNewBooking(x=>({...x,notes:""})));}
+  function updateStatus(id:string,status:AppointmentStatus){
+    if(!session||!selected)return;if(status==="CANCELLED"&&!cancelReason.trim()){setError("Informe o motivo antes de cancelar.");return;}
+    void commit(()=>api<Appointment>(prefix(selected)+"/appointments/"+id+"/status",session.accessToken,"PATCH",{status,reason:status==="CANCELLED"?cancelReason.trim():null}),"Agenda atualizada no servidor.",()=>setCancelReason(""));
+  }
+  function bookSelf(e:FormEvent){e.preventDefault();if(!session||!selectedCatalog)return;
+    if(!patientBooking.employeeId||!patientBooking.serviceId){setError("Escolha serviço e profissional.");return;}
+    if(policy&&!patientBooking.accepted){setError("Leia e aceite a política de cancelamento.");return;}
+    void commit(()=>api(prefix(selectedCatalog)+"/appointments/self",session.accessToken,"POST",{serviceId:patientBooking.serviceId,employeeId:patientBooking.employeeId,startsAt:new Date(patientBooking.startsAt).toISOString(),policyAccepted:!!policy?true:null,cancellationPolicyId:policy?.id||null}),"Agendamento registrado no servidor.",()=>setPatientBooking(x=>({...x,accepted:false})));}
+  function cancelSelf(id:string){if(!session)return;if(!patientCancelReason.trim()){setError("Informe um motivo para cancelar.");return;}
+    void commit(()=>api("/me/appointments/"+id+"/cancel",session.accessToken,"POST",{reason:patientCancelReason.trim(),confirmPotentialFee:false}),"Agendamento cancelado.",()=>setPatientCancelReason(""));}
+
+  return <div className="real-app">
+    <header className="real-header"><div className="real-brand"><span className="real-mark" aria-hidden="true">✓</span><div><strong>instrua</strong><small>Kiyubi Technologies</small></div></div>
+      {session?<div className="real-header-actions"><span>{session.name}</span><button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>
+    <main className="real-container">
+      {error&&<p role="alert" className="real-alert real-error">{error}<button type="button" aria-label="Fechar aviso" onClick={()=>setError("")}>×</button></p>}
+      {success&&<p role="status" className="real-alert real-success">{success}<button type="button" aria-label="Fechar aviso" onClick={()=>setSuccess("")}>×</button></p>}
+      {!API_URL&&<p role="alert" className="real-alert real-error">API não configurada. Defina VITE_INSTRUA_API_URL para habilitar o ambiente real. Nenhum dado fictício será usado.</p>}
+
+      {!session&&<div className="real-entry"><section className="real-intro"><p className="real-eyebrow">INSTRUA · PLATAFORMA OPERACIONAL</p><h1>Seu atendimento organizado. Sua empresa em movimento.</h1><p>Cadastre clientes, equipe, serviços e agendamentos em um só lugar, com banco de dados real e acesso protegido por conta.</p><div className="real-features"><span>✓ Agenda conectada</span><span>✓ Equipe e serviços</span><span>✓ Regras protegidas no servidor</span></div><p className="real-small">Recursos de terceiros e módulos ainda não entregues não são exibidos como ativos.</p></section>
+        <section className="real-panel real-auth"><div className="real-auth-modes">
+          <button type="button" className={mode==="login"?"selected":""} onClick={()=>setMode("login")}>Entrar</button>
+          <button type="button" className={mode==="empresa"?"selected":""} onClick={()=>setMode("empresa")}>Sou empresa</button>
+          <button type="button" className={mode==="cliente"?"selected":""} onClick={()=>setMode("cliente")}>Sou cliente</button>
+        </div><h2>{mode==="login"?"Acesse sua conta":mode==="empresa"?"Cadastre seu negócio":"Crie sua conta"}</h2>
+        <form className="real-form" onSubmit={authenticate}>
+          {mode!=="login"&&<label>Nome completo<input required autoComplete="name" value={authForm.name} onChange={e=>setAuthForm({...authForm,name:e.target.value})}/></label>}
+          {mode==="empresa"&&<><label>Nome do estabelecimento<input required value={authForm.companyName} onChange={e=>setAuthForm({...authForm,companyName:e.target.value})}/></label><label>Identificador da empresa<input required pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="nome-do-estabelecimento" value={authForm.slug} onChange={e=>setAuthForm({...authForm,slug:e.target.value.toLowerCase()})}/></label></>}
+          <label>E-mail<input required type="email" autoComplete="email" value={authForm.email} onChange={e=>setAuthForm({...authForm,email:e.target.value})}/></label>
+          <label>Senha<input required type="password" minLength={mode==="login"?1:8} autoComplete={mode==="login"?"current-password":"new-password"} value={authForm.password} onChange={e=>setAuthForm({...authForm,password:e.target.value})}/></label>
+          <button className="real-primary" type="submit" disabled={busy||!API_URL}>{busy?"Aguarde...":mode==="login"?"Entrar":"Criar conta"}</button>
+        </form></section></div>}
+
+      {session&&!isPatient&&<><div className="real-topline"><div><p className="real-eyebrow">PAINEL COMERCIAL</p><h1>{business?.name||"Estabelecimentos"}</h1></div>
+        {companies.length>0&&<label>Estabelecimento<select value={selected} onChange={e=>setSelected(e.target.value)}>{companies.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>}</div>
+        {companies.length===0?<section className="real-panel"><h2>Sem estabelecimento vinculado</h2><p>Entre com a conta administradora cadastrada para sua empresa.</p></section>:<>
+          <nav className="real-tabs" aria-label="Painel da empresa">{([["painel","Painel"],["agenda","Agenda"],["clientes","Clientes"],["equipe","Equipe"],["servicos","Serviços"]] as [Tab,string][]).map(([key,title])=><button type="button" key={key} className={tab===key?"selected":""} aria-current={tab===key?"page":undefined} onClick={()=>{setTab(key);clearMessages();}}>{title}</button>)}</nav>
+          {loading&&<p role="status">Sincronizando com o servidor...</p>}
+          {tab==="painel"&&<><div className="real-stats"><div><span>Agendamentos</span><b>{appointments.length}</b></div><div><span>Confirmados</span><b>{appointments.filter(a=>a.status==="CONFIRMED").length}</b></div><div><span>Profissionais</span><b>{professionals.length}</b></div><div><span>Clientes</span><b>{clients.length}</b></div></div><section className="real-panel"><h2>Próximos agendamentos</h2><Bookings list={appointments.filter(a=>new Date(a.startsAt).getTime()>=Date.now()&&a.status!=="CANCELLED").slice(0,8)}/><button type="button" className="real-secondary" onClick={()=>setTab("agenda")}>Abrir agenda</button></section></>}
+          {tab==="clientes"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar cliente</h2><form className="real-form" onSubmit={createClient}>
+            <label>Nome<input required value={newClient.name} onChange={e=>setNewClient({...newClient,name:e.target.value})}/></label><label>E-mail<input type="email" value={newClient.email} onChange={e=>setNewClient({...newClient,email:e.target.value})}/></label><label>Telefone<input type="tel" value={newClient.phone} onChange={e=>setNewClient({...newClient,phone:e.target.value})}/></label><button className="real-primary" type="submit" disabled={busy}>Salvar cliente</button></form></section>
+            <section className="real-panel"><h2>Clientes ({clients.length})</h2><Records list={clients.map(c=>({id:c.id,title:c.name,subtitle:c.phone||c.email||"Sem contato"}))}/></section></div>}
+          {tab==="equipe"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar profissional</h2><form className="real-form" onSubmit={createProfessional}>
+            <label>Nome<input required value={newProfessional.name} onChange={e=>setNewProfessional({...newProfessional,name:e.target.value})}/></label><label>Função / especialidade<input value={newProfessional.title} onChange={e=>setNewProfessional({...newProfessional,title:e.target.value})}/></label><label>E-mail<input type="email" value={newProfessional.email} onChange={e=>setNewProfessional({...newProfessional,email:e.target.value})}/></label><button className="real-primary" type="submit" disabled={busy}>Salvar profissional</button></form><p className="real-small">Adicionar à agenda não concede automaticamente acesso à conta.</p></section>
+            <section className="real-panel"><h2>Equipe ({professionals.length})</h2><Records list={professionals.map(p=>({id:p.id,title:p.name,subtitle:p.title||"Profissional"}))}/></section></div>}
+          {tab==="servicos"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar serviço</h2><form className="real-form" onSubmit={createService}>
+            <label>Nome<input required value={newService.name} onChange={e=>setNewService({...newService,name:e.target.value})}/></label><label>Duração em minutos<input type="number" required min="1" max="1440" value={newService.durationMinutes} onChange={e=>setNewService({...newService,durationMinutes:e.target.value})}/></label><label>Preço em reais (opcional)<input type="number" min="0" step=".01" value={newService.price} onChange={e=>setNewService({...newService,price:e.target.value})}/></label><button className="real-primary" type="submit" disabled={busy}>Salvar serviço</button></form></section>
+            <section className="real-panel"><h2>Serviços ({services.length})</h2><Records list={services.map(s=>({id:s.id,title:s.name,subtitle:String(s.durationMinutes)+" min · "+money(s.price)}))}/></section></div>}
+          {tab==="agenda"&&<div className="real-columns"><section className="real-panel"><h2>Novo agendamento</h2><form className="real-form" onSubmit={createAppointment}>
+            <label>Cliente<select value={newBooking.clientId} required onChange={e=>setNewBooking({...newBooking,clientId:e.target.value})}><option value="">Selecionar</option>{clients.filter(c=>c.active).map(c=><option value={c.id} key={c.id}>{c.name}</option>)}</select></label>
+            <label>Profissional<select value={newBooking.employeeId} required onChange={e=>setNewBooking({...newBooking,employeeId:e.target.value})}><option value="">Selecionar</option>{professionals.filter(p=>p.active).map(p=><option value={p.id} key={p.id}>{p.name}</option>)}</select></label>
+            <label>Serviço<select value={newBooking.serviceId} required onChange={e=>setNewBooking({...newBooking,serviceId:e.target.value})}><option value="">Selecionar</option>{services.filter(s=>s.active).map(s=><option value={s.id} key={s.id}>{s.name} ({s.durationMinutes} min)</option>)}</select></label>
+            <label>Data/hora do seu dispositivo<input type="datetime-local" required value={newBooking.startsAt} onChange={e=>setNewBooking({...newBooking,startsAt:e.target.value})}/></label>
+            <label>Observações administrativas<textarea maxLength={2000} rows={3} value={newBooking.notes} onChange={e=>setNewBooking({...newBooking,notes:e.target.value})}/></label>
+            <button className="real-primary" type="submit" disabled={busy||!clients.length||!professionals.length||!services.length}>Registrar no servidor</button></form><p className="real-small">Para reservar, é necessário ter cliente, profissional e serviço cadastrados.</p></section>
+            <section className="real-panel"><div className="real-section-head"><h2>Agenda ({appointments.length})</h2><button className="real-secondary" type="button" onClick={()=>setRevision(v=>v+1)}>Atualizar</button></div>
+              <label>Motivo para cancelar<input placeholder="Obrigatório para cancelamentos" maxLength={1000} value={cancelReason} onChange={e=>setCancelReason(e.target.value)}/></label>
+              <Bookings list={appointments} controls={a=>(a.status==="SCHEDULED"||a.status==="CONFIRMED")?<div className="real-row-actions">{a.status==="SCHEDULED"&&<button disabled={busy} onClick={()=>updateStatus(a.id,"CONFIRMED")}>Confirmar</button>}<button disabled={busy} onClick={()=>updateStatus(a.id,"COMPLETED")}>Concluir</button><button disabled={busy} onClick={()=>updateStatus(a.id,"CANCELLED")}>Cancelar</button></div>:null}/></section></div>}
+        </>}</>}
+
+      {session&&isPatient&&<div className="real-patient"><p className="real-eyebrow">MINHA JORNADA</p><h1>Agendamentos</h1>
+        <section className="real-panel"><h2>Meus atendimentos</h2><Bookings list={ownAppointments}/>
+          <label>Motivo de cancelamento<input maxLength={1000} value={patientCancelReason} onChange={e=>setPatientCancelReason(e.target.value)}/></label>
+          {ownAppointments.filter(a=>a.status==="SCHEDULED"||a.status==="CONFIRMED").map(a=><button className="real-secondary real-spaced" type="button" key={a.id} disabled={busy} onClick={()=>cancelSelf(a.id)}>Cancelar {a.serviceName} — {when(a.startsAt)}</button>)}
+        </section>
+        <section className="real-panel"><h2>Encontrar atendimento</h2>
+          {catalog.length===0?<p>Nenhum estabelecimento ativo disponível.</p>:<form className="real-form" onSubmit={bookSelf}>
+            <label>Estabelecimento<select value={selectedCatalog} onChange={e=>setSelectedCatalog(e.target.value)}>{catalog.map(c=><option value={c.id} key={c.id}>{c.name}</option>)}</select></label>
+            <label>Serviço<select required value={patientBooking.serviceId} onChange={e=>setPatientBooking({...patientBooking,serviceId:e.target.value,accepted:false})}><option value="">Selecionar</option>{catalogBusiness?.services.map(s=><option value={s.id} key={s.id}>{s.name} · {money(s.price)}</option>)}</select></label>
+            <label>Profissional<select required value={patientBooking.employeeId} onChange={e=>setPatientBooking({...patientBooking,employeeId:e.target.value})}><option value="">Selecionar</option>{catalogBusiness?.professionals.map(p=><option value={p.id} key={p.id}>{p.name}</option>)}</select></label>
+            <label>Data/hora do seu dispositivo<input type="datetime-local" required value={patientBooking.startsAt} onChange={e=>setPatientBooking({...patientBooking,startsAt:e.target.value})}/></label>
+            {policy&&<div className="real-policy"><h3>{policy.title}</h3><p>{policy.policy_text}</p><label className="real-checkbox"><input type="checkbox" checked={patientBooking.accepted} onChange={e=>setPatientBooking({...patientBooking,accepted:e.target.checked})}/> Li e aceito a política de cancelamento</label></div>}
+            <button type="submit" className="real-primary" disabled={busy||!patientBooking.employeeId||!patientBooking.serviceId}>Solicitar agendamento</button></form>}
+          <p className="real-small">A disponibilidade é confirmada no servidor no momento da reserva. Sem cobrança online nesta versão.</p>
+        </section></div>}
+    </main>
+    <footer className="real-footer">Instrua · Kiyubi Technologies · Ações desta área são enviadas à API, sem dados de demonstração.</footer>
+  </div>;
+}
+
+function Records({list}:{list:{id:string;title:string;subtitle:string}[]}){
+  if(!list.length)return <p className="real-empty">Nenhum registro. Cadastre o primeiro.</p>;
+  return <ul className="real-records">{list.map(item=><li key={item.id}><strong>{item.title}</strong><small>{item.subtitle}</small></li>)}</ul>;
+}
+function Bookings({list,controls}:{list:Appointment[];controls?:(a:Appointment)=>import("react").ReactNode}){
+  if(!list.length)return <p className="real-empty">Nenhum agendamento cadastrado.</p>;
+  return <div className="real-bookings">{list.map(a=><article className="real-booking" key={a.id}><div className="real-booking-head"><strong>{when(a.startsAt)}</strong><span className="real-status">{labelStatus[a.status]}</span></div><h3>{a.clientName}</h3><p>{a.serviceName} · {a.employeeName||"Sem profissional"}</p>{a.cancellationReason&&<small>Motivo: {a.cancellationReason}</small>}{controls?.(a)}</article>)}</div>;
+}
