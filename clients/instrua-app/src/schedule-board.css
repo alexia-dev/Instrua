@@ -46,3 +46,37 @@
 .ins-schedule-note{font-size:.73rem;color:#7b846f;margin:15px 0 0}
 @media(max-width:600px){.ins-schedule-day,.ins-schedule-filters{width:100%}.ins-schedule-filters label{flex:1;min-width:140px}.ins-schedule-filters input{width:100%}.ins-schedule-overview{padding:15px}.ins-schedule-list-row{grid-template-columns:52px minmax(0,1fr);gap:8px}.ins-schedule-list-row>div:last-child{grid-column:2}.ins-schedule-column{width:230px}}
 @media(prefers-reduced-motion:reduce){.ins-schedule{scroll-behavior:auto}}
+
+
+/* Full period grid: visible times even when the calendar is empty. */
+.ins-cal-scroll{width:100%;max-width:100%;overflow:auto;scrollbar-color:#b3bea9 #f2f4ed;border:1px solid #e0e4d8;border-radius:20px;background:#fffefa;max-height:min(76dvh,830px)}
+.ins-cal-board{display:grid;width:max-content;min-width:100%;grid-auto-rows:minmax(63px,auto);align-items:stretch}
+.ins-cal-corner,.ins-cal-colheading{position:sticky;top:0;z-index:3;min-height:67px;padding:14px 12px;background:#e9efe1;border-bottom:1px solid #d9e2d0;border-right:1px solid #dce4d5}
+.ins-cal-corner{left:0;z-index:5;display:flex;justify-content:center;align-items:center;font-size:.66rem;font-weight:900;color:#75836d}
+.ins-cal-colheading{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;overflow:hidden}
+.ins-cal-colheading strong{font-size:.84rem;line-height:1.3;white-space:normal;color:#414a35}
+.ins-cal-colheading small{font-size:.69rem;color:#72846a}
+.ins-cal-heading-button{border-radius:0!important;min-height:67px!important;text-align:left}
+.ins-cal-heading-button:hover{background:#dce9d3!important}
+.ins-cal-heading-button.today{background:#d1e1c5}
+.ins-cal-clock{position:sticky;left:0;z-index:2;display:flex;justify-content:center;align-items:flex-start;padding:12px 5px;border-right:1px solid #dfe5dc;border-bottom:1px solid #e5e8e1;background:#f9faf6;color:#728168;font-size:.73rem;font-weight:850;min-height:65px}
+.ins-cal-cell{position:relative;display:flex;flex-direction:column;gap:4px;min-height:65px;padding:5px;border-right:1px solid #ecefe8;border-bottom:1px solid #ecefe8;background:#fffefa}
+.ins-cal-cell:nth-of-type(even){background:#fbfcf8}
+.ins-cal-cell>.ins-booking-card{padding:8px;border-radius:11px;margin:0;box-shadow:0 2px 6px #3346220d}
+.ins-cal-cell .ins-booking-time{font-size:.63rem;gap:4px;flex-wrap:wrap}
+.ins-cal-cell .ins-booking-card strong{font-size:.76rem}
+.ins-cal-cell .ins-booking-card p{font-size:.68rem;margin:3px 0}
+.ins-cal-cell .ins-booking-card small{font-size:.6rem}
+.ins-cal-cell .ins-booking-actions button{min-height:28px;font-size:.6rem;padding:4px 6px}
+.ins-cal-month{display:grid;grid-template-columns:repeat(7,minmax(125px,1fr));width:max-content;min-width:100%;background:#fffefa}
+.ins-cal-month-heading{text-align:center;padding:14px 10px;background:#e9efe1;color:#617359;font-weight:850;font-size:.73rem;border-right:1px solid #dbe4d4;border-bottom:1px solid #dbe4d4}
+.ins-cal-month-day{display:flex!important;flex-direction:column;align-items:flex-start;gap:5px;border:0!important;border-right:1px solid #edf0e8!important;border-bottom:1px solid #edf0e8!important;border-radius:0!important;background:#fffefa!important;color:#414a35!important;min-height:127px!important;min-width:0;padding:10px!important;text-align:left;overflow:hidden}
+.ins-cal-month-day.outside{background:#f5f6f1!important;color:#98a093!important}
+.ins-cal-month-day.today{background:#edf4e8!important}
+.ins-cal-month-day:hover{background:#ecf2e6!important}
+.ins-cal-day-number{font-size:.79rem;font-weight:900;color:#5c7152}
+.ins-cal-month-event{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-radius:6px;background:#eaf2e3;color:#466341;padding:3px 6px;font-size:.66rem;line-height:1.5}
+.ins-cal-month-event.cancelled,.ins-cal-month-event.no_show{background:#f5e7e1;color:#8c615a}
+.ins-cal-month-event.completed{background:#e9eaf5;color:#657194}
+.ins-cal-more{font-size:.66rem;color:#8d7c5b}
+@media(max-width:650px){.ins-cal-scroll{border-radius:13px}.ins-cal-month-day{min-height:108px!important}.ins-cal-colheading{padding:10px}.ins-cal-board{grid-auto-rows:minmax(65px,auto)}}
