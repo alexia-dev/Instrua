@@ -100,5 +100,24 @@ class CommercialFlowIntegrationTest {
                 .andExpect(status().isCreated());
         mvc.perform(get("/api/v1/me/appointments").header("Authorization",patient))
                 .andExpect(status().isOk()).andExpect(jsonPath("$[0].serviceName").value("Atendimento de Teste"));
+
+        JsonNode invitation = payload(mvc.perform(post(base + "/invitations")
+                .header("Authorization",owner).contentType(MediaType.APPLICATION_JSON)
+                .content(body(Map.of("email","patient-" + random + "@example.invalid","role","RECEPTION"))))
+                .andExpect(status().isCreated()).andReturn());
+        String invitationToken = invitation.path("token").asText();
+        assertFalse(invitationToken.isBlank());
+        mvc.perform(get("/api/v1/me/invitations/" + invitationToken).header("Authorization",patient))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.role").value("RECEPTION"));
+        mvc.perform(post("/api/v1/me/invitations/" + invitationToken + "/accept").header("Authorization",patient))
+                .andExpect(status().isOk());
+        mvc.perform(post("/api/v1/me/invitations/" + invitationToken + "/accept").header("Authorization",patient))
+                .andExpect(status().isNotFound());
+        mvc.perform(get("/api/v1/companies").header("Authorization",patient))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].id").value(companyId));
+        mvc.perform(post(base + "/clients").header("Authorization",patient)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body(Map.of("name","Cliente Cadastrado pela Recepção"))))
+                .andExpect(status().isCreated());
     }
 }
