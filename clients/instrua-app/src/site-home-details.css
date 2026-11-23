@@ -81,3 +81,9 @@
 @media(max-width:680px){.ins-detail-experience,.ins-detail-journies,.ins-detail-ecosystem,.ins-detail-flow,.ins-detail-faq{padding:65px 20px}.ins-device-layout{grid-template-columns:1fr;gap:30px}.ins-desktop-preview{border-width:6px;border-radius:18px}.ins-preview-toolbar>span:last-child{display:none}.ins-preview-workspace{grid-template-columns:91px minmax(0,1fr);min-height:280px}.ins-preview-workspace aside{font-size:.52rem}.ins-preview-workspace aside span{padding:9px 4px}.ins-preview-main{padding:16px 10px}.ins-preview-main h3{font-size:1.1rem}.ins-preview-metrics{gap:4px}.ins-preview-metrics span{font-size:.51rem;padding:9px 3px}.ins-preview-slot{font-size:.54rem;gap:6px;padding:6px}.ins-mobile-preview{width:min(300px,100%)}.ins-journey-grid,.ins-capability-grid,.ins-detail-flow ol{grid-template-columns:1fr}.ins-journey-card{padding:24px}.ins-detail-heading h2{font-size:2.55rem}.ins-detail-flow li{min-height:140px}}
 @media(min-width:500px) and (max-width:680px){.ins-capability-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.ins-faq-items summary span{transition:none}}
+
+/* Public navigation stays inside the single-page router instead of changing its hash. */
+.ins-landing-links button{border:0;background:none;color:#5e6857;font:inherit;font-size:.85rem;font-weight:650;padding:12px 4px;cursor:pointer;white-space:nowrap}
+.ins-landing-links button:hover{color:#a66f4b}
+.ins-landing-links button:focus-visible{outline:3px solid #b78b47;outline-offset:3px;border-radius:5px}
+@media(max-width:780px){.ins-landing-links{display:none}}
