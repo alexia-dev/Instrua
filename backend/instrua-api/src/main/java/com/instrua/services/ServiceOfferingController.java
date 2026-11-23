@@ -2,6 +2,7 @@ package com.instrua.services;
 
 import com.instrua.companies.Company;
 import com.instrua.companies.CompanyService;
+import com.instrua.common.security.CompanyPermissionService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -22,7 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ServiceOfferingController {
     private final CompanyService companies;
     private final ServiceOfferingRepository services;
-    public ServiceOfferingController(CompanyService companies, ServiceOfferingRepository services) { this.companies = companies; this.services = services; }
+    private final CompanyPermissionService permissions;
+    public ServiceOfferingController(CompanyService companies, ServiceOfferingRepository services, CompanyPermissionService permissions) { this.companies = companies; this.services = services; this.permissions = permissions; }
 
     @GetMapping
     public List<ServiceResponse> list(@PathVariable UUID companyId) { companies.requireAccess(companyId); return services.findAllByCompanyIdOrderByNameAsc(companyId).stream().map(ServiceResponse::from).toList(); }
@@ -30,7 +32,7 @@ public class ServiceOfferingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ServiceResponse create(@PathVariable UUID companyId, @Valid @RequestBody ServiceRequest request) {
-        Company company = companies.requireAccess(companyId);
+        Company company = permissions.requireManager(companyId);
         return ServiceResponse.from(services.save(new ServiceOffering(company, request.name(), request.description(), request.durationMinutes(), request.price())));
     }
 
