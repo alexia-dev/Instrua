@@ -62,3 +62,6 @@
 .gmp-bottom button.selected{background:#E8EDDF;color:var(--gmp-moss);font-weight:800}
 @media(min-width:850px){.gmp-main{padding:28px 28px 36px}.gmp-shortcuts{grid-template-columns:repeat(3,minmax(0,1fr))}.gmp-bottom{position:static;max-width:1050px;margin:0 auto;border:1px solid var(--gmp-border);border-radius:19px}.gmp{padding-bottom:24px}}
 @media(prefers-reduced-motion:reduce){.gmp *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* The Gemini QA interface also uses the Instrua production icon. */
+.gmp-symbol.ins-brand-asset{width:39px;height:39px;min-width:39px;min-height:39px;border-radius:50%;object-fit:contain;background:transparent;border:0;padding:0;box-shadow:none}
