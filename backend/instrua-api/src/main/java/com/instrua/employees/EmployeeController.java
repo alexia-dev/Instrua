@@ -42,7 +42,7 @@ public class EmployeeController {
 
     @GetMapping
     public List<EmployeeResponse> list(@PathVariable UUID companyId) {
-        companies.requireAccess(companyId);
+        permissions.requireScheduling(companyId);
         return employees.findAllByCompanyIdOrderByNameAsc(companyId).stream().map(EmployeeResponse::from).toList();
     }
 
