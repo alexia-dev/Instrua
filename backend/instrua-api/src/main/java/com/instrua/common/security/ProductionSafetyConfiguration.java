@@ -14,12 +14,13 @@ public class ProductionSafetyConfiguration {
     ApplicationRunner failClosedWithoutProductionSecrets(
             @Value("${app.security.jwt-secret}") String secret,
             @Value("${spring.datasource.password}") String dbPassword,
+            @Value("${NEON_DATABASE_URL:}") String neonUrl,
             @Value("${app.security.cors.allowed-origins:}") String corsOrigins) {
         return args -> {
             if (secret.length() < 48 || secret.contains("local-development-secret") || secret.contains("ci-only")) {
                 throw new IllegalStateException("Defina JWT_SECRET aleatório de pelo menos 48 caracteres em produção.");
             }
-            if (dbPassword.isBlank() || "instrua_dev".equals(dbPassword) || "instrua".equals(dbPassword)) {
+            if (neonUrl.isBlank() && (dbPassword.isBlank() || "instrua_dev".equals(dbPassword) || "instrua".equals(dbPassword))) {
                 throw new IllegalStateException("Senha de banco de desenvolvimento não pode ser usada em produção.");
             }
             if (corsOrigins.isBlank() || corsOrigins.contains("localhost") || !corsOrigins.startsWith("https://")) {
