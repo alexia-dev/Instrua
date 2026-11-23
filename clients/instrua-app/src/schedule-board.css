@@ -1,0 +1,48 @@
+/* Instrua — agenda multiprofissional responsiva */
+.ins-schedule{min-width:0;color:#394332}
+.ins-schedule *{box-sizing:border-box}
+.ins-schedule-tools{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:17px}
+.ins-schedule-day,.ins-schedule-filters{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+.ins-schedule button{border:1px solid #d5ddcd;border-radius:11px;background:#f5f7f0;color:#414a35;padding:9px 12px;min-height:41px;font-weight:750}
+.ins-schedule button:hover:not(:disabled){background:#e6eedf}
+.ins-schedule button:focus-visible,.ins-schedule input:focus-visible,.ins-schedule select:focus-visible{outline:3px solid #c18a43;outline-offset:2px}
+.ins-schedule label{display:grid;gap:6px;color:#677660;font-size:.7rem;font-weight:750}
+.ins-schedule input,.ins-schedule select{min-height:41px;border:1px solid #d8dfd2;border-radius:11px;background:#fffefb;padding:8px 10px;color:#384733;font:inherit;max-width:100%}
+.ins-schedule-filters input{width:min(230px,100%)}
+.ins-schedule-overview{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;background:#edf2e8;padding:17px 21px;border-radius:20px;margin:20px 0 13px}
+.ins-schedule-overview>div>span{font-size:.65rem;letter-spacing:.1em;font-weight:800;color:#65785b}
+.ins-schedule-overview h3{font-size:1.2rem;color:#414a35;margin:6px 0}
+.ins-schedule-overview p{font-size:.77rem;color:#71816c;margin:0}
+.ins-schedule-modes{display:flex;gap:5px;background:#fffdfa;padding:5px;border-radius:13px}
+.ins-schedule-modes button{border:0;background:transparent;font-size:.77rem;padding:8px 12px}
+.ins-schedule-modes button.selected{background:#414a35;color:#fff}
+.ins-schedule-scroll{max-width:100%;overflow-x:auto;scrollbar-color:#abb9a4 #eef0e8;padding-bottom:10px;border-radius:15px}
+.ins-schedule-grid{display:flex;align-items:stretch;gap:10px;min-width:min-content}
+.ins-schedule-column{width:250px;min-width:230px;max-width:275px;min-height:210px;border:1px solid #e2e4d9;border-radius:17px;background:#f9faf5;overflow:hidden}
+.ins-schedule-column header{padding:14px 13px;background:#e4ebda;border-bottom:1px solid #d8e0d0;min-height:81px}
+.ins-schedule-column h4{font-size:.89rem;margin:0 0 6px;color:#414a35}
+.ins-schedule-column header span{font-size:.7rem;color:#718265;font-weight:650}
+.ins-schedule-slots{display:grid;gap:9px;align-content:start;padding:10px}
+.ins-booking-card{border:1px solid #e2e6db;border-left:4px solid #9cab8d;border-radius:13px;background:#fffdfa;padding:12px;min-width:0}
+.ins-booking-confirmed{border-left-color:#5d8a5a;background:#f5f9f2}
+.ins-booking-cancelled,.ins-booking-no_show{border-left-color:#b8827c;opacity:.8}
+.ins-booking-completed{border-left-color:#7b8caa}
+.ins-booking-time{display:flex;justify-content:space-between;gap:7px;font-size:.67rem;margin-bottom:8px;color:#607a5a}
+.ins-booking-time time{font-weight:850}.ins-booking-time span{font-weight:650}
+.ins-booking-card>strong{display:block;color:#34492f;font-size:.84rem;overflow-wrap:anywhere}
+.ins-booking-card p{font-size:.74rem;line-height:1.5;margin:5px 0;color:#66725e}
+.ins-booking-card>small{font-size:.67rem;color:#7c8476}
+.ins-booking-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.ins-booking-actions button{padding:5px 8px;min-height:33px;font-size:.7rem}
+.ins-schedule-empty{font-size:.75rem;color:#75806f;padding:14px 9px;line-height:1.6}
+.ins-schedule-list{display:grid;border:1px solid #e3e5dc;border-radius:16px;overflow:hidden}
+.ins-schedule-list-row{display:grid;grid-template-columns:64px minmax(130px,1fr) minmax(125px,.9fr);gap:12px;align-items:center;background:#fffdfa;padding:13px 15px;border-bottom:1px solid #ecebe4}
+.ins-schedule-list-row:last-child{border-bottom:none}
+.ins-schedule-list-row:nth-child(even){background:#f7f8f2}
+.ins-schedule-list-row time{font-size:.78rem;font-weight:850;color:#607554}
+.ins-schedule-list-row>div{display:grid;gap:5px;min-width:0}
+.ins-schedule-list-row strong{font-size:.8rem;color:#414a35;overflow-wrap:anywhere}
+.ins-schedule-list-row small{font-size:.72rem;color:#747e6d}
+.ins-schedule-note{font-size:.73rem;color:#7b846f;margin:15px 0 0}
+@media(max-width:600px){.ins-schedule-day,.ins-schedule-filters{width:100%}.ins-schedule-filters label{flex:1;min-width:140px}.ins-schedule-filters input{width:100%}.ins-schedule-overview{padding:15px}.ins-schedule-list-row{grid-template-columns:52px minmax(0,1fr);gap:8px}.ins-schedule-list-row>div:last-child{grid-column:2}.ins-schedule-column{width:230px}}
+@media(prefers-reduced-motion:reduce){.ins-schedule{scroll-behavior:auto}}
