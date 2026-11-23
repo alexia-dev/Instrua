@@ -34,6 +34,9 @@ export default function AuthPage({mode,form,setForm,onSubmit,onNavigate,busy,api
         <p className="ins-auth-privacy">Seus dados de autenticação são enviados à API segura; nenhuma senha é armazenada nesta página.</p>
       </section>
     </main>
+    {busy&&<div className="ins-auth-loading" role="status" aria-live="polite" aria-label="Autenticando na plataforma">
+      <div className="ins-auth-loading-card"><img src="/brand-icon.svg" alt=""/><span className="ins-auth-loading-dots" aria-hidden="true"><i/><i/><i/></span><strong>Conectando ao Instrua</strong><p>Preparando seu espaço com cuidado…</p></div>
+    </div>}
     <footer className="ins-auth-bottom">Instrua por Kiyubi Technologies · Orientação, conexão e confiança.</footer>
   </div>;
 }
