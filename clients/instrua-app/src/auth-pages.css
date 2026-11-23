@@ -34,3 +34,15 @@
 @media(max-width:900px){.ins-auth-layout{grid-template-columns:1fr;max-width:660px}.ins-auth-art{min-height:245px;padding:30px 40px}.ins-auth-art-copy h2{font-size:2.5rem;max-width:490px;margin:12px 0}.ins-auth-art-copy p{display:none}.ins-auth-floating{display:none}.ins-auth-main{padding:40px}.ins-auth-sparkle{font-size:5rem}}
 @media(max-width:560px){.ins-auth-header{height:72px}.ins-auth-logo small{display:none}.ins-auth-layout{width:calc(100% - 22px);border-radius:27px 15px 30px 18px;margin:4px auto 23px}.ins-auth-art{min-height:175px;padding:23px}.ins-auth-art-copy h2{font-size:2.1rem;margin:7px 0 0}.ins-auth-sparkle{font-size:3rem}.ins-auth-main{padding:30px 21px}.ins-auth-main-head h1{font-size:2.25rem}.ins-auth-back{font-size:.72rem}.ins-auth-form{gap:13px}.ins-auth-bottom{padding-bottom:15px}}
 @media(prefers-reduced-motion:reduce){.ins-auth-page *{animation:none!important;transition:none!important}}
+
+.ins-auth-loading{position:fixed;z-index:9999;inset:0;background:#2c372bc4;backdrop-filter:blur(14px);display:grid;place-items:center;padding:22px}
+.ins-auth-loading-card{width:min(100%,380px);background:#f8f6eb;border-radius:42px 23px 35px 23px;padding:46px 30px;box-shadow:0 24px 80px #0003;text-align:center;display:grid;justify-items:center;gap:13px}
+.ins-auth-loading-card img{width:92px;height:92px;animation:ins-auth-pulse 1.7s ease-in-out infinite}
+.ins-auth-loading-card strong{font:normal 1.9rem Georgia,serif;color:#414a35}
+.ins-auth-loading-card p{font-size:.85rem;margin:0;color:#798372}
+.ins-auth-loading-dots{display:flex;gap:6px;margin:8px 0}
+.ins-auth-loading-dots i{width:8px;height:8px;background:#acb99d;border-radius:50%;animation:ins-auth-dots 1.4s ease-in-out infinite}
+.ins-auth-loading-dots i:nth-child(2){animation-delay:.15s}.ins-auth-loading-dots i:nth-child(3){animation-delay:.3s}
+@keyframes ins-auth-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes ins-auth-dots{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-5px);opacity:1}}
+@media(prefers-reduced-motion:reduce){.ins-auth-loading *{animation:none!important}}
