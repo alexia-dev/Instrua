@@ -38,12 +38,18 @@ export default function ProductionApp() {
   const [patientBooking,setPatientBooking]=useState({serviceId:"",employeeId:"",startsAt:tomorrow(),accepted:false});
   const [policy,setPolicy]=useState<CancellationPolicy|null>(null);
   const [patientCancelReason,setPatientCancelReason]=useState("");
-  const isPatient=!!session?.roles.includes("PATIENT")&&!session.roles.includes("COMPANY_OWNER");
+  const [staffWorkspace,setStaffWorkspace]=useState(false);
+  const [inviteEmail,setInviteEmail]=useState("");
+  const [inviteRole,setInviteRole]=useState("RECEPTION");
+  const [inviteCode,setInviteCode]=useState("");
+  const [acceptCode,setAcceptCode]=useState(()=>new URLSearchParams(window.location.search).get("invite")||"");
+  const hasPatientRole=!!session?.roles.includes("PATIENT");
+  const isPatient=hasPatientRole&&!session?.roles.includes("COMPANY_OWNER")&&!staffWorkspace;
   const business=companies.find(c=>c.id===selected);
   const catalogBusiness=catalog.find(c=>c.id===selectedCatalog);
 
   function clearMessages(){setError("");setSuccess("");}
-  function logout(){setSession(null);setAuthForm(f=>({...f,password:""}));setCompanies([]);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
+  function logout(){setStaffWorkspace(false);setInviteCode("");setSession(null);setAuthForm(f=>({...f,password:""}));setCompanies([]);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
   async function authenticate(e:FormEvent){
     e.preventDefault();if(busy)return;setBusy(true);clearMessages();
     try{
@@ -128,9 +134,19 @@ export default function ProductionApp() {
   function cancelSelf(id:string){if(!session)return;if(!patientCancelReason.trim()){setError("Informe um motivo para cancelar.");return;}
     void commit(()=>api("/me/appointments/"+id+"/cancel",session.accessToken,"POST",{reason:patientCancelReason.trim(),confirmPotentialFee:false}),"Agendamento cancelado.",()=>setPatientCancelReason(""));}
 
+  async function generateInvitation(e:FormEvent){
+    e.preventDefault();if(!session||!selected||busy)return;setBusy(true);clearMessages();
+    try{const response=await api<{token:string}>(prefix(selected)+"/invitations",session.accessToken,"POST",{email:inviteEmail.trim(),role:inviteRole});setInviteCode(response.token);setSuccess("Convite criado. Compartilhe o código somente com o destinatário.");setInviteEmail("");}
+    catch(err){setError(message(err));}finally{setBusy(false);}
+  }
+  async function acceptInvitation(e:FormEvent){
+    e.preventDefault();if(!session||!acceptCode.trim()||busy)return;setBusy(true);clearMessages();
+    try{await api("/me/invitations/"+encodeURIComponent(acceptCode.trim())+"/accept",session.accessToken,"POST");setAcceptCode("");window.history.replaceState(null,"",window.location.pathname);setStaffWorkspace(true);setRevision(v=>v+1);setSuccess("Você agora faz parte da equipe. Acesso atualizado.");}
+    catch(err){setError(message(err));}finally{setBusy(false);}
+  }
   return <div className="real-app">
     <header className="real-header"><div className="real-brand"><span className="real-mark" aria-hidden="true">✓</span><div><strong>instrua</strong><small>Kiyubi Technologies</small></div></div>
-      {session?<div className="real-header-actions"><span>{session.name}</span><button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>
+      {session?<div className="real-header-actions"><span>{session.name}</span>{hasPatientRole&&<button type="button" className="real-secondary" onClick={()=>{setStaffWorkspace(v=>!v);clearMessages();}}>{staffWorkspace?"Minha jornada":"Área profissional"}</button>}<button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>
     <main className="real-container">
       {error&&<p role="alert" className="real-alert real-error">{error}<button type="button" aria-label="Fechar aviso" onClick={()=>setError("")}>×</button></p>}
       {success&&<p role="status" className="real-alert real-success">{success}<button type="button" aria-label="Fechar aviso" onClick={()=>setSuccess("")}>×</button></p>}
@@ -162,6 +178,7 @@ export default function ProductionApp() {
           {tab==="equipe"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar profissional</h2><form className="real-form" onSubmit={createProfessional}>
             <label>Nome<input required value={newProfessional.name} onChange={e=>setNewProfessional({...newProfessional,name:e.target.value})}/></label><label>Função / especialidade<input value={newProfessional.title} onChange={e=>setNewProfessional({...newProfessional,title:e.target.value})}/></label><label>E-mail<input type="email" value={newProfessional.email} onChange={e=>setNewProfessional({...newProfessional,email:e.target.value})}/></label><button className="real-primary" type="submit" disabled={busy}>Salvar profissional</button></form><p className="real-small">Adicionar à agenda não concede automaticamente acesso à conta.</p></section>
             <section className="real-panel"><h2>Equipe ({professionals.length})</h2><Records list={professionals.map(p=>({id:p.id,title:p.name,subtitle:p.title||"Profissional"}))}/></section></div>}
+          {tab==="equipe"&&session.roles.includes("COMPANY_OWNER")&&<section className="real-panel"><h2>Convidar colaborador para acessar o sistema</h2><form className="real-form" onSubmit={generateInvitation}><label>E-mail da pessoa<input type="email" required value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)}/></label><label>Função<select value={inviteRole} onChange={e=>setInviteRole(e.target.value)}><option value="RECEPTION">Recepção</option><option value="CLINICAL">Profissional</option><option value="COMPANY_ADMIN">Administração</option><option value="BILLING">Financeiro</option></select></label><button type="submit" className="real-primary" disabled={busy}>Gerar convite individual</button></form>{inviteCode&&<div className="real-policy"><h3>Código único do convite</h3><input aria-label="Código a compartilhar" readOnly value={inviteCode} onFocus={e=>e.currentTarget.select()}/><p className="real-small">A pessoa deve criar ou acessar a própria conta com o e-mail convidado, abrir Minha jornada e aceitar este código. O código expira em 7 dias.</p></div>}</section>}
           {tab==="servicos"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar serviço</h2><form className="real-form" onSubmit={createService}>
             <label>Nome<input required value={newService.name} onChange={e=>setNewService({...newService,name:e.target.value})}/></label><label>Duração em minutos<input type="number" required min="1" max="1440" value={newService.durationMinutes} onChange={e=>setNewService({...newService,durationMinutes:e.target.value})}/></label><label>Preço em reais (opcional)<input type="number" min="0" step=".01" value={newService.price} onChange={e=>setNewService({...newService,price:e.target.value})}/></label><button className="real-primary" type="submit" disabled={busy}>Salvar serviço</button></form></section>
             <section className="real-panel"><h2>Serviços ({services.length})</h2><Records list={services.map(s=>({id:s.id,title:s.name,subtitle:String(s.durationMinutes)+" min · "+money(s.price)}))}/></section></div>}
@@ -177,7 +194,7 @@ export default function ProductionApp() {
               <Bookings list={appointments} controls={a=>(a.status==="SCHEDULED"||a.status==="CONFIRMED")?<div className="real-row-actions">{a.status==="SCHEDULED"&&<button disabled={busy} onClick={()=>updateStatus(a.id,"CONFIRMED")}>Confirmar</button>}<button disabled={busy} onClick={()=>updateStatus(a.id,"COMPLETED")}>Concluir</button><button disabled={busy} onClick={()=>updateStatus(a.id,"CANCELLED")}>Cancelar</button></div>:null}/></section></div>}
         </>}</>}
 
-      {session&&isPatient&&<div className="real-patient"><p className="real-eyebrow">MINHA JORNADA</p><h1>Agendamentos</h1>
+      {session&&isPatient&&<div className="real-patient"><p className="real-eyebrow">MINHA JORNADA</p><h1>Agendamentos</h1><section className="real-panel"><h2>Convite para equipe de estabelecimento</h2><form className="real-form" onSubmit={acceptInvitation}><label>Seu código de convite<input value={acceptCode} onChange={e=>setAcceptCode(e.target.value)} placeholder="Cole o código recebido" required/></label><button className="real-secondary" type="submit" disabled={busy||!acceptCode.trim()}>Aceitar convite e abrir área profissional</button></form></section>
         <section className="real-panel"><h2>Meus atendimentos</h2><Bookings list={ownAppointments}/>
           <label>Motivo de cancelamento<input maxLength={1000} value={patientCancelReason} onChange={e=>setPatientCancelReason(e.target.value)}/></label>
           {ownAppointments.filter(a=>a.status==="SCHEDULED"||a.status==="CONFIRMED").map(a=><button className="real-secondary real-spaced" type="button" key={a.id} disabled={busy} onClick={()=>cancelSelf(a.id)}>Cancelar {a.serviceName} — {when(a.startsAt)}</button>)}
