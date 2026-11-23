@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-labelledby="title">
+<title id="title">Instrua — símbolo de confirmação</title>
+<circle cx="256" cy="256" r="236" fill="#414A35"/>
+<circle cx="256" cy="256" r="225" fill="none" stroke="#D6C9AD" stroke-width="7"/>
+<path d="M139 261 221 340 376 174" fill="none" stroke="#FCFAF4" stroke-width="53" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
