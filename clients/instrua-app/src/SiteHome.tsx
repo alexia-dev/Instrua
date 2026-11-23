@@ -1,5 +1,6 @@
 import type { MouseEvent } from "react";
 import "./site-home.css";
+import SiteHomeDetails from "./SiteHomeDetails";
 
 type Navigate = (path: string) => void;
 const features = [
@@ -19,7 +20,7 @@ export default function SiteHome({onNavigate}:{onNavigate:Navigate}){
     <header className="ins-landing-header">
       <a className="ins-wordmark" href="#/" onClick={e=>route(e,"/")} aria-label="Instrua, página inicial"><img src="/brand-icon.svg" alt=""/><span><b>instrua</b><small>por Kiyubi Technologies</small></span></a>
       <nav className="ins-landing-links" aria-label="Navegação pública">
-        <a href="#recursos">Recursos</a><a href="#publicos">Para quem</a><a href="#caminho">Como funciona</a>
+        <button type="button" onClick={()=>document.getElementById("recursos")?.scrollIntoView({behavior:"smooth"})}>Recursos</button><button type="button" onClick={()=>document.getElementById("jornadas")?.scrollIntoView({behavior:"smooth"})}>Para quem</button><button type="button" onClick={()=>document.getElementById("ecossistema")?.scrollIntoView({behavior:"smooth"})}>Módulos</button><button type="button" onClick={()=>document.getElementById("perguntas")?.scrollIntoView({behavior:"smooth"})}>Perguntas</button>
       </nav>
       <a className="ins-login-link" href="#/entrar" onClick={e=>route(e,"/entrar")}>Entrar <span aria-hidden="true">↗</span></a>
     </header>
@@ -27,8 +28,8 @@ export default function SiteHome({onNavigate}:{onNavigate:Navigate}){
       <section className="ins-hero" aria-labelledby="ins-hero-title">
         <div className="ins-hero-copy">
           <div className="ins-kicker"><span className="ins-kicker-dot"/> BEM-VINDO AO SEU PRÓXIMO CAPÍTULO</div>
-          <h1 id="ins-hero-title">Cuidar do tempo é <em>cuidar das pessoas.</em></h1>
-          <p>Uma plataforma para organizar atendimentos, facilitar conexões e deixar o dia a dia mais simples — para quem atende e para quem precisa ser atendido.</p>
+          <h1 id="ins-hero-title">Confirma, orienta e <em>organiza seus atendimentos.</em></h1>
+          <p>Agenda, confirmações, orientações e gestão em um só ecossistema. Um espaço acolhedor para clientes e ferramentas completas para profissionais, recepção e estabelecimentos.</p>
           <div className="ins-hero-actions">
             <a className="ins-button ins-button-primary" href="#/cadastro/empresa" onClick={e=>route(e,"/cadastro/empresa")}>Começar com meu negócio <span aria-hidden="true">↗</span></a>
             <a className="ins-button ins-button-light" href="#/cadastro/pessoa" onClick={e=>route(e,"/cadastro/pessoa")}>Sou cliente <span aria-hidden="true">→</span></a>
@@ -59,6 +60,7 @@ export default function SiteHome({onNavigate}:{onNavigate:Navigate}){
         <span className="ins-section-eyebrow">DO SEU JEITO</span><h2>Um lugar para <em>cada jornada.</em></h2>
         <div className="ins-audience-grid">{goals.map((item,i)=><article key={item.name} className="ins-audience-card"><span className="ins-audience-count">0{i+1}</span><h3>{item.name}</h3><p>{item.description}</p></article>)}</div>
       </section>
+      <SiteHomeDetails onNavigate={onNavigate}/>
       <section id="caminho" className="ins-cta"><div className="ins-cta-decoration" aria-hidden="true">✳</div><span className="ins-section-eyebrow">VAMOS JUNTOS?</span><h2>Uma rotina mais leve <em>começa aqui.</em></h2><p>Escolha como quer começar. O Instrua cresce junto com seu trabalho, no navegador e no celular.</p><div className="ins-hero-actions"><a className="ins-button ins-button-cream" href="#/cadastro/empresa" onClick={e=>route(e,"/cadastro/empresa")}>Cadastrar minha empresa <span aria-hidden="true">↗</span></a><a className="ins-button ins-button-outline" href="#/entrar" onClick={e=>route(e,"/entrar")}>Já tenho uma conta <span aria-hidden="true">→</span></a></div></section>
     </main>
     <footer className="ins-landing-footer"><a className="ins-wordmark" href="#/" onClick={e=>route(e,"/")}><img src="/brand-icon.svg" alt=""/><span><b>instrua</b><small>Orientação, conexão e confiança.</small></span></a><span>© {new Date().getFullYear()} Kiyubi Technologies · Criado para conectar.</span></footer>
