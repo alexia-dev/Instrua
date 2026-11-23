@@ -1,0 +1,18 @@
+{
+  "name": "Instrua — Kiyubi Technologies",
+  "short_name": "Instrua",
+  "description": "Orientação, conexão e confiança. Agendamentos e gestão em um só lugar.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F1E8",
+  "theme_color": "#414A35",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/brand-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
