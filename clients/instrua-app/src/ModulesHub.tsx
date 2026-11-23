@@ -7,6 +7,12 @@ export const modules:Module[]=[
 {name:"Gestão de clientes e fichas",description:"Cadastro de clientes e dados básicos com acesso por estabelecimento.",icon:"♙",area:"Operação",tab:"clientes"},
 {name:"Equipe e convites",description:"Cadastre profissionais e convide colaboradores com código individual.",icon:"♧",area:"Operação",tab:"equipe"},
 {name:"Serviços e procedimentos",description:"Configure duração, especialidade, nome e preço dos seus serviços.",icon:"✳",area:"Operação",tab:"servicos"},
+{name:"Painel da recepção",description:"Rotina de agendas, convênios, autorizações, orientações e encaixes por equipe.",icon:"◎",area:"Operação"},
+{name:"Eventos e calendários",description:"Agenda de eventos da unidade, compromissos de cuidado, exames e tarefas.",icon:"▤",area:"Operação"},
+{name:"Identidade e verificação",description:"Selfie, documento e prova de vida somente com necessidade, proteção e validação.",icon:"◇",area:"Pessoas e cuidados"},
+{name:"Gestão de cancelamentos do dia",description:"Avisar pessoas afetadas e oferecer outras datas após aprovação das regras.",icon:"↻",area:"Automações"},
+{name:"Acessibilidade e preferências",description:"Textos claros, tamanho ajustável, contrastes, preferências de comunicação e idiomas.",icon:"◉",area:"Pessoas e cuidados"},
+{name:"Expansão hospitalar e interoperabilidade",description:"Integrações com sistemas clínicos, fluxos assistenciais e modelos HL7/FHIR.",icon:"✚",area:"Gestão e tecnologia"},
 {name:"Agenda por sala e profissional",description:"Colunas, semanas, filtros, encaixes, horários e disponibilidade configurável.",icon:"▦",area:"Operação"},
 {name:"Pré-check-in e autorizações",description:"QR Code, pré-cadastro, elegibilidade e autorizações de consultas e exames.",icon:"◈",area:"Operação"},
 {name:"Posição na fila",description:"Mostrar senhas, atendimentos anteriores e estimativas reais.",icon:"↗",area:"Operação"},
@@ -38,6 +44,7 @@ return <section className="ins-modules">
   <div className="ins-modules-intro"><div><span className="ins-module-eyebrow">ECOSSISTEMA INSTRUA</span><h2>Um universo de possibilidades, <em>sem perder a simplicidade.</em></h2></div><p>Todos os módulos usam o mesmo projeto. Os disponíveis podem ser abertos aqui; os demais seguem no planejamento e serão ativados somente quando forem seguros e funcionais.</p></div>
   <div className="ins-modules-legend"><span><i className="ins-status-dot is-ready"/>Base conectada à API</span><span><i className="ins-status-dot is-planned"/>Em desenvolvimento</span></div>
   {areaOrder.map(area=><div key={area} className="ins-module-group"><h3>{area}</h3><div className="ins-module-grid">{modules.filter(m=>m.area===area).map(m=><article key={m.name} className="ins-module-item"><span className="ins-module-symbol" aria-hidden="true">{m.icon}</span><span className="ins-module-tag">{m.tab?"Base conectada":"Em desenvolvimento"}</span><h4>{m.name}</h4><p>{m.description}</p>{m.tab&&<button type="button" onClick={()=>openTab(m.tab!)}>Abrir módulo <span aria-hidden="true">↗</span></button>}</article>)}</div></div>)}
+  <aside className="ins-module-feedback"><div><span className="ins-module-eyebrow">BETA INSTRUA</span><h3>Encontrou um erro ou teve uma ideia?</h3><p>Durante os testes, registre problemas e sugestões para evoluirmos o mesmo sistema. Nunca inclua nomes de pacientes, documentos, senhas ou outros dados privados.</p></div><a href="https://github.com/alexia-dev/Instrua/issues/new" target="_blank" rel="noreferrer">Registrar feedback <span aria-hidden="true">↗</span></a></aside>
   <p className="ins-module-disclaimer">Os módulos apresentados como “Em desenvolvimento” não simulam dados nem prometem uma integração que ainda não está disponível. O objetivo é manter a arquitetura e a identidade do Instrua alinhadas enquanto cada função é entregue.</p>
 </section>;
 }
