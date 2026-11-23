@@ -28,7 +28,7 @@ public class ClientController {
 
     @GetMapping
     public List<ClientResponse> list(@PathVariable UUID companyId) {
-        companies.requireAccess(companyId);
+        permissions.requireScheduling(companyId);
         return clients.findAllByCompanyIdOrderByNameAsc(companyId).stream().map(ClientResponse::from).toList();
     }
 
