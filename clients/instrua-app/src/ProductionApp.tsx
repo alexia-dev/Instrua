@@ -183,8 +183,7 @@ export default function ProductionApp() {
                     const target=m.tab||moduleKey(m);
                     return <button type="button" key={moduleKey(m)} className={"real-sidebar-module"+(tab===target?" selected":"")} onClick={()=>{setTab(target);clearMessages();}} aria-current={tab===target?"page":undefined}>
                       <span className="real-tab-symbol" aria-hidden="true">{m.icon}</span>
-                      <span className="real-sidebar-module-title">{m.name}</span>
-                      {!m.tab&&<span className="real-sidebar-inprogress" aria-label="Em desenvolvimento" title="Em desenvolvimento"/>}
+                      <span className="real-sidebar-module-title"><strong>{m.name}</strong>{!m.tab&&<small><span className="real-sidebar-inprogress" aria-hidden="true"/> Em desenvolvimento</small>}</span>
                     </button>;
                   })}
                 </div>)}
