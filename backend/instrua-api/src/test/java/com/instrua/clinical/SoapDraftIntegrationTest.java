@@ -112,6 +112,31 @@ class SoapDraftIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.soapDraft.objective").value(clinical.get("objective")));
 
+        
+        // Clinics must be able to document care for a locally scheduled person who
+        // has no Instrua login. Never infer identity by matching names or CPF.
+        JsonNode localClient=json(mvc.perform(post(base+"/clients")
+            .header("Authorization",owner).contentType(MediaType.APPLICATION_JSON)
+            .content(body(Map.of("name","Paciente Local Sem Conta"))))
+            .andExpect(status().isCreated()).andReturn());
+        JsonNode localBooking=json(mvc.perform(post(base+"/appointments")
+            .header("Authorization",owner).contentType(MediaType.APPLICATION_JSON)
+            .content(body(Map.of("clientId",localClient.path("id").asText(),
+                "employeeId",employeeId,"serviceId",service.path("id").asText(),
+                "startsAt",Instant.now().plus(5,ChronoUnit.DAYS).truncatedTo(ChronoUnit.MINUTES).toString()))))
+            .andExpect(status().isCreated()).andReturn());
+        String localPath=base+"/clinical/appointments/"+localBooking.path("id").asText();
+        mvc.perform(get(localPath).header("Authorization",clinician))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.patientLinked").value(false))
+            .andExpect(jsonPath("$.canStartRecord").value(true));
+        JsonNode localStarted=json(mvc.perform(post(localPath+"/encounter").header("Authorization",clinician))
+            .andExpect(status().isCreated()).andReturn());
+        assertTrue(localStarted.path("patientLinked").asBoolean());
+        String localSoap=base+"/clinical/encounters/"+localStarted.path("encounterId").asText()+"/soap-draft";
+        mvc.perform(put(localSoap).header("Authorization",clinician)
+            .contentType(MediaType.APPLICATION_JSON).content(body(clinical)))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.status").value("DRAFT"));
+
         // A second clinician employed by the same company cannot open this person's encounter.
         String otherEmail="other-clinician-"+stamp+"@example.invalid";
         String other=bearer(registerPatient("Outra Profissional",otherEmail).path("accessToken").asText());
