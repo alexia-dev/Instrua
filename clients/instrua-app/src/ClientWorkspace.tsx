@@ -13,7 +13,7 @@ const initial:FormData={name:"",email:"",phone:"",documentNumber:"",notes:"",rg:
  street:"",streetNumber:"",complement:"",neighborhood:"",city:"",state:""};
 const format=(v:ClientDetails):FormData=>Object.fromEntries(Object.keys(initial).map(k=>[k,String((v as unknown as Record<string,unknown>)[k]??"")])) as FormData;
 const message=(e:unknown)=>e instanceof Error?e.message:"Não foi possível concluir.";
-export default function ClientWorkspace({session,companyId,clients,onChanged}:{session:Session;companyId:string;clients:Client[];onChanged:()=>void}){
+export default function ClientWorkspace({session,companyId,clients,onChanged,onSchedule}:{session:Session;companyId:string;clients:Client[];onChanged:()=>void;onSchedule:(clientId:string)=>void}){
  const [email,setEmail]=useState("");const [phone,setPhone]=useState("");
  const [matches,setMatches]=useState<Match[]>([]);
  const [mode,setMode]=useState<"lookup"|"edit">("lookup");
@@ -114,6 +114,7 @@ export default function ClientWorkspace({session,companyId,clients,onChanged}:{s
        <label>Orientações administrativas <textarea rows={3} maxLength={4000} value={form.notes} onChange={e=>edit("notes",e.target.value)} placeholder="Somente informações necessárias ao atendimento. Não inclua prontuário médico."/></label>
        <p className="real-small">Esta é uma ficha operacional do estabelecimento, não um prontuário clínico. A emissão de nota fiscal ainda requer integração fiscal e informações do prestador.</p>
        <button className="real-primary" type="submit" disabled={busy}>{busy?"Salvando...":selectedId?"Salvar alterações":"Salvar ficha"}</button>
+       {selectedId&&<button type="button" className="real-secondary" disabled={busy} onClick={()=>onSchedule(selectedId)}>Agendar atendimento com esta ficha →</button>}
      </form>
    </section>}
  </section>;
