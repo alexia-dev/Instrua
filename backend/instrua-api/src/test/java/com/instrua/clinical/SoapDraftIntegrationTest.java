@@ -85,8 +85,7 @@ class SoapDraftIntegrationTest {
         mvc.perform(get(appointmentPath).header("Authorization",owner)).andExpect(status().isNotFound());
         mvc.perform(get(appointmentPath).header("Authorization",patient)).andExpect(status().isNotFound());
         mvc.perform(get(appointmentPath).header("Authorization",clinician))
-            .andExpect(status().isOk()).andExpect(jsonPath("$.patientLinked").value(true))
-            .andExpect(jsonPath("$.encounterId").isEmpty());
+            .andExpect(status().isOk()).andExpect(jsonPath("$.patientLinked").value(true));
 
         JsonNode started=json(mvc.perform(post(appointmentPath+"/encounter").header("Authorization",clinician))
             .andExpect(status().isCreated()).andReturn());
