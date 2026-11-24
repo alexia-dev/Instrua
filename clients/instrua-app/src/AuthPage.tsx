@@ -30,7 +30,8 @@ export default function AuthPage({mode,form,setForm,onSubmit,onNavigate,busy,api
           <button className="ins-auth-submit" type="submit" disabled={busy||!apiAvailable}>{busy?"Conectando com segurança…":isLogin?"Entrar no Instrua":isCompany?"Criar conta do estabelecimento":"Criar minha conta"} <span aria-hidden="true">↗</span></button>
           {!apiAvailable&&<p role="alert" className="ins-auth-notice">Servidor temporariamente indisponível para cadastro. Tente novamente mais tarde.</p>}
         </form>
-        {isLogin?<div className="ins-auth-footer"><p>Ainda não tem uma conta?</p><div><button onClick={()=>onNavigate("/cadastro/pessoa")}>Sou cliente</button><button onClick={()=>onNavigate("/cadastro/empresa")}>Tenho um negócio</button></div></div>:<div className="ins-auth-footer"><p>Já tem uma conta?</p><button onClick={()=>onNavigate("/entrar")}>Entrar com meu e-mail →</button></div>}
+        {isLogin?<div className="ins-auth-footer"><p>Ainda não tem uma conta?</p><div><button onClick={()=>onNavigate("/cadastro/pessoa")}>Sou cliente</button><button onClick={()=>onNavigate("/cadastro/empresa")}>Sou profissional autônomo</button><button onClick={()=>onNavigate("/cadastro/empresa")}>Tenho um estabelecimento</button></div></div>:<div className="ins-auth-footer"><p>Já tem uma conta?</p><button onClick={()=>onNavigate("/entrar")}>Entrar com meu e-mail →</button></div>}
+        {!isLogin&&isCompany&&<p className="ins-auth-privacy">Profissional autônomo: use o nome do seu consultório ou negócio para criar seu espaço de trabalho. Profissional de um estabelecimento existente: crie uma conta pessoal e aceite o convite da equipe.</p>}
         <p className="ins-auth-privacy">Seus dados de autenticação são enviados à API segura; nenhuma senha é armazenada nesta página.</p>
       </section>
     </main>
