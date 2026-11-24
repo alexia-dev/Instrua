@@ -172,3 +172,30 @@
 .ins-personal-modules article p{font-size:.8rem;color:#6b7564;margin:9px 0 14px}
 .ins-personal-modules article small{font-size:.68rem;color:#8a795e;font-weight:800}
 @media(max-width:750px){.real-patient{padding-bottom:65px}.ins-personal-nav{position:sticky;top:0;z-index:5;background:#f6f3ebeb;backdrop-filter:blur(12px);padding:9px 3px 12px;margin-top:-10px}.ins-personal-nav button{min-height:45px;padding:9px 12px;font-size:.74rem}}
+
+/* True profile switch: no role is self-granted; workspaces originate from the API. */
+.ins-workspace-switch{min-width:175px;display:grid;gap:4px;font-size:.65rem;color:#64725f}
+.ins-workspace-switch span{font-size:.64rem;font-weight:750;letter-spacing:.07em}
+.real-app .ins-workspace-switch select{min-height:40px;width:auto;max-width:265px;border-radius:100px;padding:7px 14px;background:#e9efdf;border:1px solid #d2ddc9;color:#414a35;font-size:.74rem;font-weight:850}
+@media(max-width:760px){.ins-workspace-switch{min-width:130px}.real-app .ins-workspace-switch select{max-width:170px;font-size:.7rem}.real-header-actions{gap:7px}}
+/* Personal appearance is tied to the authenticated account and applied to every workspace. */
+html[data-instrua-theme="dark"] .real-app{--r-cream:#1d251c;--r-forest:#dae7cf;--r-ink:#edf4e7;--r-stroke:#52634a;color:#ecf3e6;background:#1d251c}
+html[data-instrua-theme="dark"] .real-app :is(.real-header,.real-panel,.real-tabs,.ins-settings-content,.ins-settings-nav,.ins-extras-card,.ins-overview-social,.ins-dash-panel,.ins-dash-shortcuts,.ins-clients-results,.ins-profile-form,.real-booking,.real-stats>div,.ins-clients-existing,.ins-overview-feed article){background:#293326;color:#edf4e7;border-color:#526149}
+html[data-instrua-theme="dark"] .real-app :is(h1,h2,h3,h4,.real-brand strong,.real-stats b,.ins-settings-content strong,.ins-profile-form h4,.real-topline h1,.ins-overview-social h2,.ins-overview-sales h2,.ins-clients-hero h2,.ins-sidebar-intro strong,.real-booking h3){color:#edf4e7}
+html[data-instrua-theme="dark"] .real-app :is(p,small,.real-small,.real-eyebrow,.ins-extras-heading p,.ins-settings-content label,.real-booking p,.real-stats span){color:#cbd8c1}
+html[data-instrua-theme="dark"] .real-app :is(.real-dashboard-welcome,.real-personal-hero,.ins-extras-hero,.ins-clients-hero,.ins-dash-hero,.ins-overview-sales){background:linear-gradient(120deg,#35482f,#283525);border-color:#526149;color:#edf4e7}
+html[data-instrua-theme="dark"] .real-app :is(.real-dashboard-welcome p,.real-personal-hero>p,.ins-dash-hero p,.ins-extras-hero p,.ins-clients-hero p){color:#dbe5d2}
+html[data-instrua-theme="dark"] .real-app :is(input,select,textarea,.real-app input,.real-app select,.real-app textarea){background:#34432f;border-color:#6c8161;color:#eff7e9}
+html[data-instrua-theme="dark"] .real-app :is(input:disabled){background:#394236;color:#b9cbb1}
+html[data-instrua-theme="dark"] .real-app :is(.real-secondary,.ins-workspace-switch select,.ins-personal-nav button,.ins-settings-nav button,.ins-overview-social button){background:#3e5037;border-color:#708265;color:#eff7e9}
+html[data-instrua-theme="dark"] .real-app .real-primary{background:#dce9d0;color:#283525;border-color:#dce9d0}
+html[data-instrua-theme="dark"] .real-app .real-booking{background:#2a3727}
+html[data-instrua-theme="dark"] .real-app .real-workspace-layout .real-tabs{background:#293326;border-color:#526149}
+html[data-instrua-theme="dark"] .real-app .real-workspace-layout .real-tabs button:not(.selected){color:#d9e5d0}
+html[data-instrua-theme="dark"] .real-app .ins-settings-nav button.selected{background:#5e7653;color:white}
+html[data-instrua-theme="dark"] .real-app .ins-overview-sales-amount{background:#1a2418}
+html[data-instrua-contrast="high"] .real-app{--r-forest:#162610;--r-ink:#182215;--r-stroke:#35492c;color:#15250e;background:#fff}
+html[data-instrua-contrast="high"] .real-app :is(.real-panel,.real-header,.ins-settings-content,.ins-settings-nav,.real-stats>div,.ins-overview-social,.ins-overview-sales,.ins-profile-form){background:#fff;color:#15250e;border:2px solid #35492c}
+html[data-instrua-contrast="high"] .real-app :is(.real-primary,.ins-settings-nav button.selected,.real-tabs button.selected){background:#152811;color:#fff;border:2px solid #152811}
+html[data-instrua-contrast="high"] .real-app :is(p,small,input,select,textarea,.real-app h1,.real-app h2,.real-app h3){opacity:1}
+html[data-instrua-contrast="high"] .real-app :is(button,a,input,textarea,select):focus-visible{outline:4px solid #c18a43!important;outline-offset:3px}
