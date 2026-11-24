@@ -2,7 +2,7 @@ import {Fragment,useMemo,useState} from "react";
 import type {Appointment,AppointmentStatus,Professional} from "./production-api";
 import "./schedule-board.css";
 
-type View="day"|"week"|"month";
+type View="day"|"week"|"month"|"list";
 type Column={id:string;name:string};
 const statusText:Record<AppointmentStatus,string>={SCHEDULED:"Agendado",CONFIRMED:"Confirmado",COMPLETED:"Concluído",CANCELLED:"Cancelado",NO_SHOW:"Não compareceu"};
 const dateInput=(d:Date)=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");
@@ -23,17 +23,19 @@ type Props={appointments:Appointment[];professionals:Professional[];canManage:bo
 export default function ScheduleBoard({appointments,professionals,canManage,busy,onStatus}:Props){
   const [date,setDate]=useState(()=>dateInput(new Date()));
   const [search,setSearch]=useState("");
-  const [view,setView]=useState<View>("week");
+  const [view,setView]=useState<View>("day");
+  const [statusFilter,setStatusFilter]=useState<"all"|AppointmentStatus>("all");
   const [employee,setEmployee]=useState("all");
   const weekStart=startOfWeek(date);
   const monthStart=startOfMonth(date);
   const visible=useMemo(()=>appointments.filter(a=>
     (employee==="all"||a.employeeId===employee)&&
+    (statusFilter==="all"||a.status===statusFilter)&&
     (a.clientName+" "+a.serviceName+" "+(a.employeeName||"")).toLocaleLowerCase("pt-BR").includes(search.toLocaleLowerCase("pt-BR"))
-  ),[appointments,employee,search]);
+  ),[appointments,employee,search,statusFilter]);
   const period=useMemo(()=>visible.filter(a=>{
     const d=appointmentDay(a.startsAt);
-    return view==="day"?d===date:view==="week"?d>=weekStart&&d<addDays(weekStart,7):d.startsWith(monthStart.slice(0,7));
+    return view==="day"||view==="list"?d===date:view==="week"?d>=weekStart&&d<addDays(weekStart,7):d.startsWith(monthStart.slice(0,7));
   }).sort((a,b)=>new Date(a.startsAt).getTime()-new Date(b.startsAt).getTime()),[visible,view,date,weekStart,monthStart]);
   const byDay=useMemo(()=>{
     const result=new Map<string,Appointment[]>();
@@ -64,9 +66,14 @@ export default function ScheduleBoard({appointments,professionals,canManage,busy
     const start=startOfWeek(monthStart);
     return Array.from({length:42},(_,i)=>addDays(start,i));
   },[monthStart]);
-  const heading=view==="day"?format(date,{weekday:"long",day:"numeric",month:"long",year:"numeric"}):view==="week"?format(weekStart,{day:"2-digit",month:"short"})+" – "+format(addDays(weekStart,6),{day:"2-digit",month:"short",year:"numeric"}):format(monthStart,{month:"long",year:"numeric"});
-  const move=(direction:number)=>setDate(d=>view==="day"?addDays(d,direction):view==="week"?addDays(d,7*direction):addMonths(d,direction));
+  const heading=view==="day"||view==="list"?format(date,{weekday:"long",day:"numeric",month:"long",year:"numeric"}):view==="week"?format(weekStart,{day:"2-digit",month:"short"})+" – "+format(addDays(weekStart,6),{day:"2-digit",month:"short",year:"numeric"}):format(monthStart,{month:"long",year:"numeric"});
+  const move=(direction:number)=>setDate(d=>view==="day"||view==="list"?addDays(d,direction):view==="week"?addDays(d,7*direction):addMonths(d,direction));
   const chooseDay=(day:string)=>{setDate(day);setView("day");};
+  const dayTotal=appointments.filter(a=>appointmentDay(a.startsAt)===date);
+  const dayScheduled=dayTotal.filter(a=>a.status==="SCHEDULED"||a.status==="CONFIRMED");
+  const dayConfirmed=dayTotal.filter(a=>a.status==="CONFIRMED");
+  const dayCompleted=dayTotal.filter(a=>a.status==="COMPLETED");
+  const dayProfessionals=new Set(dayTotal.map(a=>a.employeeId).filter(Boolean)).size;
   const startingSlot=(a:Appointment,day:string,slot:number)=>appointmentDay(a.startsAt)===day&&Math.floor(minutesAt(a.startsAt)/30)*30===slot;
 
   function eventCard(a:Appointment,showProfessional:boolean){
@@ -83,6 +90,8 @@ export default function ScheduleBoard({appointments,professionals,canManage,busy
   }
 
   return <div className="ins-schedule">
+    <section className="ins-schedule-hero"><div><span className="ins-schedule-kicker">RECEPÇÃO · ORGANIZAÇÃO DO DIA</span><h2>Agenda multiprofissional</h2><p>Horários lado a lado, com informações reais e ações de acordo com suas permissões.</p></div><span className="ins-schedule-hero-date">{new Intl.DateTimeFormat("pt-BR",{weekday:"long",day:"numeric",month:"long"}).format(localDate(date))}</span></section>
+    <div className="ins-schedule-metrics"><div><small>Atendimentos no dia</small><strong>{dayTotal.length}</strong></div><div><small>Agendados / confirmados</small><strong>{dayScheduled.length}</strong></div><div><small>Confirmados</small><strong>{dayConfirmed.length}</strong></div><div><small>Concluídos</small><strong>{dayCompleted.length}</strong></div><div><small>Profissionais com atendimentos</small><strong>{dayProfessionals}</strong></div></div>
     <div className="ins-schedule-tools">
       <div className="ins-schedule-day">
         <button type="button" aria-label="Período anterior" onClick={()=>move(-1)}>‹</button>
@@ -98,17 +107,24 @@ export default function ScheduleBoard({appointments,professionals,canManage,busy
         </select></label>
       </div>
     </div>
+    <div className="ins-schedule-status-filters" role="group" aria-label="Filtrar situação do agendamento">
+      {([["all","Todos"],["SCHEDULED","Agendados"],["CONFIRMED","Confirmados"],["COMPLETED","Concluídos"],["CANCELLED","Cancelados"],["NO_SHOW","Faltas"]] as [typeof statusFilter,string][]).map(([key,label])=><button type="button" aria-pressed={statusFilter===key} key={key} className={statusFilter===key?"selected":""} onClick={()=>setStatusFilter(key)}>{label}</button>)}
+    </div>
     <div className="ins-schedule-overview">
-      <div><span>AGENDA INTELIGENTE · {view==="day"?"DIA":view==="week"?"SEMANA":"MÊS"}</span>
+      <div><span>AGENDA INTELIGENTE · {view==="day"?"DIA":view==="week"?"SEMANA":view==="list"?"LISTA":"MÊS"}</span>
         <h3>{heading}</h3><p>{period.length} atendimento{period.length===1?"":"s"} no período</p></div>
       <div className="ins-schedule-modes" role="group" aria-label="Visualizar agenda">
         <button type="button" aria-pressed={view==="day"} className={view==="day"?"selected":""} onClick={()=>setView("day")}>Dia</button>
         <button type="button" aria-pressed={view==="week"} className={view==="week"?"selected":""} onClick={()=>setView("week")}>Semana</button>
         <button type="button" aria-pressed={view==="month"} className={view==="month"?"selected":""} onClick={()=>setView("month")}>Mês</button>
+        <button type="button" aria-pressed={view==="list"} className={view==="list"?"selected":""} onClick={()=>setView("list")}>Lista operacional</button>
       </div>
     </div>
 
-    {view==="month"?<div className="ins-cal-scroll" role="region" aria-label="Calendário do mês" tabIndex={0}>
+    {view==="list"?<div className="ins-schedule-operational" role="region" aria-label="Atendimentos do dia em lista">
+       {period.length===0?<p className="ins-schedule-empty">Não há atendimentos registrados para o dia e filtros escolhidos.</p>:
+       period.map(a=><div key={a.id} className="ins-schedule-operation"><div className="ins-schedule-operation-time"><time>{timeText(a.startsAt)}</time><small>{timeText(a.endsAt)}</small></div><div className="ins-schedule-operation-person"><strong>{a.clientName}</strong><small>{a.serviceName} · {a.employeeName||"Profissional a confirmar"}</small></div><span className="ins-schedule-operation-status">{statusText[a.status]}</span>{canManage&&active(a)&&onStatus&&<div className="ins-booking-actions">{a.status==="SCHEDULED"&&<button type="button" disabled={busy} onClick={()=>onStatus(a.id,"CONFIRMED")}>Confirmar</button>}<button type="button" disabled={busy} onClick={()=>onStatus(a.id,"COMPLETED")}>Concluir</button></div>}</div>)}
+     </div>:view==="month"?<div className="ins-cal-scroll" role="region" aria-label="Calendário do mês" tabIndex={0}>
       <div className="ins-cal-month">
         {["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"].map(day=><div className="ins-cal-month-heading" key={day}>{day}</div>)}
         {monthDays.map(day=>{
@@ -136,6 +152,6 @@ export default function ScheduleBoard({appointments,professionals,canManage,busy
         </Fragment>)}
       </div>
     </div>}
-    <p className="ins-schedule-note">O calendário mostra os horários mesmo sem agendamentos. Exibe somente registros fornecidos pelo servidor e respeita as permissões da conta. Horários disponíveis ainda precisam ser confirmados pelas regras de cada profissional e unidade.</p>
+    <p className="ins-schedule-note">Os números e atendimentos vêm do servidor, respeitando as permissões da conta. A visualização por salas, o check-in por QR Code, a fila da recepção e a antecipação automática serão integrados quando seus respectivos serviços estiverem prontos.</p>
   </div>;
 }
