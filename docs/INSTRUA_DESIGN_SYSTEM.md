@@ -2,6 +2,38 @@
 
 **Fonte da identidade:** PDF de produto do Instrua.
 
+## Complemento aprovado — Stitch Organic Modern (24/11/2026)
+
+O pacote de 27 telas enviado nesta data é a **referência mais recente para aparência e experiência** da plataforma, além da marca já registrada acima. Mapeamento completo em [STITCH_ORGANIC_27_TELAS_INTEGRACAO.md](./STITCH_ORGANIC_27_TELAS_INTEGRACAO.md). Os HTMLs originais são protótipos e não podem substituir a aplicação de produção.
+
+**Fontes:** Newsreader (títulos editoriais e subtítulos) e Plus Jakarta Sans (conteúdo, formulários, legendas e botões).
+
+**Tokens Stitch para a interface:**
+
+| Token semântico | Cor | Aplicação |
+|---|---|---|
+| `primary` | `#2B3320` | Contraste alto e ações primárias |
+| `primary-container` | `#414A35` | Marca, cabeçalhos e foco |
+| `secondary` | `#566247` | Texto/ação secundária |
+| `sage-accent` | `#7E8B6D` | Sucesso e detalhes suaves |
+| `tertiary-accent` | `#C86446` | Ênfase controlada, aviso contextual |
+| `surface` | `#FCF9F0` | Fundo geral |
+| `surface-container-low` | `#F6F3EB` | Painéis e cartões |
+| `surface-container` | `#F0EEE5` | Campos, elementos agrupados |
+| `surface-container-high` | `#EBE8DF` | Relevo/seleção suave |
+| `on-surface` | `#1C1C17` | Texto principal |
+| `outline-variant` | `#C6C7BD` | Separadores sutis |
+
+**Composição:** curvas assimétricas nos cartões (ex.: 32px 16px 30px 18px), espaçamento orgânico de 4/8/16/28/40px, bordas delicadas, sombras difusas com opacidade baixa e áreas amplas para leitura. Barra de navegação lateral apenas onde a função justificar; celular com fluxo de uma coluna ou abas inferiores acessíveis.
+
+**Breakpoints Stitch:** desktop >= 1024px (grid 12), tablet 768–1023px (grid 8), celular < 768px (grid 4). Respeitar fonte ampliada, alto contraste, preferências de movimento reduzido, foco por teclado e leitores de tela.
+
+**Diferenciação por pessoa:** cliente tem jornada pessoal; profissional tem agenda e atendimento autorizado; recepção tem agenda, lista e orientações operacionais; gestão tem visão da organização; financeiro e plataforma acessam apenas seus dados/poderes. Uma única conta pode alternar entre contextos vinculados pelo servidor.
+
+**Regra de veracidade:** não reproduzir dados fictícios “Clara”, “Beatriz”, clínicas ilustrativas, números apresentados no protótipo, assinatura ICP-Brasil, Gov.br, biometria, integração FHIR, alegações ISO/LGPD ou respostas simuladas como se fossem recursos ativos.
+
+---
+
 ## Paleta oficial
 
 | Token | Nome | Hex |
