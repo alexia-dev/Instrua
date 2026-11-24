@@ -80,3 +80,50 @@
 .ins-cal-month-event.completed{background:#e9eaf5;color:#657194}
 .ins-cal-more{font-size:.66rem;color:#8d7c5b}
 @media(max-width:650px){.ins-cal-scroll{border-radius:13px}.ins-cal-month-day{min-height:108px!important}.ins-cal-colheading{padding:10px}.ins-cal-board{grid-auto-rows:minmax(65px,auto)}}
+
+
+/* Organic Modern — real scheduling workspace, adapted from the multi-professional design. */
+.ins-schedule{font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#2b3320}
+.ins-schedule-hero{background:linear-gradient(110deg,#eff3e9,#f7f3ec);border:1px solid #e3e9dc;border-radius:32px 18px 32px 19px;padding:24px 27px;display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:15px}
+.ins-schedule-kicker{font-size:10px;letter-spacing:.11em;font-weight:800;color:#6b8060}
+.ins-schedule-hero h2{font:400 clamp(29px,3vw,38px)/1.12 "Newsreader",Georgia,serif;color:#414a35;margin:9px 0}
+.ins-schedule-hero p{font-size:12px;color:#687662;line-height:1.8;margin:0}
+.ins-schedule-hero-date{font-size:11px;font-weight:700;text-transform:capitalize;color:#617355;background:#dfe9d5;border-radius:100px;padding:9px 13px;white-space:nowrap}
+.ins-schedule-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px;margin-bottom:20px}
+.ins-schedule-metrics>div{background:#fffefa;border:1px solid #e8e9df;border-radius:18px 12px 19px 13px;padding:16px;display:flex;flex-direction:column;gap:9px}
+.ins-schedule-metrics>div:nth-child(even){background:#f6f3eb;border-radius:12px 18px 13px 19px}
+.ins-schedule-metrics small{font-size:10px;color:#687b5d;font-weight:700;line-height:1.5}
+.ins-schedule-metrics strong{font:500 31px/1 "Newsreader",Georgia,serif;color:#414a35}
+.ins-schedule-status-filters{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:10px 0 16px}
+.ins-schedule-status-filters button{font-size:11px;border-radius:100px;min-height:36px;padding:8px 13px;font-weight:650;background:#fffefa;border:1px solid #dce3d5;color:#65755d}
+.ins-schedule-status-filters button.selected{background:#414a35;border-color:#414a35;color:#fff}
+.ins-schedule-overview{background:#f0eee5;border-radius:25px 15px 23px 15px;padding:19px 23px}
+.ins-schedule-overview h3{font:500 25px/1.15 "Newsreader",Georgia,serif;color:#414a35;margin:7px 0}
+.ins-schedule-overview p{font-size:11px}
+.ins-schedule-modes{flex-wrap:wrap;background:#fffefa;border:1px solid #e7e7dd;border-radius:15px}
+.ins-schedule-modes button{min-height:34px;font-size:11px}
+.ins-schedule-tools input,.ins-schedule-tools select{border-radius:13px;background:#f7f6ef;border:1px solid #e2e5db}
+.ins-cal-scroll{border-radius:24px 14px 24px 16px;border:1px solid #e4e8de;background:#fffefa;max-height:min(77dvh,850px)}
+.ins-cal-colheading,.ins-cal-corner{background:#e9eee2;min-height:70px}
+.ins-cal-colheading strong{font-size:12px;color:#414a35}
+.ins-cal-colheading small{font-size:10px;color:#688161}
+.ins-cal-clock{background:#f4f5ef}
+.ins-cal-cell{background:#fffefa}
+.ins-cal-cell>.ins-booking-card{border:1px solid #e6e9de;border-left:4px solid #a8bb9a;border-radius:15px 9px 15px 10px;background:#f6f3eb;box-shadow:0 3px 14px rgba(65,74,53,.04)}
+.ins-cal-cell>.ins-booking-confirmed{border-left-color:#566c4c;background:#edf3e7}
+.ins-cal-cell>.ins-booking-completed{border-left-color:#8a9e7b;background:#ebeee6}
+.ins-cal-cell>.ins-booking-no_show,.ins-cal-cell>.ins-booking-cancelled{border-left-color:#b86e57;background:#f8ede7}
+.ins-booking-card>strong{color:#414a35}.ins-booking-card>p{color:#697665}
+.ins-schedule-operational{display:grid;gap:9px;max-height:72dvh;overflow:auto;padding:10px 3px}
+.ins-schedule-operation{display:flex;align-items:center;flex-wrap:wrap;gap:11px;background:#fffefa;border:1px solid #e9e8de;border-radius:19px 12px 20px 13px;padding:13px 17px}
+.ins-schedule-operation-time{min-width:68px;display:grid;gap:3px;color:#607552}
+.ins-schedule-operation-time time{font-weight:800;font-size:14px}
+.ins-schedule-operation-time small{font-size:10px}
+.ins-schedule-operation-person{flex:1;min-width:170px;display:grid;gap:4px}
+.ins-schedule-operation-person strong{font-size:13px;color:#34452e}
+.ins-schedule-operation-person small{font-size:11px;color:#72806d}
+.ins-schedule-operation-status{font-size:10px;font-weight:700;background:#dae8c5;color:#485f42;border-radius:100px;padding:7px 11px}
+.ins-schedule-operation .ins-booking-actions{margin:0}
+.ins-schedule-note{font-size:11px;line-height:1.8;color:#7c8675}
+@media(max-width:1000px){.ins-schedule-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:670px){.ins-schedule-hero{padding:19px 17px;flex-direction:column;align-items:flex-start}.ins-schedule-hero-date{white-space:normal}.ins-schedule-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ins-schedule-metrics>div{padding:12px}.ins-schedule-metrics strong{font-size:25px}.ins-schedule-overview{padding:14px}.ins-schedule-overview h3{font-size:23px}.ins-schedule-operation-person{min-width:145px}}
