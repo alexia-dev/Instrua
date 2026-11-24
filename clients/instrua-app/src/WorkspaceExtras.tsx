@@ -13,7 +13,6 @@ const pages:{id:SettingsPage;name:string;icon:string;note:string}[]=[
   {id:"acessibilidade",name:"Aparência e acessibilidade",icon:"◉",note:"Conforto visual e facilidade de uso"},
   {id:"organizacao",name:"Organização e agenda",icon:"▦",note:"Unidades, horários e serviços"}
 ];
-const roles:Record<string,string>={PATIENT:"Pessoa / paciente",COMPANY_OWNER:"Proprietário(a)",COMPANY_ADMIN:"Administração",RECEPTION:"Recepção",CLINICAL:"Profissional",BILLING:"Financeiro",PLATFORM_ADMIN:"Administração da plataforma"};
 
 function Status({ready=false}:{ready?:boolean}){
  return <span className={"ins-extras-status "+(ready?"is-connected":"is-development")}><span aria-hidden="true" className="ins-extras-dot"/>{ready?"Dados da conta":"Em desenvolvimento"}</span>;
