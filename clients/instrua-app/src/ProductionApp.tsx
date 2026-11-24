@@ -1,11 +1,12 @@
 import { useEffect, useState, type FormEvent } from "react";
 import SiteHome from "./SiteHomeOrganic";
-import AuthPage, {type AuthMode} from "./AuthPage";
+import AuthPage, {ContextChooser,type AuthMode} from "./AuthPage";
 import ModulesHub,{modules,moduleKey,areaOrder} from "./ModulesHub";
 import {PlannedModuleScreen,SettingsWorkspace} from "./WorkspaceExtras";
 import ScheduleBoard from "./ScheduleBoard";
 import ClientWorkspace from "./ClientWorkspace";
 import InstruaHome, {type HomeDestination} from "./InstruaHome";
+import PersonalDashboardOrganic from "./PersonalDashboardOrganic";
 import BusinessOverviewExtras from "./BusinessOverviewExtras";
 import { api, API_URL, type Appointment, type AppointmentStatus, type CatalogCompany, type CancellationPolicy, type Client, type Company, type Professional, type Service, type Session } from "./production-api";
 import "./production.css";
@@ -45,6 +46,8 @@ export default function ProductionApp() {
   const [authForm,setAuthForm]=useState({name:"",email:"",password:"",companyName:"",slug:""});
   const [companies,setCompanies]=useState<Company[]>([]);
   const [workspaceRoles,setWorkspaceRoles]=useState<WorkspaceRole[]>([]);
+  const [workspacesLoaded,setWorkspacesLoaded]=useState(false);
+  const [contextChooserOpen,setContextChooserOpen]=useState(false);
   const [selected,setSelected]=useState("");
   const [clients,setClients]=useState<Client[]>([]);
   const [professionals,setProfessionals]=useState<Professional[]>([]);
@@ -91,7 +94,7 @@ export default function ProductionApp() {
   const catalogBusiness=catalog.find(c=>c.id===selectedCatalog);
 
   function clearMessages(){setError("");setSuccess("");}
-  function logout(){navigate("/");setWorkspaceMode("personal");setInviteCode("");setSession(null);setPatientArea("inicio");setTab("painel");setAuthForm(f=>({...f,password:""}));setCompanies([]);setWorkspaceRoles([]);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
+  function logout(){navigate("/");setWorkspaceMode("personal");setInviteCode("");setSession(null);setPatientArea("inicio");setTab("painel");setAuthForm(f=>({...f,password:""}));setCompanies([]);setWorkspaceRoles([]);setWorkspacesLoaded(false);setContextChooserOpen(false);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
   async function authenticate(e:FormEvent){
     e.preventDefault();if(busy)return;setBusy(true);clearMessages();
     try{
@@ -102,7 +105,7 @@ export default function ProductionApp() {
         const data=await api<{authentication:Session;company:Company}>("/auth/register",undefined,"POST",{ownerName:authForm.name.trim(),email:authForm.email.trim(),password:authForm.password,companyName:authForm.companyName.trim(),companySlug:authForm.slug.trim().toLowerCase(),companyEmail:authForm.email.trim(),timezone:"America/Sao_Paulo"});
         account=data.authentication;setCompanies([data.company]);setSelected(data.company.id);
       }
-      setAuthForm(f=>({...f,password:""}));setSession(account);setWorkspaceMode(account.roles.some(r=>["COMPANY_OWNER","COMPANY_ADMIN","RECEPTION","CLINICAL","BILLING","PLATFORM_ADMIN"].includes(r))?"work":"personal");navigate("/app");setTab("painel");setPatientArea("inicio");setSuccess("Conta conectada ao Instrua.");
+      setAuthForm(f=>({...f,password:""}));setWorkspacesLoaded(false);setContextChooserOpen(true);setSession(account);setWorkspaceMode("personal");navigate("/app");setTab("painel");setPatientArea("inicio");setSuccess("Conta conectada ao Instrua.");
     }catch(e){setError(message(e));}finally{setBusy(false);}
   }
   useEffect(()=>{
@@ -118,10 +121,24 @@ export default function ProductionApp() {
   useEffect(()=>{
     if(!session)return;let active=true;
     void api<WorkspaceRole[]>("/me/workspaces",session.accessToken)
-      .then(roles=>{if(active)setWorkspaceRoles(roles);})
-      .catch(err=>{if(active)setError("Não foi possível verificar suas permissões profissionais: "+message(err));});
+      .then(roles=>{if(active){setWorkspaceRoles(roles);setWorkspacesLoaded(true);}})
+      .catch(err=>{if(active){setWorkspacesLoaded(true);setError("Não foi possível verificar suas permissões profissionais: "+message(err));}});
     return()=>{active=false;};
   },[session,revision]);
+  useEffect(()=>{
+    if(!session||!contextChooserOpen)return;
+    let active=true;
+    void api<Company[]>("/companies",session.accessToken)
+      .then(list=>{if(active){setCompanies(list);setSelected(old=>list.some(c=>c.id===old)?old:(list[0]?.id||""));}})
+      .catch(()=>{});
+    return()=>{active=false;};
+  },[session?.accessToken,contextChooserOpen]);
+  function chooseContext(mode:"personal"|"work",companyId?:string){
+    if(mode==="work"&&!companyId)return;
+    if(companyId)setSelected(companyId);
+    setWorkspaceMode(mode);setContextChooserOpen(false);
+    setTab("painel");setPatientArea("inicio");clearMessages();navigate("/app");
+  }
   useEffect(()=>{
     if(!session)return;let active=true;
     async function load(){
@@ -216,9 +233,9 @@ export default function ProductionApp() {
     catch(err){setError(message(err));}finally{setBusy(false);}
   }
   return <div className="real-app">
-    {session&&<header className="real-header"><div className="real-brand"><img src="/brand-icon.svg" className="real-mark-image" alt="" /><div><strong>instrua</strong><small>Kiyubi Technologies</small></div></div>
-      {session?<div className="real-header-actions"><span>{session.name}</span>{canWork&&<label className="ins-workspace-switch"><span>Usar Instrua como</span><select aria-label="Trocar perfil" value={workspaceMode} onChange={e=>{setWorkspaceMode(e.target.value as "personal"|"work");setPatientArea("inicio");setTab("painel");clearMessages();navigate("/app");}}><option value="personal">Minha jornada pessoal</option><option value="work">Área profissional / estabelecimento</option></select></label>}{isPatient&&<button type="button" className="real-secondary" onClick={()=>setPatientArea(v=>v==="configuracoes"?"inicio":"configuracoes")}>{patientArea==="configuracoes"?"Meu início":"⚙ Configurações"}</button>}<button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>}
-    <main className={session?"real-container":"real-public-main"}>
+    {session&&!contextChooserOpen&&<header className="real-header"><div className="real-brand"><img src="/brand-icon.svg" className="real-mark-image" alt="" /><div><strong>instrua</strong><small>Kiyubi Technologies</small></div></div>
+      {session?<div className="real-header-actions"><span>{session.name}</span><button type="button" className="real-secondary" onClick={()=>setContextChooserOpen(true)}>↔ Trocar perfil{canWork?" ou estabelecimento":""}</button>}{isPatient&&<button type="button" className="real-secondary" onClick={()=>setPatientArea(v=>v==="configuracoes"?"inicio":"configuracoes")}>{patientArea==="configuracoes"?"Meu início":"⚙ Configurações"}</button>}<button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>}
+    <main className={session&&!contextChooserOpen?"real-container":"real-public-main"}>
       {error&&<p role="alert" className="real-alert real-error">{error}<button type="button" aria-label="Fechar aviso" onClick={()=>setError("")}>×</button></p>}
       {success&&<p role="status" className="real-alert real-success">{success}<button type="button" aria-label="Fechar aviso" onClick={()=>setSuccess("")}>×</button></p>}
       {!API_URL&&<p role="alert" className="real-alert real-error">API não configurada. Defina VITE_INSTRUA_API_URL para habilitar o ambiente real. Nenhum dado fictício será usado.</p>}
@@ -229,7 +246,9 @@ export default function ProductionApp() {
         <SiteHome onNavigate={navigate}/>
       )}
 
-      {session&&!isPatient&&<><div className="real-topline"><div><p className="real-eyebrow">{workspaceName.toUpperCase()} · INSTRUA</p><h1>{business?.name||"Estabelecimentos"}</h1><p className="real-workspace-subtitle">Seu espaço de trabalho, com tudo no lugar certo.</p></div>
+      {session&&contextChooserOpen&&<ContextChooser session={session} roles={workspaceRoles} companies={companies} loading={!workspacesLoaded} onChoose={chooseContext} onLogout={logout}/>}
+
+      {session&&!contextChooserOpen&&!isPatient&&<><div className="real-topline"><div><p className="real-eyebrow">{workspaceName.toUpperCase()} · INSTRUA</p><h1>{business?.name||"Estabelecimentos"}</h1><p className="real-workspace-subtitle">Seu espaço de trabalho, com tudo no lugar certo.</p></div>
         {companies.length>0&&<label>Estabelecimento<select value={selected} onChange={e=>setSelected(e.target.value)}>{companies.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>}</div>
         {companies.length===0?<section className="real-panel"><h2>Sem estabelecimento vinculado</h2><p>Entre com a conta administradora cadastrada para sua empresa.</p></section>:<>
           <div className="real-workspace-layout">
@@ -296,7 +315,7 @@ export default function ProductionApp() {
         </>}</>}
 
 
-      {session&&isPatient&&<section className="real-patient">
+      {session&&!contextChooserOpen&&isPatient&&<section className="real-patient">
         <nav className="ins-personal-nav" aria-label="Navegação da pessoa">
           {([
             ["inicio","⌂","Início"],["agenda","▦","Agendamentos"],["buscar","⌕","Encontrar"],
@@ -310,7 +329,8 @@ export default function ProductionApp() {
             </button>
           )}
         </nav>
-        {(["inicio","oportunidades","eventos","comunidade"] as string[]).includes(patientArea)&&
+        {patientArea==="inicio"&&<PersonalDashboardOrganic session={session} appointments={ownAppointments} onOpen={next=>{setPatientArea(next);clearMessages();window.location.hash="#/app/"+next;}}/>}
+        {(["oportunidades","eventos","comunidade"] as string[]).includes(patientArea)&&
           <InstruaHome
             view={patientArea as "inicio"|"oportunidades"|"eventos"|"comunidade"}
             session={session} appointments={ownAppointments} isPatient
@@ -354,7 +374,7 @@ export default function ProductionApp() {
         {patientArea==="configuracoes"&&<SettingsWorkspace session={session} context="personal"/>}
       </section>}
     </main>
-    {session&&<footer className="real-footer">Instrua · Kiyubi Technologies · Orientação, conexão e confiança.</footer>}
+    {session&&!contextChooserOpen&&<footer className="real-footer">Instrua · Kiyubi Technologies · Orientação, conexão e confiança.</footer>}
   </div>;
 }
 
