@@ -4,6 +4,7 @@ import AuthPage, {type AuthMode} from "./AuthPage";
 import ModulesHub,{modules,moduleKey,areaOrder} from "./ModulesHub";
 import {PlannedModuleScreen,SettingsWorkspace} from "./WorkspaceExtras";
 import ScheduleBoard from "./ScheduleBoard";
+import ClientWorkspace from "./ClientWorkspace";
 import InstruaHome, {type HomeDestination} from "./InstruaHome";
 import { api, API_URL, type Appointment, type AppointmentStatus, type CatalogCompany, type CancellationPolicy, type Client, type Company, type Professional, type Service, type Session } from "./production-api";
 import "./production.css";
@@ -46,7 +47,6 @@ export default function ProductionApp() {
   const [loading,setLoading]=useState(false);
   const [busy,setBusy]=useState(false);
   const [revision,setRevision]=useState(0);
-  const [newClient,setNewClient]=useState({name:"",email:"",phone:""});
   const [newProfessional,setNewProfessional]=useState({name:"",title:"",email:""});
   const [newService,setNewService]=useState({name:"",durationMinutes:"30",price:""});
   const [newBooking,setNewBooking]=useState({clientId:"",employeeId:"",serviceId:"",startsAt:tomorrow(),notes:""});
@@ -55,13 +55,13 @@ export default function ProductionApp() {
   const [patientBooking,setPatientBooking]=useState({serviceId:"",employeeId:"",startsAt:tomorrow(),accepted:false});
   const [policy,setPolicy]=useState<CancellationPolicy|null>(null);
   const [patientCancelReason,setPatientCancelReason]=useState("");
-  const [staffWorkspace,setStaffWorkspace]=useState(false);
+  const [workspaceMode,setWorkspaceMode]=useState<"personal"|"work">("personal");
   const [inviteEmail,setInviteEmail]=useState("");
   const [inviteRole,setInviteRole]=useState("RECEPTION");
   const [inviteCode,setInviteCode]=useState("");
   const [acceptCode,setAcceptCode]=useState(()=>new URLSearchParams(window.location.search).get("invite")||"");
-  const hasPatientRole=!!session?.roles.includes("PATIENT");
-  const isPatient=hasPatientRole&&!session?.roles.includes("COMPANY_OWNER")&&!staffWorkspace;
+  const canWork=!!session&&(workspaceRoles.length>0||session.roles.some(r=>["COMPANY_OWNER","COMPANY_ADMIN","RECEPTION","CLINICAL","BILLING","PLATFORM_ADMIN"].includes(r)));
+  const isPatient=!!session&&workspaceMode==="personal";
   const workspaceRole=workspaceRoles.find(w=>w.companyId===selected)?.role||
     (session?.roles.includes("COMPANY_OWNER")?"COMPANY_OWNER":session?.roles.includes("PLATFORM_ADMIN")?"PLATFORM_ADMIN":null);
   const canManage=workspaceRole==="COMPANY_OWNER"||workspaceRole==="COMPANY_ADMIN";
@@ -74,7 +74,7 @@ export default function ProductionApp() {
   const catalogBusiness=catalog.find(c=>c.id===selectedCatalog);
 
   function clearMessages(){setError("");setSuccess("");}
-  function logout(){navigate("/");setStaffWorkspace(false);setInviteCode("");setSession(null);setPatientArea("inicio");setTab("painel");setAuthForm(f=>({...f,password:""}));setCompanies([]);setWorkspaceRoles([]);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
+  function logout(){navigate("/");setWorkspaceMode("personal");setInviteCode("");setSession(null);setPatientArea("inicio");setTab("painel");setAuthForm(f=>({...f,password:""}));setCompanies([]);setWorkspaceRoles([]);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
   async function authenticate(e:FormEvent){
     e.preventDefault();if(busy)return;setBusy(true);clearMessages();
     try{
@@ -85,9 +85,19 @@ export default function ProductionApp() {
         const data=await api<{authentication:Session;company:Company}>("/auth/register",undefined,"POST",{ownerName:authForm.name.trim(),email:authForm.email.trim(),password:authForm.password,companyName:authForm.companyName.trim(),companySlug:authForm.slug.trim().toLowerCase(),companyEmail:authForm.email.trim(),timezone:"America/Sao_Paulo"});
         account=data.authentication;setCompanies([data.company]);setSelected(data.company.id);
       }
-      setAuthForm(f=>({...f,password:""}));setSession(account);navigate("/app");setTab("painel");setPatientArea("inicio");setSuccess("Conta conectada ao Instrua.");
+      setAuthForm(f=>({...f,password:""}));setSession(account);setWorkspaceMode(account.roles.some(r=>["COMPANY_OWNER","COMPANY_ADMIN","RECEPTION","CLINICAL","BILLING","PLATFORM_ADMIN"].includes(r))?"work":"personal");navigate("/app");setTab("painel");setPatientArea("inicio");setSuccess("Conta conectada ao Instrua.");
     }catch(e){setError(message(e));}finally{setBusy(false);}
   }
+  useEffect(()=>{
+    if(!session)return;
+    let active=true;
+    api<{theme?:string;font_scale?:number;high_contrast?:boolean}>("/me/profile",session.accessToken)
+      .then(p=>{if(active){document.documentElement.dataset.instruaTheme=(p.theme||"LIGHT").toLowerCase();
+        document.documentElement.dataset.instruaContrast=p.high_contrast?"high":"normal";
+        document.documentElement.style.fontSize=String(Math.round((Number(p.font_scale)||1)*100))+"%";}})
+      .catch(()=>{});
+    return()=>{active=false;};
+  },[session]);
   useEffect(()=>{
     if(!session)return;let active=true;
     void api<WorkspaceRole[]>("/me/workspaces",session.accessToken)
@@ -162,8 +172,6 @@ export default function ProductionApp() {
     try{await fn();after?.();setSuccess(ok);setRevision(r=>r+1);}
     catch(e){setError(message(e));}finally{setBusy(false);}
   }
-  function createClient(e:FormEvent){e.preventDefault();if(!session||!selected)return;
-    void commit(()=>api<Client>(prefix(selected)+"/clients",session.accessToken,"POST",newClient),"Cliente salvo no PostgreSQL.",()=>setNewClient({name:"",email:"",phone:""}));}
   function createProfessional(e:FormEvent){e.preventDefault();if(!session||!selected)return;
     void commit(()=>api<Professional>(prefix(selected)+"/employees",session.accessToken,"POST",{...newProfessional,accessRole:"CLINICAL"}),"Profissional salvo no PostgreSQL.",()=>setNewProfessional({name:"",title:"",email:""}));}
   function createService(e:FormEvent){e.preventDefault();if(!session||!selected)return;
@@ -189,12 +197,12 @@ export default function ProductionApp() {
   }
   async function acceptInvitation(e:FormEvent){
     e.preventDefault();if(!session||!acceptCode.trim()||busy)return;setBusy(true);clearMessages();
-    try{await api("/me/invitations/"+encodeURIComponent(acceptCode.trim())+"/accept",session.accessToken,"POST");setAcceptCode("");window.history.replaceState(null,"",window.location.pathname);setStaffWorkspace(true);setRevision(v=>v+1);setSuccess("Você agora faz parte da equipe. Acesso atualizado.");}
+    try{await api("/me/invitations/"+encodeURIComponent(acceptCode.trim())+"/accept",session.accessToken,"POST");setAcceptCode("");window.history.replaceState(null,"",window.location.pathname);setWorkspaceMode("work");setRevision(v=>v+1);setSuccess("Você agora faz parte da equipe. Acesso atualizado.");}
     catch(err){setError(message(err));}finally{setBusy(false);}
   }
   return <div className="real-app">
     {session&&<header className="real-header"><div className="real-brand"><img src="/brand-icon.svg" className="real-mark-image" alt="" /><div><strong>instrua</strong><small>Kiyubi Technologies</small></div></div>
-      {session?<div className="real-header-actions"><span>{session.name}</span>{hasPatientRole&&workspaceRoles.length>0&&<button type="button" className="real-secondary" onClick={()=>{setStaffWorkspace(v=>!v);setPatientArea("inicio");clearMessages();}}>{staffWorkspace?"Minha jornada":"Área profissional"}</button>}{isPatient&&<button type="button" className="real-secondary" onClick={()=>setPatientArea(v=>v==="configuracoes"?"inicio":"configuracoes")}>{patientArea==="configuracoes"?"Meu início":"⚙ Configurações"}</button>}<button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>}
+      {session?<div className="real-header-actions"><span>{session.name}</span>{canWork&&<label className="ins-workspace-switch"><span>Usar Instrua como</span><select aria-label="Trocar perfil" value={workspaceMode} onChange={e=>{setWorkspaceMode(e.target.value as "personal"|"work");setPatientArea("inicio");setTab("painel");clearMessages();navigate("/app");}}><option value="personal">Minha jornada pessoal</option><option value="work">Área profissional / estabelecimento</option></select></label>}{isPatient&&<button type="button" className="real-secondary" onClick={()=>setPatientArea(v=>v==="configuracoes"?"inicio":"configuracoes")}>{patientArea==="configuracoes"?"Meu início":"⚙ Configurações"}</button>}<button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>}
     <main className={session?"real-container":"real-public-main"}>
       {error&&<p role="alert" className="real-alert real-error">{error}<button type="button" aria-label="Fechar aviso" onClick={()=>setError("")}>×</button></p>}
       {success&&<p role="status" className="real-alert real-success">{success}<button type="button" aria-label="Fechar aviso" onClick={()=>setSuccess("")}>×</button></p>}
@@ -236,12 +244,7 @@ export default function ProductionApp() {
           {tab==="configuracoes"&&<SettingsWorkspace session={session} company={business} context="business"/>}
           {canManage&&selectedModule&&!selectedModule.tab&&<PlannedModuleScreen module={selectedModule} back={()=>setTab("modulos")}/>}
           
-          {canSchedule&&tab==="clientes"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar cliente</h2><form className="real-form" onSubmit={createClient}>
-            <label>Nome<input required value={newClient.name} onChange={e=>setNewClient({...newClient,name:e.target.value})}/></label><label>E-mail<input type="email" value={newClient.email} onChange={e=>setNewClient({...newClient,email:e.target.value})}/></label><label>Telefone<input type="tel" value={newClient.phone} onChange={e=>setNewClient({...newClient,phone:e.target.value})}/></label><button className="real-primary" type="submit" disabled={busy}>Salvar cliente</button></form></section>
-            <section className="real-panel"><h2>Clientes ({clients.length})</h2><Records list={clients.map(c=>({id:c.id,title:c.name,subtitle:c.phone||c.email||"Sem contato"}))}/></section></div>}
-          {canSchedule&&tab==="equipe"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar profissional</h2><form className="real-form" onSubmit={createProfessional}>
-            <label>Nome<input required value={newProfessional.name} onChange={e=>setNewProfessional({...newProfessional,name:e.target.value})}/></label><label>Função / especialidade<input value={newProfessional.title} onChange={e=>setNewProfessional({...newProfessional,title:e.target.value})}/></label><label>E-mail<input type="email" value={newProfessional.email} onChange={e=>setNewProfessional({...newProfessional,email:e.target.value})}/></label><button className="real-primary" type="submit" disabled={busy}>Salvar profissional</button></form><p className="real-small">Adicionar à agenda não concede automaticamente acesso à conta.</p></section>
-            <section className="real-panel"><h2>Equipe ({professionals.length})</h2><Records list={professionals.map(p=>({id:p.id,title:p.name,subtitle:p.title||"Profissional"}))}/></section></div>}
+          {canSchedule&&tab==="clientes"&&session&&selected&&<ClientWorkspace key={selected} session={session} companyId={selected} clients={clients} onChanged={()=>setRevision(r=>r+1)}/>}
           {tab==="equipe"&&canManage&&<section className="real-panel"><h2>Convidar colaborador para acessar o sistema</h2><form className="real-form" onSubmit={generateInvitation}><label>E-mail da pessoa<input type="email" required value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)}/></label><label>Função<select value={inviteRole} onChange={e=>setInviteRole(e.target.value)}><option value="RECEPTION">Recepção</option><option value="CLINICAL">Profissional</option><option value="COMPANY_ADMIN">Administração</option><option value="BILLING">Financeiro</option></select></label><button type="submit" className="real-primary" disabled={busy}>Gerar convite individual</button></form>{inviteCode&&<div className="real-policy"><h3>Código único do convite</h3><input aria-label="Código a compartilhar" readOnly value={inviteCode} onFocus={e=>e.currentTarget.select()}/><p className="real-small">A pessoa deve criar ou acessar a própria conta com o e-mail convidado, abrir Minha jornada e aceitar este código. O código expira em 7 dias.</p></div>}</section>}
           {canManage&&tab==="servicos"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar serviço</h2><form className="real-form" onSubmit={createService}>
             <label>Nome<input required value={newService.name} onChange={e=>setNewService({...newService,name:e.target.value})}/></label><label>Duração em minutos<input type="number" required min="1" max="1440" value={newService.durationMinutes} onChange={e=>setNewService({...newService,durationMinutes:e.target.value})}/></label><label>Preço em reais (opcional)<input type="number" min="0" step=".01" value={newService.price} onChange={e=>setNewService({...newService,price:e.target.value})}/></label><button className="real-primary" type="submit" disabled={busy}>Salvar serviço</button></form></section>
