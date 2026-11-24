@@ -48,7 +48,6 @@ export default function ProductionApp() {
   const [loading,setLoading]=useState(false);
   const [busy,setBusy]=useState(false);
   const [revision,setRevision]=useState(0);
-  const [newProfessional,setNewProfessional]=useState({name:"",title:"",email:""});
   const [newService,setNewService]=useState({name:"",durationMinutes:"30",price:""});
   const [newBooking,setNewBooking]=useState({clientId:"",employeeId:"",serviceId:"",startsAt:tomorrow(),notes:""});
   const [cancelReason,setCancelReason]=useState("");
@@ -173,8 +172,6 @@ export default function ProductionApp() {
     try{await fn();after?.();setSuccess(ok);setRevision(r=>r+1);}
     catch(e){setError(message(e));}finally{setBusy(false);}
   }
-  function createProfessional(e:FormEvent){e.preventDefault();if(!session||!selected)return;
-    void commit(()=>api<Professional>(prefix(selected)+"/employees",session.accessToken,"POST",{...newProfessional,accessRole:"CLINICAL"}),"Profissional salvo no PostgreSQL.",()=>setNewProfessional({name:"",title:"",email:""}));}
   function createService(e:FormEvent){e.preventDefault();if(!session||!selected)return;
     void commit(()=>api<Service>(prefix(selected)+"/services",session.accessToken,"POST",{name:newService.name,durationMinutes:Number(newService.durationMinutes),price:newService.price===""?null:Number(newService.price)}),"Serviço salvo no PostgreSQL.",()=>setNewService({name:"",durationMinutes:"30",price:""}));}
   function createAppointment(e:FormEvent){e.preventDefault();if(!session||!selected)return;
