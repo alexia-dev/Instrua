@@ -53,12 +53,12 @@ public class SoapDraftController {
         result.put("professionalName",ap.get("professional_name"));
         result.put("startsAt",ap.get("starts_at"));
         result.put("appointmentStatus",ap.get("status"));
-        UUID patientUser = (UUID)ap.get("patient_user_id");
-        if(patientUser == null) patientUser=(UUID)ap.get("linked_user_id");
-        List<Map<String,Object>> patients=patientUser==null?List.of():
-            jdbc.queryForList("select id,name from patients where company_id=? and user_id=? and active=true order by created_at limit 1",companyId,patientUser);
+        UUID patientUser=verifiedPatientUser(ap);
+        UUID clientId=(UUID)ap.get("client_id");
+        List<Map<String,Object>> patients=lookupLocalPatient(companyId,clientId,patientUser);
         result.put("patientLinked",!patients.isEmpty());
-        result.put("patientName",patients.isEmpty()?null:patients.get(0).get("name"));
+        result.put("canStartRecord",!"CANCELLED".equals(ap.get("status"))&&!"NO_SHOW".equals(ap.get("status")));
+        result.put("patientName",patients.isEmpty()?ap.get("client_name"):patients.get(0).get("name"));
 
         List<Map<String,Object>> encounters=jdbc.queryForList(
             "select id, patient_id, lead_professional_user_id, status, started_at from care_encounters where company_id=? and appointment_id=? order by started_at desc limit 1",companyId,appointmentId);
@@ -88,15 +88,6 @@ public class SoapDraftController {
         if("CANCELLED".equals(ap.get("status"))||"NO_SHOW".equals(ap.get("status")))
             throw new BusinessException("Não é possível iniciar um prontuário de agendamento cancelado ou não realizado.");
         UUID userId=currentUser.get().getId();
-        UUID patientUserId=(UUID)ap.get("patient_user_id");
-        if(patientUserId==null)patientUserId=(UUID)ap.get("linked_user_id");
-        if(patientUserId==null)throw new BusinessException(
-            "A pessoa agendada ainda não tem uma identidade verificada e vinculada ao cadastro clínico.");
-        List<UUID> patientIds=jdbc.query(
-            "select id from patients where company_id=? and user_id=? and active=true order by created_at limit 1",
-            (rs,n)->(UUID)rs.getObject("id"),companyId,patientUserId);
-        if(patientIds.isEmpty())throw new BusinessException(
-            "É necessário vincular o cadastro clínico deste paciente ao estabelecimento antes de registrar a evolução.");
         List<Map<String,Object>> existing=jdbc.queryForList(
             "select id, lead_professional_user_id from care_encounters where company_id=? and appointment_id=? limit 1",companyId,appointmentId);
         if(!existing.isEmpty()){
@@ -104,10 +95,29 @@ public class SoapDraftController {
             if(!userId.equals(owner))throw new BusinessException("O atendimento clínico já está atribuído a outro profissional.");
             return appointment(companyId,appointmentId);
         }
+        UUID clientId=(UUID)ap.get("client_id");
+        UUID patientUserId=verifiedPatientUser(ap);
+        List<Map<String,Object>> known=lookupLocalPatient(companyId,clientId,patientUserId);
+        UUID patientId;
+        if(!known.isEmpty()){
+            patientId=(UUID)known.get(0).get("id");
+            // An exact verified account reference may attach a local patient to its
+            // own company's client row. Never match by name, e-mail, phone or CPF.
+            jdbc.update("update patients set linked_client_id=?,updated_at=now() where id=? and company_id=? and linked_client_id is null",
+                clientId,patientId,companyId);
+        }else{
+            patientId=UUID.randomUUID();
+            jdbc.update("""
+                insert into patients(id,company_id,name,email,phone,document_number,
+                                     user_id,linked_client_id,active,created_at,updated_at)
+                values(?,?,?,?,?,?,?, ?,true,now(),now())
+                """,patientId,companyId,ap.get("client_name"),ap.get("client_email"),
+                ap.get("client_phone"),ap.get("client_document"),patientUserId,clientId);
+        }
         UUID encounterId=UUID.randomUUID();
-        jdbc.update("insert into care_encounters(id,company_id,patient_id,appointment_id,lead_professional_user_id,status) values (?,?,?,?,?,'OPEN') on conflict (company_id,appointment_id) where appointment_id is not null do nothing",
-            encounterId,companyId,patientIds.get(0),appointmentId,userId);
-        audit.record(companyId,"CLINICAL_ENCOUNTER_STARTED","CareEncounter",encounterId,null);
+        int inserted=jdbc.update("insert into care_encounters(id,company_id,patient_id,appointment_id,lead_professional_user_id,status) values (?,?,?,?,?,'OPEN') on conflict (company_id,appointment_id) where appointment_id is not null do nothing",
+            encounterId,companyId,patientId,appointmentId,userId);
+        if(inserted>0)audit.record(companyId,"CLINICAL_ENCOUNTER_STARTED","CareEncounter",encounterId,null);
         return appointment(companyId,appointmentId);
     }
 
@@ -134,6 +144,29 @@ public class SoapDraftController {
         return ownDraft(encounterId,userId);
     }
 
+    /**
+     * Reuse a patient only through exact persisted client/account UUID links in this
+     * company, never through approximate demographic matching.
+     */
+    private List<Map<String,Object>> lookupLocalPatient(UUID companyId,UUID clientId,UUID userId) {
+        List<Map<String,Object>> byClient=jdbc.queryForList(
+            "select id,name from patients where company_id=? and linked_client_id=? and active=true order by created_at limit 1",
+            companyId,clientId);
+        if(!byClient.isEmpty())return byClient;
+        if(userId==null)return List.of();
+        return jdbc.queryForList(
+            "select id,name from patients where company_id=? and user_id=? and linked_client_id is null and active=true order by created_at limit 1",
+            companyId,userId);
+    }
+
+    private static UUID verifiedPatientUser(Map<String,Object> ap){
+        UUID fromBooking=(UUID)ap.get("patient_user_id");
+        UUID fromClient=(UUID)ap.get("linked_user_id");
+        if(fromBooking!=null&&fromClient!=null&&!fromBooking.equals(fromClient))
+            throw new BusinessException("O cadastro local está vinculado a uma conta diferente da pessoa agendada. Confirme a identidade antes de prosseguir.");
+        return fromBooking!=null?fromBooking:fromClient;
+    }
+
     private UUID requireOwnClinicalEncounter(UUID companyId,UUID encounterId) {
         companies.requireAccess(companyId);
         UUID userId=currentUser.get().getId();
@@ -156,7 +189,8 @@ public class SoapDraftController {
         companies.requireAccess(companyId);
         User actor=currentUser.get();
         List<Map<String,Object>> matches=jdbc.queryForList("""
-            select a.id,a.patient_user_id,c.linked_user_id,c.name as client_name,
+            select a.id,a.client_id,a.patient_user_id,c.linked_user_id,c.name as client_name,
+                   c.email as client_email,c.phone as client_phone,c.document_number as client_document,
                    a.status,a.starts_at,svc.name as service_name,e.name as professional_name
               from appointments a
               join employees e on e.id=a.employee_id and e.company_id=a.company_id
