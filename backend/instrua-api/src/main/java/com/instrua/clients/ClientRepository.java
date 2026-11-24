@@ -8,4 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ClientRepository extends JpaRepository<Client, UUID> {
     List<Client> findAllByCompanyIdOrderByNameAsc(UUID companyId);
     Optional<Client> findByIdAndCompanyIdAndActiveTrue(UUID id, UUID companyId);
+    Optional<Client> findFirstByCompanyIdAndEmailIgnoreCaseAndNameAndActiveTrue(UUID companyId, String email, String name);
 }

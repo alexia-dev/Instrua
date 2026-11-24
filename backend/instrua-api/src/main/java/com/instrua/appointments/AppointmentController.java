@@ -1,6 +1,7 @@
 package com.instrua.appointments;
 
 import jakarta.validation.Valid;
+import com.instrua.common.security.CompanyPermissionService;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import java.time.Instant;
@@ -22,17 +23,26 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AppointmentController {
     private final AppointmentService appointments;
-    public AppointmentController(AppointmentService appointments) { this.appointments = appointments; }
+    private final CompanyPermissionService permissions;
+    public AppointmentController(AppointmentService appointments, CompanyPermissionService permissions) { this.appointments = appointments; this.permissions = permissions; }
 
     @GetMapping
-    public List<AppointmentResponse> list(@PathVariable UUID companyId) { return appointments.list(companyId).stream().map(AppointmentResponse::from).toList(); }
+    public List<AppointmentResponse> list(@PathVariable UUID companyId) {
+        UUID clinicalEmployeeId = permissions.requireSchedulingView(companyId);
+        return appointments.list(companyId).stream()
+                .filter(appointment -> clinicalEmployeeId == null ||
+                        (appointment.getEmployee() != null && clinicalEmployeeId.equals(appointment.getEmployee().getId())))
+                .map(AppointmentResponse::from).toList();
+    }
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AppointmentResponse create(@PathVariable UUID companyId, @Valid @RequestBody AppointmentRequest request) {
+        permissions.requireScheduling(companyId);
         return AppointmentResponse.from(appointments.create(companyId, request.clientId(), request.employeeId(), request.serviceId(), request.startsAt(), request.notes()));
     }
     @PatchMapping("/{appointmentId}/status")
     public AppointmentResponse changeStatus(@PathVariable UUID companyId, @PathVariable UUID appointmentId, @Valid @RequestBody StatusRequest request) {
+        permissions.requireScheduling(companyId);
         return AppointmentResponse.from(appointments.changeStatus(companyId, appointmentId, request.status(), request.reason()));
     }
 

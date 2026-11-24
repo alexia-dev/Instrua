@@ -14,6 +14,7 @@ import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,11 +39,21 @@ public class AuthController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
+    @Transactional
     public RegistrationResponse register(@Valid @RequestBody RegisterRequest request) {
         if (users.existsByEmailIgnoreCase(request.email())) throw new BusinessException("Já existe uma conta com este e-mail");
         User user = users.save(new User(request.ownerName(), request.email(), passwordEncoder.encode(request.password()), Set.of(Role.COMPANY_OWNER)));
         Company company = companies.create(request.companyName(), request.companySlug(), request.companyEmail(), request.companyPhone(), request.timezone(), user);
         return new RegistrationResponse(authResponse(user), CompanyResponse.from(company));
+    }
+
+
+    @PostMapping("/register/patient")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AuthResponse registerPatient(@Valid @RequestBody PatientRegisterRequest request) {
+        if (users.existsByEmailIgnoreCase(request.email())) throw new BusinessException("Já existe uma conta com este e-mail");
+        User user = users.save(new User(request.name(), request.email(), passwordEncoder.encode(request.password()), Set.of(Role.PATIENT)));
+        return authResponse(user);
     }
 
     @PostMapping("/login")
@@ -58,6 +69,7 @@ public class AuthController {
 
     public record RegisterRequest(@NotBlank String ownerName, @Email @NotBlank String email, @NotBlank @Size(min = 8) String password,
                                   @NotBlank String companyName, @NotBlank String companySlug, @Email String companyEmail, String companyPhone, String timezone) { }
+    public record PatientRegisterRequest(@NotBlank String name, @Email @NotBlank String email, @NotBlank @Size(min = 8) String password) { }
     public record LoginRequest(@Email @NotBlank String email, @NotBlank String password) { }
     public record AuthResponse(String accessToken, String tokenType, Instant expiresAt, java.util.UUID userId, String name, String email, Set<Role> roles) { }
     public record RegistrationResponse(AuthResponse authentication, CompanyResponse company) { }

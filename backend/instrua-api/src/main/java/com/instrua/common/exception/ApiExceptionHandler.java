@@ -1,6 +1,7 @@
 package com.instrua.common.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import java.time.Instant;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,11 @@ public class ApiExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     ResponseEntity<Map<String, Object>> business(BusinessException ex, HttpServletRequest request) {
         return response(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    ResponseEntity<Map<String, Object>> conflict(DataIntegrityViolationException ex, HttpServletRequest request) {
+        return response(HttpStatus.CONFLICT, "Este registro já existe ou o horário acabou de ficar indisponível. Atualize e tente novamente.", request.getRequestURI());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

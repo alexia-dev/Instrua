@@ -5,6 +5,7 @@ import com.instrua.companies.Company;
 import com.instrua.common.model.BaseEntity;
 import com.instrua.employees.Employee;
 import com.instrua.services.ServiceOffering;
+import com.instrua.users.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,6 +27,8 @@ public class Appointment extends BaseEntity {
     private Employee employee;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "service_offering_id", nullable = false)
     private ServiceOffering serviceOffering;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "patient_user_id")
+    private User patientUser;
     @Column(nullable = false) private Instant startsAt;
     @Column(nullable = false) private Instant endsAt;
     @Enumerated(EnumType.STRING) @Column(nullable = false) private AppointmentStatus status = AppointmentStatus.SCHEDULED;
@@ -35,13 +38,17 @@ public class Appointment extends BaseEntity {
 
     protected Appointment() { }
     public Appointment(Company company, Client client, Employee employee, ServiceOffering serviceOffering, Instant startsAt, Instant endsAt, String notes) {
-        this.company = company; this.client = client; this.employee = employee; this.serviceOffering = serviceOffering;
+        this(company, client, employee, serviceOffering, null, startsAt, endsAt, notes);
+    }
+    public Appointment(Company company, Client client, Employee employee, ServiceOffering serviceOffering, User patientUser, Instant startsAt, Instant endsAt, String notes) {
+        this.company = company; this.client = client; this.employee = employee; this.serviceOffering = serviceOffering; this.patientUser = patientUser;
         this.startsAt = startsAt; this.endsAt = endsAt; this.notes = notes;
     }
     public Company getCompany() { return company; }
     public Client getClient() { return client; }
     public Employee getEmployee() { return employee; }
     public ServiceOffering getServiceOffering() { return serviceOffering; }
+    public User getPatientUser() { return patientUser; }
     public Instant getStartsAt() { return startsAt; }
     public Instant getEndsAt() { return endsAt; }
     public AppointmentStatus getStatus() { return status; }

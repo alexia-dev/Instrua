@@ -9,9 +9,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
     List<Appointment> findAllByCompanyIdOrderByStartsAtAsc(UUID companyId);
+    List<Appointment> findAllByPatientUserIdOrderByStartsAtAsc(UUID patientUserId);
+    Optional<Appointment> findByIdAndPatientUserId(UUID id, UUID patientUserId);
     Optional<Appointment> findByIdAndCompanyId(UUID id, UUID companyId);
     boolean existsByCompanyIdAndEmployeeIdAndStartsAtLessThanAndEndsAtGreaterThanAndStatusIn(
             UUID companyId, UUID employeeId, Instant endsAt, Instant startsAt, Collection<AppointmentStatus> statuses);
+    long countByCompanyIdAndEmployeeIdAndStartsAtGreaterThanEqualAndStartsAtLessThanAndStatusIn(
+            UUID companyId, UUID employeeId, Instant from, Instant to, Collection<AppointmentStatus> statuses);
     long countByCompanyIdAndStartsAtBetween(UUID companyId, Instant from, Instant to);
     long countByCompanyIdAndStatusAndStartsAtBetween(UUID companyId, AppointmentStatus status, Instant from, Instant to);
 }

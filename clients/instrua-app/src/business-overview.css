@@ -1,0 +1,26 @@
+.ins-business-overview{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(260px,.75fr);gap:16px;align-items:start;margin-top:18px}
+.ins-overview-social,.ins-overview-sales{background:#fffefa;border:1px solid #e2e4d5;border-radius:33px 18px 34px 21px;padding:clamp(19px,3vw,28px);min-width:0}
+.ins-overview-social>header,.ins-overview-sales>header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.ins-business-overview small{font-size:.68rem;color:#809371;font-weight:800;letter-spacing:.1em}
+.ins-business-overview h2{font:500 1.5rem Georgia,serif;margin:7px 0 0;color:#414a35}
+.ins-business-overview h3{font:500 1.14rem Georgia,serif;color:#414a35;margin:20px 0 10px}
+.ins-overview-social>header>button{background:#e9efdf;color:#506847;border:1px solid #d5dfcb;border-radius:99px;padding:10px 15px;font-size:.77rem;font-weight:800;cursor:pointer}
+.ins-overview-feed{display:grid;gap:10px}
+.ins-overview-feed article{background:#f2f5ea;border:1px solid #e3e9da;border-radius:19px 12px 22px 13px;padding:16px;overflow-wrap:anywhere}
+.ins-overview-feed article>div{display:flex;gap:9px;align-items:center}
+.ins-overview-feed article>div>span{font-size:1.2rem;display:grid;place-items:center;background:#dce9d1;color:#496341;width:35px;height:35px;border-radius:50%}
+.ins-overview-feed strong{font-size:.8rem;color:#485b41}
+.ins-overview-feed p{font-size:.81rem;line-height:1.6;color:#61705c;margin:11px 0 0;white-space:pre-line}
+.ins-overview-empty{font-size:.83rem;color:#74836d;background:#f5f6f0;border-radius:16px;padding:15px}
+.ins-overview-tags{display:flex;gap:8px;flex-wrap:wrap}
+.ins-overview-tags span{background:#e7eedc;color:#516447;padding:9px 12px;border-radius:99px;font-size:.77rem;font-weight:850}
+.ins-overview-tags small{font-size:.67rem;margin-left:5px}
+.ins-overview-sales{background:linear-gradient(145deg,#e7efdc,#f7f3e8);border-color:#d7e1cc}
+.ins-overview-sales-amount{background:#414a35;color:#fff;border-radius:27px 15px 27px 17px;padding:26px;display:grid;gap:11px}
+.ins-overview-sales-amount span{font-size:.79rem;color:#dbe5d0}
+.ins-overview-sales-amount strong{font:500 clamp(1.8rem,3vw,2.6rem) Georgia,serif;color:#fff}
+.ins-overview-sales-quantity{display:flex;align-items:center;justify-content:space-between;background:#fffefa;border-radius:18px;margin:12px 0;padding:15px;font-size:.83rem;color:#57684f}
+.ins-overview-sales-quantity strong{font-size:1.4rem;color:#414a35}
+.ins-overview-sales>p{font-size:.76rem;color:#75836d;line-height:1.7}
+.ins-overview-warning{grid-column:1/-1;padding:12px;border-radius:14px;background:#f7ecdf;color:#7e5942}
+@media(max-width:900px){.ins-business-overview{grid-template-columns:1fr}}

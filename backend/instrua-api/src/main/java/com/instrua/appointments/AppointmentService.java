@@ -11,6 +11,8 @@ import com.instrua.employees.EmployeeRepository;
 import com.instrua.services.ServiceOffering;
 import com.instrua.services.ServiceOfferingRepository;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
@@ -40,10 +42,20 @@ public class AppointmentService {
     @Transactional
     public Appointment create(UUID companyId, UUID clientId, UUID employeeId, UUID serviceId, Instant startsAt, String notes) {
         Company company = companies.requireAccess(companyId);
+        if (employeeId == null) throw new BusinessException("Selecione um profissional para reservar um horário.");
+        if (!startsAt.isAfter(Instant.now().plusSeconds(60))) throw new BusinessException("Escolha um horário futuro.");
         Client client = clients.findByIdAndCompanyIdAndActiveTrue(clientId, companyId).orElseThrow(() -> new NotFoundException("Cliente não encontrado"));
         ServiceOffering offering = serviceOfferings.findByIdAndCompanyIdAndActiveTrue(serviceId, companyId).orElseThrow(() -> new NotFoundException("Serviço não encontrado"));
-        Employee employee = employeeId == null ? null : employees.findByIdAndCompanyIdAndActiveTrue(employeeId, companyId).orElseThrow(() -> new NotFoundException("Funcionário não encontrado"));
+        Employee employee = employees.lockActiveForBooking(employeeId, companyId).orElseThrow(() -> new NotFoundException("Profissional não encontrado"));
         Instant endsAt = startsAt.plus(offering.getDurationMinutes(), ChronoUnit.MINUTES);
+        LocalDate localDay = startsAt.atZone(ZoneId.of(company.getTimezone())).toLocalDate();
+        Instant dayStart = localDay.atStartOfDay(ZoneId.of(company.getTimezone())).toInstant();
+        Instant nextDay = localDay.plusDays(1).atStartOfDay(ZoneId.of(company.getTimezone())).toInstant();
+        var reserved = EnumSet.of(AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED);
+        if (appointments.countByCompanyIdAndEmployeeIdAndStartsAtGreaterThanEqualAndStartsAtLessThanAndStatusIn(
+                companyId, employeeId, dayStart, nextDay, reserved) >= 20) {
+            throw new BusinessException("Limite diário de 20 atendimentos atingido para este profissional.");
+        }
         if (employee != null && appointments.existsByCompanyIdAndEmployeeIdAndStartsAtLessThanAndEndsAtGreaterThanAndStatusIn(
                 companyId, employee.getId(), endsAt, startsAt, EnumSet.of(AppointmentStatus.SCHEDULED, AppointmentStatus.CONFIRMED))) {
             throw new BusinessException("O funcionário já possui um agendamento neste horário");

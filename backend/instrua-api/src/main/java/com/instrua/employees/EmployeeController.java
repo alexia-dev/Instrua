@@ -3,6 +3,7 @@ package com.instrua.employees;
 import com.instrua.companies.Company;
 import com.instrua.companies.CompanyService;
 import com.instrua.common.exception.BusinessException;
+import com.instrua.common.security.CompanyPermissionService;
 import com.instrua.common.exception.NotFoundException;
 import com.instrua.users.Role;
 import com.instrua.users.User;
@@ -30,23 +31,26 @@ public class EmployeeController {
     private final CompanyService companies;
     private final EmployeeRepository employees;
     private final UserRepository users;
+    private final CompanyPermissionService permissions;
 
-    public EmployeeController(CompanyService companies, EmployeeRepository employees, UserRepository users) {
+    public EmployeeController(CompanyService companies, EmployeeRepository employees, UserRepository users, CompanyPermissionService permissions) {
         this.companies = companies;
         this.employees = employees;
         this.users = users;
+        this.permissions = permissions;
     }
 
     @GetMapping
     public List<EmployeeResponse> list(@PathVariable UUID companyId) {
-        companies.requireAccess(companyId);
+        permissions.requireScheduling(companyId);
         return employees.findAllByCompanyIdOrderByNameAsc(companyId).stream().map(EmployeeResponse::from).toList();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EmployeeResponse create(@PathVariable UUID companyId, @Valid @RequestBody EmployeeRequest request) {
-        Company company = companies.requireAccess(companyId);
+        Company company = permissions.requireManager(companyId);
+        if (request.accessRole() == Role.PLATFORM_ADMIN || request.accessRole() == Role.COMPANY_OWNER || request.accessRole() == Role.PATIENT) throw new BusinessException("Papel indisponível para um vínculo profissional.");
         User account = null;
         if (request.accountUserId() != null) {
             account = users.findById(request.accountUserId()).orElseThrow(() -> new NotFoundException("Conta de usuário não encontrada"));

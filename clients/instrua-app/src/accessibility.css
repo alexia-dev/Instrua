@@ -1,0 +1,175 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap');
+:root{--instrua-font-scale:1}
+.workspace-app{zoom:var(--instrua-font-scale,1)}
+.appearance-control-wrap{position:relative}
+.appearance-trigger{font-size:20px}
+.appearance-menu{position:absolute;right:0;top:48px;z-index:100; width:min(360px,calc(100vw - 32px));padding:18px;border:1px solid #d8d5c9;border-radius:16px;background:#fffdf8;color:#30382b;box-shadow:0 18px 50px #20251b26}
+.appearance-menu>b{display:block;font-size:14px;margin-bottom:5px}
+.appearance-menu>p{font-size:11px;color:#6c7062;margin-bottom:13px}
+.appearance-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.appearance-options button{display:flex;flex-direction:column;align-items:flex-start;gap:5px;text-align:left;padding:11px 9px;border:1px solid #ded9cc;border-radius:11px;background:#fffdf8;color:#30382b}
+.appearance-options button.selected{border:2px solid #414a35;background:#eef1e8;padding:10px 8px}
+.appearance-options button>span{font-size:20px}
+.appearance-options button>b{font-size:11px}
+.appearance-options button>small{font-size:9px;color:#6f7468}
+.appearance-hint{display:block;font-size:10px;line-height:1.55;color:#666b60;margin-top:13px}
+.font-size-control{display:flex;align-items:center;gap:4px;border:1px solid #e1ddcf;border-radius:12px;background:#fffdf8;padding:4px}
+.font-size-control button{border:0;border-radius:7px;background:#eef0e7;color:#30382b;min-width:34px;height:30px;font-weight:700}
+.font-size-control button:disabled{opacity:.35;cursor:not-allowed}
+.font-size-control>span{font-size:13px;font-weight:700;padding:0 3px}
+.workspace-app.theme-contrast{--ink:#25271f;--surface:#fffdf7;background:#f5f0e5;color:#25271f}
+.workspace-app.theme-contrast .app-sidebar,.workspace-app.theme-contrast .app-topbar,.workspace-app.theme-contrast .surface-card,.workspace-app.theme-contrast .home-card{background:#fffdf7;border-color:#777565}
+.workspace-app.theme-contrast .app-nav-item,.workspace-app.theme-contrast .app-nav-item>span,.workspace-app.theme-contrast .breadcrumbs,.workspace-app.theme-contrast .welcome-row p,.workspace-app.theme-contrast .page-intro p,.workspace-app.theme-contrast .appointment-detail small,.workspace-app.theme-contrast .post-text{color:#292b23}
+.workspace-app.theme-contrast .app-nav-item.active{background:#e8dfca;color:#1c2118;outline:1px solid #5c604e}
+.workspace-app.theme-contrast .welcome-banner,.workspace-app.theme-contrast .queue-card{background:#f0e7d3;border-color:#5f6252;color:#22251d}
+.workspace-app.theme-contrast .app-notice{background:#f0e7d3;color:#22251d;border:1px solid #555a4a}
+.workspace-app.theme-contrast button:focus-visible,.workspace-app.theme-contrast a:focus-visible,.workspace-app.theme-contrast input:focus-visible,.workspace-app.theme-contrast select:focus-visible{outline:3px solid #1f2818;outline-offset:3px}
+.site.theme-contrast{background:#f5f0e5;color:#25271f}
+.site.theme-contrast .landing-nav,.site.theme-contrast .feature-card,.site.theme-contrast .hero-phone{background:#fffdf7;border-color:#777565}
+.site.theme-contrast p,.site.theme-contrast .section-heading>p,.site.theme-contrast .hero-copy>p{color:#34372d}
+.site.theme-contrast .btn-primary{background:#293324;color:#fff}
+.workspace-app.dark{background:#171b16;color:#edf0e7;--ink:#edf0e7;--surface:#222820}
+.workspace-app.dark .app-sidebar,.workspace-app.dark .app-topbar,.workspace-app.dark .surface-card,.workspace-app.dark .home-card,.workspace-app.dark .appearance-menu{background:#222820;color:#edf0e7;border-color:#41493b}
+.workspace-app.dark .app-topbar{background:#222820f2}
+.workspace-app.dark .role-switch,.workspace-app.dark .sidebar-help,.workspace-app.dark .welcome-banner,.workspace-app.dark .queue-card,.workspace-app.dark .quote-card{background:#2d3528;border-color:#48533e;color:#edf0e7}
+.workspace-app.dark .app-nav-item,.workspace-app.dark .breadcrumbs,.workspace-app.dark .today-label,.workspace-app.dark .welcome-row p,.workspace-app.dark .page-intro p,.workspace-app.dark .surface-heading p,.workspace-app.dark .appointment-detail small,.workspace-app.dark .post-text,.workspace-app.dark .step-row small{color:#c6cebb}
+.workspace-app.dark .app-nav-item.active{background:#3b4932;color:#fff}
+.workspace-app.dark .app-nav-item.active>span{color:#e4ebd8}
+.workspace-app.dark .round-action,.workspace-app.dark .font-size-control,.workspace-app.dark .appearance-options button{background:#2d3528;color:#edf0e7;border-color:#515b48}
+.workspace-app.dark .appearance-options button.selected{background:#3b4932;border-color:#b9caa8}
+.workspace-app.dark .font-size-control button{background:#414b39;color:#fff}
+.workspace-app.dark .app-notice{background:#34422d;color:#f0f4e9}
+.workspace-app.dark .appointment-row,.workspace-app.dark .step-row,.workspace-app.dark .community-row{border-color:#3c4436}
+.workspace-app.dark .status-pill,.workspace-app.dark .post-tag,.workspace-app.dark .demo-tag{background:#35412d;color:#e1ead7}
+.site.dark{background:#171b16;color:#edf0e7}
+.site.dark .landing-nav,.site.dark .feature-card,.site.dark .hero-phone{background:#222820;color:#edf0e7;border-color:#41493b}
+.site.dark .hero-copy>p,.site.dark .section-heading>p,.site.dark .journey-card p,.site.dark .feature-card p,.site.dark .final-cta p{color:#c6cebb}
+.site.dark .journey-card{background:#2d3528;border-color:#48533e;color:#edf0e7}
+.site.dark .landing-footer{border-color:#41493b}
+.site.dark .landing-nav nav,.site.dark .landing-footer>span{color:#c6cebb}
+@media(max-width:650px){.appearance-menu{position:fixed;top:118px;right:12px}.font-size-control{gap:2px}.font-size-control button{min-width:29px}.topbar-tools{gap:7px}.today-label{display:none}}
+
+/* Perfil com foto: o mesmo retrato acompanha o usuário em todos os pontos da interface. */
+.photo-avatar{overflow:hidden;padding:0;flex:0 0 auto;border:1px solid #d8dece}
+.photo-avatar img{width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit}
+.role-avatar.photo-avatar{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#dfe6d6;color:#293324;font-weight:700}
+.top-avatar.photo-avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#dfe6d6;color:#293324;font-weight:700}
+.settings-theme-options{margin:12px 0 16px}
+.settings-theme-options> b{display:block;font-size:12px;margin-bottom:10px}
+.settings-font-size{width:max-content;margin:12px 0 18px}
+.settings-font-size>span{min-width:44px;text-align:center;font-size:11px}
+.settings-card input[type=file]{display:block;width:100%;margin-top:7px;font-size:11px;color:var(--ink)}
+.settings-card label>small{display:block;font-size:10px;line-height:1.5;color:#777d6b;margin-top:5px}
+.workspace-app.dark .settings-card label,.workspace-app.dark .settings-card h3,.workspace-app.dark .settings-card p,.workspace-app.dark .settings-card b,.workspace-app.dark .settings-card .settings-link,.workspace-app.dark .sidebar-user b,.workspace-app.dark .sidebar-user small,.workspace-app.dark .role-switch select,.workspace-app.dark .role-switch small,.workspace-app.dark .nav-group>p,.workspace-app.dark .app-brand,.workspace-app.dark .app-brand small,.workspace-app.dark .surface-heading h2,.workspace-app.dark .surface-card h2,.workspace-app.dark .surface-card h3,.workspace-app.dark .step-row b,.workspace-app.dark .appointment-detail b,.workspace-app.dark .post-author b,.workspace-app.dark .community-row b,.workspace-app.dark .welcome-banner b,.workspace-app.dark .queue-card h2,.workspace-app.dark .timeline-step b{color:#edf2e6}
+.workspace-app.dark .settings-card input:not([type=checkbox]),.workspace-app.dark .settings-card select,.workspace-app.dark .composer textarea,.workspace-app.dark input:not([type=checkbox]),.workspace-app.dark select,.workspace-app.dark textarea{background:#252d22;color:#f0f4e9;border-color:#59634f}
+.workspace-app.dark input::placeholder,.workspace-app.dark textarea::placeholder{color:#b8c1ae}
+.workspace-app.dark .settings-card input[type=file]{color:#dfe6d6}
+.workspace-app.dark .settings-card label>small,.workspace-app.dark .settings-card p,.workspace-app.dark .settings-card .soft-callout p,.workspace-app.dark .settings-card .settings-link span{color:#c6d0bd}
+.workspace-app.dark .settings-symbol,.workspace-app.dark .home-card-icon,.workspace-app.dark .step-icon,.workspace-app.dark .appointment-symbol,.workspace-app.dark .post-avatar,.workspace-app.dark .community-row>span{background:#3b4932;color:#e7efdd}
+.workspace-app.dark .floating-card,.workspace-app.dark .hero-note,.workspace-app.dark .phone-search,.workspace-app.dark .phone-tiles span,.workspace-app.dark .phone-appointment,.workspace-app.dark .phone-progress{background:#2d3528;color:#edf2e6;border-color:#48533e}
+.workspace-app.dark .phone-brand,.workspace-app.dark .phone-greeting,.workspace-app.dark .phone-appointment b,.workspace-app.dark .phone-progress span{color:#edf2e6}
+.workspace-app.dark .phone-appointment small,.workspace-app.dark .phone-tiles small,.workspace-app.dark .muted{color:#c6cebb}
+.workspace-app.dark .quote-card h2,.workspace-app.dark .quote-card p,.workspace-app.dark .quote-card small{color:#edf2e6}
+.workspace-app.dark .soft-callout{background:#2d3528;border-color:#48533e;color:#edf2e6}
+.workspace-app.dark .soft-callout p{color:#c6cebb}
+.workspace-app.dark .appearance-menu>p,.workspace-app.dark .appearance-hint{color:#d0d8c7}
+.workspace-app.dark .appearance-options button>small{color:#d0d8c7}
+.workspace-app.dark .appearance-options button.selected{color:#fff}
+.workspace-app.theme-contrast .settings-card label,.workspace-app.theme-contrast .settings-card h3,.workspace-app.theme-contrast .settings-card p,.workspace-app.theme-contrast .settings-card b,.workspace-app.theme-contrast .settings-card .settings-link,.workspace-app.theme-contrast .sidebar-user b,.workspace-app.theme-contrast .sidebar-user small,.workspace-app.theme-contrast .role-switch select,.workspace-app.theme-contrast .nav-group>p,.workspace-app.theme-contrast .app-brand,.workspace-app.theme-contrast .surface-heading h2,.workspace-app.theme-contrast .surface-card h2,.workspace-app.theme-contrast .surface-card h3,.workspace-app.theme-contrast .step-row b,.workspace-app.theme-contrast .appointment-detail b,.workspace-app.theme-contrast .post-author b,.workspace-app.theme-contrast .community-row b{color:#20231b}
+.workspace-app.theme-contrast input:not([type=checkbox]),.workspace-app.theme-contrast select,.workspace-app.theme-contrast textarea,.workspace-app.theme-contrast .settings-card input:not([type=checkbox]),.workspace-app.theme-contrast .settings-card select{background:#fffdf7;color:#20231b;border-color:#626554}
+.workspace-app.theme-contrast .settings-card label>small,.workspace-app.theme-contrast .settings-card p,.workspace-app.theme-contrast .settings-card .soft-callout p{color:#35392e}
+.workspace-app.theme-contrast .settings-card,.workspace-app.theme-contrast .app-sidebar,.workspace-app.theme-contrast .app-topbar,.workspace-app.theme-contrast .surface-card,.workspace-app.theme-contrast .home-card{box-shadow:none}
+.workspace-app.theme-contrast .welcome-banner b,.workspace-app.theme-contrast .queue-card h2,.workspace-app.theme-contrast .quote-card h2,.workspace-app.theme-contrast .quote-card p{color:#20231b}
+.workspace-app.theme-contrast .soft-callout{background:#eee4d1;border:1px solid #626554;color:#20231b}
+.site.dark .hero-note,.site.dark .floating-card{background:#222820;color:#edf0e7;border-color:#41493b}
+.site.dark .hero-note b,.site.dark .floating-card b{color:#edf0e7}
+.site.dark .hero-note small,.site.dark .floating-card small{color:#c6cebb}
+.site.dark .phone-brand,.site.dark .phone-greeting,.site.dark .phone-appointment b{color:#edf0e7}
+.site.dark .phone-search,.site.dark .phone-tiles span,.site.dark .phone-appointment{background:#2d3528;color:#edf0e7}
+.site.dark .phone-tiles small,.site.dark .phone-appointment small,.site.dark .muted{color:#c6cebb}
+.site.dark .category-strip{border-color:#41493b}
+.site.dark .category-strip>span,.site.dark .category-strip button{color:#d0d8c7}
+.site.dark .auth-main{background:#171b16;color:#edf0e7}
+.site.dark .auth-form-wrap h2,.site.dark .auth-form label{color:#edf0e7}
+.site.dark .auth-form input,.site.dark .auth-form select{background:#222820;color:#edf0e7;border-color:#41493b}
+.site.dark .auth-subtitle,.site.dark .auth-disclaimer{color:#c6cebb}
+.site.theme-contrast .category-strip>span,.site.theme-contrast .category-strip button,.site.theme-contrast .landing-nav nav,.site.theme-contrast .landing-footer>span{color:#292b23}
+.site.theme-contrast .journey-card,.site.theme-contrast .journey-card p{color:#25271f}
+.site.theme-contrast .journey-card p{color:#34372d}
+.site.theme-contrast .auth-main{background:#f5f0e5;color:#25271f}
+.site.theme-contrast .auth-form-wrap h2,.site.theme-contrast .auth-form label{color:#25271f}
+.site.theme-contrast .auth-form input,.site.theme-contrast .auth-form select{background:#fffdf7;color:#25271f;border-color:#777565}
+.site.theme-contrast .auth-subtitle,.site.theme-contrast .auth-disclaimer{color:#34372d}
+
+/* Restored official Instrua palette: moss leads; sage, sand, clay and amber add hierarchy. */
+.workspace-app,.site{
+  --instrua-moss:#414A35;--instrua-olive:#69704B;--instrua-sage:#96977B;--instrua-mist:#C2C3AA;
+  --instrua-sand:#D6C9AD;--instrua-beige:#B5A17F;--instrua-clay:#A66F4B;--instrua-brown:#87542F;
+  --instrua-amber:#C18A43;--instrua-paper:#F5F1E8;--instrua-card:#FCFAF4;--instrua-text:#34382D;
+  --instrua-muted:#686858;--instrua-border:#DDD7C8;
+}
+.workspace-app:not(.dark):not(.theme-contrast){background:var(--instrua-paper);color:var(--instrua-text)}
+.workspace-app:not(.dark):not(.theme-contrast) .app-sidebar,
+.workspace-app:not(.dark):not(.theme-contrast) .app-topbar{background:var(--instrua-card);border-color:var(--instrua-border)}
+.workspace-app:not(.dark):not(.theme-contrast) .surface-card,
+.workspace-app:not(.dark):not(.theme-contrast) .home-card,
+.workspace-app:not(.dark):not(.theme-contrast) .stat-card{background:var(--instrua-card);border-color:var(--instrua-border)}
+/* Color is used intentionally for category and status, not as decoration everywhere. */
+.home-card:nth-child(1) .home-card-icon{background:#e3e8da;color:var(--instrua-moss);border:1px solid #c2c9b4}
+.home-card:nth-child(2) .home-card-icon{background:#f4e3d5;color:var(--instrua-clay);border:1px solid #e2bda2}
+.home-card:nth-child(3) .home-card-icon{background:#eee3d2;color:var(--instrua-brown);border:1px solid #d9c1a0}
+.home-card:nth-child(4) .home-card-icon{background:#f5e8ca;color:#80551f;border:1px solid #e5ca8e}
+.workspace-app:not(.dark) .welcome-banner{background:linear-gradient(105deg,#e5e9dc 0%,#f2e8d8 100%);border:1px solid #c9d0bd}
+.workspace-app:not(.dark) .welcome-flower{color:var(--instrua-olive)}
+.workspace-app:not(.dark) .quote-card{background:#f1e4d6;border:1px solid #e1c7b1}
+.workspace-app:not(.dark) .quote-card>span{color:var(--instrua-clay)}
+.workspace-app:not(.dark) .step-icon{background:#eee3d2;color:var(--instrua-brown)}
+.workspace-app:not(.dark) .appointment-symbol{background:#e4e8da;color:var(--instrua-moss)}
+.workspace-app:not(.dark) .status-pill{background:#e6ebdf;color:#414a35;border:1px solid #c8d2bc}
+.workspace-app:not(.dark) .opportunity-icon.opp1{background:#f5e8ca;color:#80551f;border:1px solid #e5ca8e}
+.workspace-app:not(.dark) .opportunity-icon.opp2{background:#f4e3d5;color:#87542f;border:1px solid #e2bda2}
+.workspace-app:not(.dark) .opportunity-icon.opp3{background:#e3e8da;color:#414a35;border:1px solid #c2c9b4}
+.workspace-app:not(.dark) .post-tag{background:#f1e4d6;color:#87542f;border:1px solid #e4c8b1}
+.workspace-app:not(.dark) .settings-symbol{background:#e4e8da;color:#414a35;border:1px solid #c2c9b4}
+.workspace-app:not(.dark) .trend-spark{background:#f5e8ca;color:#87542f;border:1px solid #e5ca8e}
+.workspace-app:not(.dark) .home-update-note{background:#e4e8da;border:1px solid #c2c9b4}
+.workspace-app:not(.dark) .round-action{background:#f1e4d6;color:#414a35;border:1px solid #dfc5b1}
+.workspace-app:not(.dark) .round-action:hover{background:#e4e8da;border-color:#aab49b}
+.workspace-app:not(.dark) .app-nav-item.active{background:#e4e8da;color:#414a35;border-left:3px solid #69704B}
+.workspace-app:not(.dark) .app-nav-item.active>span{color:#414a35}
+.workspace-app:not(.dark) .btn-primary{background:#414A35;color:#fffdf7;border:1px solid #414A35}
+.workspace-app:not(.dark) .btn-primary:hover{background:#303829}
+.workspace-app:not(.dark) .btn-outline{border-color:#b5a17f;color:#414a35}
+.workspace-app:not(.dark) .btn-outline:hover{background:#f1e4d6;border-color:#a66f4b}
+.workspace-app.dark{--ink:#edf0e6;--surface:#2b3327;--line:#46503f}
+.workspace-app.dark .home-card:nth-child(1) .home-card-icon{background:#394532;color:#dfe8d3;border-color:#697b58}
+.workspace-app.dark .home-card:nth-child(2) .home-card-icon{background:#4c382c;color:#f2c6a7;border-color:#8c6249}
+.workspace-app.dark .home-card:nth-child(3) .home-card-icon{background:#4a4030;color:#ead5b4;border-color:#8c7855}
+.workspace-app.dark .home-card:nth-child(4) .home-card-icon{background:#4b402b;color:#f1d39a;border-color:#8e7548}
+.workspace-app.dark .welcome-banner{background:linear-gradient(105deg,#35412f 0%,#45372c 100%);border:1px solid #59684b}
+.workspace-app.dark .quote-card{background:#43352b;border:1px solid #77563f}
+.workspace-app.dark .quote-card>span{color:#e3a879}
+.workspace-app.dark .step-icon{background:#493a2d;color:#f0c8a6}
+.workspace-app.dark .appointment-symbol{background:#394532;color:#dfe8d3}
+.workspace-app.dark .status-pill{background:#35412d;color:#e1ead7;border:1px solid #59684b}
+.workspace-app.dark .post-tag{background:#49372b;color:#f0c8a6;border:1px solid #79563f}
+.workspace-app.dark .trend-spark{background:#4b402b;color:#f1d39a;border:1px solid #8e7548}
+.workspace-app.dark .home-update-note{background:#35412f;color:#edf0e6;border:1px solid #59684b}
+.workspace-app.dark .round-action{background:#303a2b;color:#edf0e6;border:1px solid #59684b}
+.workspace-app.dark .appearance-options button.selected{background:#3b4932;border-color:#c3d3ae}
+.workspace-app.theme-contrast .home-card:nth-child(1) .home-card-icon{background:#e4e8da;color:#20231b;border:2px solid #414a35}
+.workspace-app.theme-contrast .home-card:nth-child(2) .home-card-icon{background:#f4e3d5;color:#542d19;border:2px solid #87542f}
+.workspace-app.theme-contrast .home-card:nth-child(3) .home-card-icon{background:#eee3d2;color:#50371e;border:2px solid #87542f}
+.workspace-app.theme-contrast .home-card:nth-child(4) .home-card-icon{background:#f5e8ca;color:#50371e;border:2px solid #87542f}
+.workspace-app.theme-contrast .welcome-banner{background:linear-gradient(105deg,#e4e8da 0%,#f1e4d6 100%);border:2px solid #414a35}
+.workspace-app.theme-contrast .quote-card{background:#f1e4d6;border:2px solid #87542f;color:#20231b}
+.workspace-app.theme-contrast .step-icon{background:#eee3d2;color:#50371e;border:1px solid #87542f}
+.workspace-app.theme-contrast .appointment-symbol{background:#e4e8da;color:#20231b;border:1px solid #414a35}
+.workspace-app.theme-contrast .status-pill{background:#e4e8da;color:#20231b;border:2px solid #414a35}
+.workspace-app.theme-contrast .post-tag{background:#f1e4d6;color:#50371e;border:1px solid #87542f}
+.workspace-app.theme-contrast .trend-spark{background:#f5e8ca;color:#50371e;border:1px solid #87542f}
+.workspace-app.theme-contrast .home-update-note{background:#e4e8da;border:2px solid #414a35;color:#20231b}
+.workspace-app.theme-contrast .round-action{background:#f1e4d6;color:#20231b;border:2px solid #414a35}
+.appearance-trigger{font-size:20px;font-weight:700}
+.appearance-trigger::after{content:"";position:absolute;right:7px;bottom:7px;width:5px;height:5px;border-radius:50%;background:#C18A43}
+.appearance-trigger{position:relative}

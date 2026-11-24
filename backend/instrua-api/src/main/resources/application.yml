@@ -4,7 +4,7 @@ spring:
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/instrua}
     username: ${DATABASE_USERNAME:instrua}
-    password: ${DATABASE_PASSWORD:instrua}
+    password: ${DATABASE_PASSWORD:instrua_dev}
   jpa:
     hibernate:
       ddl-auto: validate
