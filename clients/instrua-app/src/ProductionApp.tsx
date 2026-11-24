@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import SiteHome from "./SiteHome";
+import SiteHome from "./SiteHomeOrganic";
 import AuthPage, {type AuthMode} from "./AuthPage";
 import ModulesHub,{modules,moduleKey,areaOrder} from "./ModulesHub";
 import {PlannedModuleScreen,SettingsWorkspace} from "./WorkspaceExtras";
