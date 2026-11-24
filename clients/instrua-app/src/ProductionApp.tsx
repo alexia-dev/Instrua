@@ -35,6 +35,12 @@ export default function ProductionApp() {
   const [ownAppointments,setOwnAppointments]=useState<Appointment[]>([]);
   const [tab,setTab]=useState<Tab>("painel");
   const [patientArea,setPatientArea]=useState<"inicio"|"agenda"|"buscar"|"oportunidades"|"eventos"|"comunidade"|"calendario"|"convites"|"modulos"|"configuracoes">("inicio");
+  // Dedicated routes: browser back/forward also navigates the personal workspace.
+  useEffect(()=>{
+    const next=route.startsWith("/app/")?route.slice(5):"";
+    const pages=["inicio","agenda","buscar","oportunidades","eventos","comunidade","calendario","convites","modulos","configuracoes"];
+    if(pages.includes(next))setPatientArea(next as typeof patientArea);
+  },[route]);
   const [error,setError]=useState("");
   const [success,setSuccess]=useState("");
   const [loading,setLoading]=useState(false);
@@ -195,7 +201,7 @@ export default function ProductionApp() {
       {!API_URL&&<p role="alert" className="real-alert real-error">API não configurada. Defina VITE_INSTRUA_API_URL para habilitar o ambiente real. Nenhum dado fictício será usado.</p>}
 
       {!session && (
-        route==="/entrar"||route==="/cadastro/empresa"||route==="/cadastro/pessoa"?
+        route==="/entrar"||route==="/cadastro/empresa"||route==="/cadastro/pessoa"||route.startsWith("/app")?
         <AuthPage mode={mode} form={authForm} setForm={setAuthForm} onSubmit={authenticate} onNavigate={navigate} busy={busy} apiAvailable={!!API_URL}/>:
         <SiteHome onNavigate={navigate}/>
       )}
