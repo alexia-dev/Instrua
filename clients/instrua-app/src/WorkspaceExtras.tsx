@@ -1,7 +1,6 @@
 import {useEffect,useState,type FormEvent} from "react";
 import {api,type Session,type Company,type CatalogCompany} from "./production-api";
 import type {Module} from "./ModulesHub";
-import ProfileSettings, {type Appearance} from "./ProfileSettings";
 import "./workspace-extras.css";
 
 type SettingsPage="dados"|"saude"|"seguranca"|"privacidade"|"notificacoes"|"acessibilidade"|"organizacao";
