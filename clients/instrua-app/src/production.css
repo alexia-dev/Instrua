@@ -155,3 +155,20 @@
 .real-sidebar-module-title .real-sidebar-inprogress{width:6px;height:6px;display:inline-block}
 .real-workspace-layout .real-tabs button.real-sidebar-module.selected .real-sidebar-module-title small{color:#ffe3b7}
 @media(max-width:1020px){.real-sidebar-module-title{display:flex;align-items:center;gap:6px}.real-sidebar-module-title small{font-size:.62rem}}
+
+/* Páginas pessoais independentes — navegação mobile-first, conforme o mockup de referência. */
+.real-patient{max-width:1250px;margin:0 auto}
+.ins-personal-nav{display:flex;gap:9px;overflow-x:auto;scrollbar-width:thin;margin-bottom:22px;padding:4px 2px 15px;position:relative}
+.ins-personal-nav button{background:#fffdf9;color:#53644d;min-height:45px;border:1px solid #e1ded1;border-radius:99px;padding:10px 16px;white-space:nowrap;font-size:.8rem;font-weight:800;display:inline-flex;gap:8px;align-items:center}
+.ins-personal-nav button span{font-size:1.06rem}
+.ins-personal-nav button.active{background:#414a35;border-color:#414a35;color:white;box-shadow:0 5px 14px #414a3520}
+.ins-personal-nav button:not(.active):hover{background:#e7eee0}
+.ins-personal-search{max-width:700px;margin:0 auto}
+.ins-personal-search>h1,.real-patient>.real-panel>h1{font-family:Georgia,serif;letter-spacing:-.035em;font-weight:500}
+.ins-personal-modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:14px}
+.ins-personal-modules article{padding:19px;border-radius:25px 15px 24px 18px;background:#f4f7ee;border:1px solid #e1e9d8}
+.ins-personal-modules article:nth-child(2n){background:#f7f2e9}
+.ins-personal-modules article strong{color:#414a35;font-size:.88rem}
+.ins-personal-modules article p{font-size:.8rem;color:#6b7564;margin:9px 0 14px}
+.ins-personal-modules article small{font-size:.68rem;color:#8a795e;font-weight:800}
+@media(max-width:750px){.real-patient{padding-bottom:65px}.ins-personal-nav{position:sticky;top:0;z-index:5;background:#f6f3ebeb;backdrop-filter:blur(12px);padding:9px 3px 12px;margin-top:-10px}.ins-personal-nav button{min-height:45px;padding:9px 12px;font-size:.74rem}}
