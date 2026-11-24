@@ -4,6 +4,7 @@ import AuthPage, {type AuthMode} from "./AuthPage";
 import ModulesHub,{modules,moduleKey,areaOrder} from "./ModulesHub";
 import {PlannedModuleScreen,SettingsWorkspace} from "./WorkspaceExtras";
 import ScheduleBoard from "./ScheduleBoard";
+import InstruaHome, {type HomeDestination} from "./InstruaHome";
 import { api, API_URL, type Appointment, type AppointmentStatus, type CatalogCompany, type CancellationPolicy, type Client, type Company, type Professional, type Service, type Session } from "./production-api";
 import "./production.css";
 
@@ -31,7 +32,7 @@ export default function ProductionApp() {
   const [catalog,setCatalog]=useState<CatalogCompany[]>([]);
   const [ownAppointments,setOwnAppointments]=useState<Appointment[]>([]);
   const [tab,setTab]=useState<Tab>("painel");
-  const [patientArea,setPatientArea]=useState<"home"|"settings">("home");
+  const [patientArea,setPatientArea]=useState<"inicio"|"agenda"|"buscar"|"oportunidades"|"eventos"|"comunidade"|"calendario"|"convites"|"modulos"|"configuracoes">("inicio");
   const [error,setError]=useState("");
   const [success,setSuccess]=useState("");
   const [loading,setLoading]=useState(false);
@@ -59,7 +60,7 @@ export default function ProductionApp() {
   const catalogBusiness=catalog.find(c=>c.id===selectedCatalog);
 
   function clearMessages(){setError("");setSuccess("");}
-  function logout(){navigate("/");setStaffWorkspace(false);setInviteCode("");setSession(null);setPatientArea("home");setTab("painel");setAuthForm(f=>({...f,password:""}));setCompanies([]);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
+  function logout(){navigate("/");setStaffWorkspace(false);setInviteCode("");setSession(null);setPatientArea("inicio");setTab("painel");setAuthForm(f=>({...f,password:""}));setCompanies([]);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
   async function authenticate(e:FormEvent){
     e.preventDefault();if(busy)return;setBusy(true);clearMessages();
     try{
@@ -70,7 +71,7 @@ export default function ProductionApp() {
         const data=await api<{authentication:Session;company:Company}>("/auth/register",undefined,"POST",{ownerName:authForm.name.trim(),email:authForm.email.trim(),password:authForm.password,companyName:authForm.companyName.trim(),companySlug:authForm.slug.trim().toLowerCase(),companyEmail:authForm.email.trim(),timezone:"America/Sao_Paulo"});
         account=data.authentication;setCompanies([data.company]);setSelected(data.company.id);
       }
-      setAuthForm(f=>({...f,password:""}));setSession(account);navigate("/app");setTab("painel");setPatientArea("home");setSuccess("Conta conectada ao Instrua.");
+      setAuthForm(f=>({...f,password:""}));setSession(account);navigate("/app");setTab("painel");setPatientArea("inicio");setSuccess("Conta conectada ao Instrua.");
     }catch(e){setError(message(e));}finally{setBusy(false);}
   }
   useEffect(()=>{
@@ -156,7 +157,7 @@ export default function ProductionApp() {
   }
   return <div className="real-app">
     {session&&<header className="real-header"><div className="real-brand"><img src="/brand-icon.svg" className="real-mark-image" alt="" /><div><strong>instrua</strong><small>Kiyubi Technologies</small></div></div>
-      {session?<div className="real-header-actions"><span>{session.name}</span>{hasPatientRole&&<button type="button" className="real-secondary" onClick={()=>{setStaffWorkspace(v=>!v);setPatientArea("home");clearMessages();}}>{staffWorkspace?"Minha jornada":"Área profissional"}</button>}{isPatient&&<button type="button" className="real-secondary" onClick={()=>setPatientArea(v=>v==="home"?"settings":"home")}>{patientArea==="settings"?"Meu painel":"⚙ Configurações"}</button>}<button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>}
+      {session?<div className="real-header-actions"><span>{session.name}</span>{hasPatientRole&&<button type="button" className="real-secondary" onClick={()=>{setStaffWorkspace(v=>!v);setPatientArea("inicio");clearMessages();}}>{staffWorkspace?"Minha jornada":"Área profissional"}</button>}{isPatient&&<button type="button" className="real-secondary" onClick={()=>setPatientArea(v=>v==="configuracoes"?"inicio":"configuracoes")}>{patientArea==="configuracoes"?"Meu início":"⚙ Configurações"}</button>}<button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>}
     <main className={session?"real-container":"real-public-main"}>
       {error&&<p role="alert" className="real-alert real-error">{error}<button type="button" aria-label="Fechar aviso" onClick={()=>setError("")}>×</button></p>}
       {success&&<p role="status" className="real-alert real-success">{success}<button type="button" aria-label="Fechar aviso" onClick={()=>setSuccess("")}>×</button></p>}
@@ -222,21 +223,64 @@ export default function ProductionApp() {
           </div>
         </>}</>}
 
-      {session&&isPatient&&(patientArea==="settings"?<div className="real-patient"><SettingsWorkspace session={session} context="personal"/></div>:<div className="real-patient"><div className="real-personal-hero"><p className="real-eyebrow">MEU INSTRUA · SUA JORNADA</p><h1>Olá, {session.name.split(" ")[0]}! <span aria-hidden="true">🌿</span></h1><p>Seus atendimentos, seus lembretes e suas conexões, tudo em seu tempo.</p><div className="real-personal-summary"><div><small>Meus próximos agendamentos</small><strong>{ownAppointments.filter(a=>a.status!=="CANCELLED"&&new Date(a.startsAt).getTime()>=Date.now()).length}</strong></div><div><small>Confirmados</small><strong>{ownAppointments.filter(a=>a.status==="CONFIRMED").length}</strong></div></div></div><nav className="real-personal-links" aria-label="Áreas pessoais"><a href="#real-my-bookings" onClick={e=>{e.preventDefault();document.getElementById("real-my-bookings")?.scrollIntoView({behavior:"smooth"});}}>▦ Meus agendamentos</a><span>✳ Oportunidades <small>Em desenvolvimento</small></span><span>♡ Instrua Social <small>Em desenvolvimento</small></span><span>▤ Calendário <small>Em desenvolvimento</small></span></nav><section className="real-panel"><h2>Convite para equipe de estabelecimento</h2><form className="real-form" onSubmit={acceptInvitation}><label>Seu código de convite<input value={acceptCode} onChange={e=>setAcceptCode(e.target.value)} placeholder="Cole o código recebido" required/></label><button className="real-secondary" type="submit" disabled={busy||!acceptCode.trim()}>Aceitar convite e abrir área profissional</button></form></section>
-        <section id="real-my-bookings" className="real-panel"><h2>Meus atendimentos</h2><Bookings list={ownAppointments}/>
-          <label>Motivo de cancelamento<input maxLength={1000} value={patientCancelReason} onChange={e=>setPatientCancelReason(e.target.value)}/></label>
-          {ownAppointments.filter(a=>a.status==="SCHEDULED"||a.status==="CONFIRMED").map(a=><button className="real-secondary real-spaced" type="button" key={a.id} disabled={busy} onClick={()=>cancelSelf(a.id)}>Cancelar {a.serviceName} — {when(a.startsAt)}</button>)}
-        </section>
-        <section className="real-panel"><h2>Encontrar atendimento</h2>
-          {catalog.length===0?<p>Nenhum estabelecimento ativo disponível.</p>:<form className="real-form" onSubmit={bookSelf}>
+
+      {session&&isPatient&&<section className="real-patient">
+        <nav className="ins-personal-nav" aria-label="Navegação da pessoa">
+          {([
+            ["inicio","⌂","Início"],["agenda","▦","Agendamentos"],["buscar","⌕","Encontrar"],
+            ["oportunidades","✧","Oportunidades"],["eventos","▤","Eventos"],["comunidade","♡","Social"],
+            ["calendario","◷","Calendário"],["convites","♧","Convites"],["modulos","✳","Módulos"],
+            ["configuracoes","⚙","Ajustes"]
+          ] as [typeof patientArea,string,string][]).map(([key,icon,label])=>
+            <button key={key} type="button" className={patientArea===key?"active":""} aria-current={patientArea===key?"page":undefined}
+              onClick={()=>{setPatientArea(key);clearMessages();window.location.hash="#/app/"+key;}}>
+              <span aria-hidden="true">{icon}</span>{label}
+            </button>
+          )}
+        </nav>
+        {(["inicio","oportunidades","eventos","comunidade"] as string[]).includes(patientArea)&&
+          <InstruaHome
+            view={patientArea as "inicio"|"oportunidades"|"eventos"|"comunidade"}
+            session={session} appointments={ownAppointments} isPatient
+            onOpen={(destination:HomeDestination)=>{const next=destination==="agenda"?"agenda":destination==="equipe"?"convites":destination;setPatientArea(next as typeof patientArea);window.location.hash="#/app/"+next;clearMessages();}}
+          />
+        }
+        {patientArea==="agenda"&&<>
+          <section className="real-personal-hero"><p className="real-eyebrow">MINHA JORNADA</p><h1>Meus agendamentos</h1><p>Veja seus próximos compromissos e acompanhe cada confirmação.</p>
+            <div className="real-personal-summary"><div><small>Próximos</small><strong>{ownAppointments.filter(a=>a.status!=="CANCELLED"&&new Date(a.startsAt).getTime()>=Date.now()).length}</strong></div><div><small>Confirmados</small><strong>{ownAppointments.filter(a=>a.status==="CONFIRMED").length}</strong></div></div></section>
+          <section className="real-panel"><div className="real-section-head"><h2>Meus atendimentos</h2><button type="button" className="real-secondary" onClick={()=>setRevision(r=>r+1)}>Atualizar</button></div><Bookings list={ownAppointments}/>
+            <label>Motivo para cancelar<input maxLength={1000} value={patientCancelReason} onChange={e=>setPatientCancelReason(e.target.value)}/></label>
+            {ownAppointments.filter(a=>a.status==="SCHEDULED"||a.status==="CONFIRMED").map(a=><button className="real-secondary real-spaced" type="button" key={a.id} disabled={busy} onClick={()=>cancelSelf(a.id)}>Cancelar {a.serviceName} — {when(a.startsAt)}</button>)}
+          </section>
+          <button type="button" className="real-primary" onClick={()=>setPatientArea("buscar")}>Encontrar novo atendimento</button>
+        </>}
+        {patientArea==="buscar"&&<section className="real-panel ins-personal-search">
+          <span className="real-eyebrow">DESCUBRA E AGENDE</span><h1>Encontrar atendimento</h1><p>Escolha um estabelecimento, um serviço e o melhor horário para você.</p>
+          {catalog.length===0?<p className="real-empty">Nenhum estabelecimento ativo disponível no momento.</p>:<form className="real-form" onSubmit={bookSelf}>
             <label>Estabelecimento<select value={selectedCatalog} onChange={e=>setSelectedCatalog(e.target.value)}>{catalog.map(c=><option value={c.id} key={c.id}>{c.name}</option>)}</select></label>
             <label>Serviço<select required value={patientBooking.serviceId} onChange={e=>setPatientBooking({...patientBooking,serviceId:e.target.value,accepted:false})}><option value="">Selecionar</option>{catalogBusiness?.services.map(s=><option value={s.id} key={s.id}>{s.name} · {money(s.price)}</option>)}</select></label>
             <label>Profissional<select required value={patientBooking.employeeId} onChange={e=>setPatientBooking({...patientBooking,employeeId:e.target.value})}><option value="">Selecionar</option>{catalogBusiness?.professionals.map(p=><option value={p.id} key={p.id}>{p.name}</option>)}</select></label>
             <label>Data/hora do seu dispositivo<input type="datetime-local" required value={patientBooking.startsAt} onChange={e=>setPatientBooking({...patientBooking,startsAt:e.target.value})}/></label>
             {policy&&<div className="real-policy"><h3>{policy.title}</h3><p>{policy.policy_text}</p><label className="real-checkbox"><input type="checkbox" checked={patientBooking.accepted} onChange={e=>setPatientBooking({...patientBooking,accepted:e.target.checked})}/> Li e aceito a política de cancelamento</label></div>}
-            <button type="submit" className="real-primary" disabled={busy||!patientBooking.employeeId||!patientBooking.serviceId}>Solicitar agendamento</button></form>}
-          <p className="real-small">A disponibilidade é confirmada no servidor no momento da reserva. Sem cobrança online nesta versão.</p>
-        </section></div>)}
+            <button type="submit" className="real-primary" disabled={busy||!patientBooking.employeeId||!patientBooking.serviceId}>Solicitar agendamento</button>
+          </form>}
+          <p className="real-small">A disponibilidade é confirmada pelo servidor no momento da reserva. Sem cobrança online nesta versão.</p>
+        </section>}
+        {patientArea==="calendario"&&<section className="real-panel">
+          <span className="real-eyebrow">ORGANIZE SUA VIDA</span><h1>Meu calendário</h1><p>Seus compromissos reais, organizados por data.</p>
+          <Bookings list={[...ownAppointments].sort((a,b)=>a.startsAt.localeCompare(b.startsAt))}/>
+          <p className="real-small">Lembretes de medicamentos, exames e eventos ainda serão integrados a este calendário.</p>
+        </section>}
+        {patientArea==="convites"&&<section className="real-panel">
+          <span className="real-eyebrow">ÁREA PROFISSIONAL</span><h1>Meus convites</h1><p>Foi convidada para trabalhar em um estabelecimento? Use o código recebido para vincular sua conta.</p>
+          <form className="real-form" onSubmit={acceptInvitation}><label>Código do convite<input value={acceptCode} onChange={e=>setAcceptCode(e.target.value)} placeholder="Cole o código recebido" required/></label><button type="submit" className="real-primary" disabled={busy||!acceptCode.trim()}>Aceitar convite</button></form>
+        </section>}
+        {patientArea==="modulos"&&<section className="real-panel">
+          <span className="real-eyebrow">ECOSSISTEMA INSTRUA</span><h1>Descubra os módulos</h1><p>Cada área é desenvolvida separadamente. Recursos administrativos só aparecem para pessoas autorizadas.</p>
+          <div className="ins-personal-modules">{modules.filter(m=>["Pessoas e cuidados","Comunidade","Automações"].includes(m.area)).map(m=><article key={moduleKey(m)}><strong>{m.icon} {m.name}</strong><p>{m.description}</p><small>{m.tab?"Disponível na área de gestão":"Em desenvolvimento"}</small></article>)}</div>
+        </section>}
+        {patientArea==="configuracoes"&&<SettingsWorkspace session={session} context="personal"/>}
+      </section>}
     </main>
     {session&&<footer className="real-footer">Instrua · Kiyubi Technologies · Orientação, conexão e confiança.</footer>}
   </div>;
