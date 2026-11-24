@@ -9,6 +9,7 @@ import { api, API_URL, type Appointment, type AppointmentStatus, type CatalogCom
 import "./production.css";
 
 type Tab = string;
+type WorkspaceRole={companyId:string;role:string;employeeId:string|null};
 const labelStatus: Record<AppointmentStatus,string> = {SCHEDULED:"Agendado",CONFIRMED:"Confirmado",CANCELLED:"Cancelado",COMPLETED:"Concluído",NO_SHOW:"Falta"};
 const money=(n:number|null)=> n==null?"Sob consulta":new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(Number(n));
 const when=(d:string)=>new Intl.DateTimeFormat("pt-BR",{dateStyle:"short",timeStyle:"short"}).format(new Date(d));
@@ -24,6 +25,7 @@ export default function ProductionApp() {
   const [session,setSession]=useState<Session|null>(null);
   const [authForm,setAuthForm]=useState({name:"",email:"",password:"",companyName:"",slug:""});
   const [companies,setCompanies]=useState<Company[]>([]);
+  const [workspaceRoles,setWorkspaceRoles]=useState<WorkspaceRole[]>([]);
   const [selected,setSelected]=useState("");
   const [clients,setClients]=useState<Client[]>([]);
   const [professionals,setProfessionals]=useState<Professional[]>([]);
@@ -54,13 +56,19 @@ export default function ProductionApp() {
   const [acceptCode,setAcceptCode]=useState(()=>new URLSearchParams(window.location.search).get("invite")||"");
   const hasPatientRole=!!session?.roles.includes("PATIENT");
   const isPatient=hasPatientRole&&!session?.roles.includes("COMPANY_OWNER")&&!staffWorkspace;
-  const workspaceName=session?.roles.includes("COMPANY_OWNER")||session?.roles.includes("COMPANY_ADMIN")?"Administração":session?.roles.includes("RECEPTION")?"Recepção":session?.roles.includes("CLINICAL")?"Área profissional":"Meu espaço";
+  const workspaceRole=workspaceRoles.find(w=>w.companyId===selected)?.role||
+    (session?.roles.includes("COMPANY_OWNER")?"COMPANY_OWNER":session?.roles.includes("PLATFORM_ADMIN")?"PLATFORM_ADMIN":null);
+  const canManage=workspaceRole==="COMPANY_OWNER"||workspaceRole==="COMPANY_ADMIN";
+  const canSchedule=canManage||workspaceRole==="RECEPTION";
+  const canClinical=workspaceRole==="CLINICAL";
+  const canSeeOperations=canSchedule||canClinical;
+  const workspaceName=canManage?"Administração":workspaceRole==="RECEPTION"?"Recepção":canClinical?"Área profissional":workspaceRole==="BILLING"?"Financeiro":workspaceRole==="PLATFORM_ADMIN"?"Administração da plataforma":"Meu espaço";
   const business=companies.find(c=>c.id===selected);
   const selectedModule=modules.find(module=>moduleKey(module)===tab);
   const catalogBusiness=catalog.find(c=>c.id===selectedCatalog);
 
   function clearMessages(){setError("");setSuccess("");}
-  function logout(){navigate("/");setStaffWorkspace(false);setInviteCode("");setSession(null);setPatientArea("inicio");setTab("painel");setAuthForm(f=>({...f,password:""}));setCompanies([]);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
+  function logout(){navigate("/");setStaffWorkspace(false);setInviteCode("");setSession(null);setPatientArea("inicio");setTab("painel");setAuthForm(f=>({...f,password:""}));setCompanies([]);setWorkspaceRoles([]);setSelected("");setAppointments([]);setClients([]);setProfessionals([]);setServices([]);setCatalog([]);setOwnAppointments([]);clearMessages();}
   async function authenticate(e:FormEvent){
     e.preventDefault();if(busy)return;setBusy(true);clearMessages();
     try{
@@ -74,6 +82,13 @@ export default function ProductionApp() {
       setAuthForm(f=>({...f,password:""}));setSession(account);navigate("/app");setTab("painel");setPatientArea("inicio");setSuccess("Conta conectada ao Instrua.");
     }catch(e){setError(message(e));}finally{setBusy(false);}
   }
+  useEffect(()=>{
+    if(!session)return;let active=true;
+    void api<WorkspaceRole[]>("/me/workspaces",session.accessToken)
+      .then(roles=>{if(active)setWorkspaceRoles(roles);})
+      .catch(err=>{if(active)setError("Não foi possível verificar suas permissões profissionais: "+message(err));});
+    return()=>{active=false;};
+  },[session,revision]);
   useEffect(()=>{
     if(!session)return;let active=true;
     async function load(){
@@ -90,22 +105,38 @@ export default function ProductionApp() {
     void load();return()=>{active=false;};
   },[session,isPatient,revision]);
   useEffect(()=>{
-    if(!session||isPatient||!selected)return;let active=true;setLoading(true);
+    if(!session||isPatient||!selected||!workspaceRole)return;
+    let active=true;setLoading(true);
+    // Only request domains the verified membership authorizes.
+    // A clinical account receives only its own schedule from the server.
+    // A billing account never fetches patients or appointments.
     async function load(){
       try{
         const p=prefix(selected);
-        const [c,e,s,a]=await Promise.all([
-          api<Client[]>(p+"/clients",session!.accessToken),
-          api<Professional[]>(p+"/employees",session!.accessToken),
-          api<Service[]>(p+"/services",session!.accessToken),
-          api<Appointment[]>(p+"/appointments",session!.accessToken)
-        ]);
-        if(active){setClients(c);setProfessionals(e);setServices(s);setAppointments(a);}
+        if(canSchedule){
+          const [c,e,s,a]=await Promise.all([
+            api<Client[]>(p+"/clients",session!.accessToken),
+            api<Professional[]>(p+"/employees",session!.accessToken),
+            api<Service[]>(p+"/services",session!.accessToken),
+            api<Appointment[]>(p+"/appointments",session!.accessToken)
+          ]);
+          if(active){setClients(c);setProfessionals(e);setServices(s);setAppointments(a);}
+        }else if(canClinical){
+          const a=await api<Appointment[]>(p+"/appointments",session!.accessToken);
+          if(active){setAppointments(a);setClients([]);setProfessionals([]);setServices([]);}
+        }else if(active){setClients([]);setProfessionals([]);setServices([]);setAppointments([]);}
       }catch(err){if(active)setError(message(err));}
       finally{if(active)setLoading(false);}
     }
     void load();return()=>{active=false;};
-  },[session,selected,isPatient,revision]);
+  },[session,selected,isPatient,revision,workspaceRole,canSchedule,canClinical]);
+  useEffect(()=>{
+    if(!session||isPatient)return;
+    const allowed=canManage?["painel","agenda","clientes","equipe","servicos","modulos","configuracoes"]:
+      workspaceRole==="RECEPTION"?["painel","agenda","clientes","equipe","configuracoes"]:
+      canClinical?["painel","agenda","configuracoes"]:["painel","configuracoes"];
+    if(!allowed.includes(tab)&&!canManage)setTab("painel");
+  },[session,isPatient,workspaceRole,selected,tab,canManage,canClinical]);
   useEffect(()=>{setSelectedCatalog(old=>catalog.some(c=>c.id===old)?old:(catalog[0]?.id||""));},[catalog]);
   useEffect(()=>{
     if(!catalogBusiness)return;
@@ -157,7 +188,7 @@ export default function ProductionApp() {
   }
   return <div className="real-app">
     {session&&<header className="real-header"><div className="real-brand"><img src="/brand-icon.svg" className="real-mark-image" alt="" /><div><strong>instrua</strong><small>Kiyubi Technologies</small></div></div>
-      {session?<div className="real-header-actions"><span>{session.name}</span>{hasPatientRole&&<button type="button" className="real-secondary" onClick={()=>{setStaffWorkspace(v=>!v);setPatientArea("inicio");clearMessages();}}>{staffWorkspace?"Minha jornada":"Área profissional"}</button>}{isPatient&&<button type="button" className="real-secondary" onClick={()=>setPatientArea(v=>v==="configuracoes"?"inicio":"configuracoes")}>{patientArea==="configuracoes"?"Meu início":"⚙ Configurações"}</button>}<button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>}
+      {session?<div className="real-header-actions"><span>{session.name}</span>{hasPatientRole&&workspaceRoles.length>0&&<button type="button" className="real-secondary" onClick={()=>{setStaffWorkspace(v=>!v);setPatientArea("inicio");clearMessages();}}>{staffWorkspace?"Minha jornada":"Área profissional"}</button>}{isPatient&&<button type="button" className="real-secondary" onClick={()=>setPatientArea(v=>v==="configuracoes"?"inicio":"configuracoes")}>{patientArea==="configuracoes"?"Meu início":"⚙ Configurações"}</button>}<button className="real-secondary" onClick={logout}>Sair</button></div>:<small>Agenda e gestão conectadas</small>}</header>}
     <main className={session?"real-container":"real-public-main"}>
       {error&&<p role="alert" className="real-alert real-error">{error}<button type="button" aria-label="Fechar aviso" onClick={()=>setError("")}>×</button></p>}
       {success&&<p role="status" className="real-alert real-success">{success}<button type="button" aria-label="Fechar aviso" onClick={()=>setSuccess("")}>×</button></p>}
@@ -175,8 +206,8 @@ export default function ProductionApp() {
           <div className="real-workspace-layout">
             <nav className="real-tabs" aria-label="Navegação do espaço de trabalho">
               <div className="real-sidebar-intro"><span>✳ INSTRUA WORKSPACE</span><strong>{workspaceName}</strong><small>Uma coisa de cada vez, com carinho.</small></div>
-              {([["painel","⌂","Visão geral"],["agenda","▦","Agenda"],["clientes","♧","Clientes"],["equipe","♙","Equipe"],["servicos","✳","Serviços"],["modulos","☷","Módulos"]] as [Tab,string,string][]).map(([key,symbol,title])=><button type="button" key={key} className={tab===key?"selected":""} aria-current={tab===key?"page":undefined} onClick={()=>{setTab(key);clearMessages();}}><span aria-hidden="true" className="real-tab-symbol">{symbol}</span><span>{title}</span>{tab===key&&<span aria-hidden="true" className="real-tab-current">•</span>}</button>)}
-              <div className="real-sidebar-module-group">
+              {([["painel","⌂","Visão geral"],["agenda","▦","Agenda"],["clientes","♧","Clientes"],["equipe","♙","Equipe"],["servicos","✳","Serviços"],["modulos","☷","Módulos"]] as [Tab,string,string][]).filter(([key])=>key==="painel"||(key==="agenda"&&canSeeOperations)||(key==="clientes"&&canSchedule)||(key==="equipe"&&canSchedule)||(key==="servicos"&&canManage)||(key==="modulos"&&canManage)).map(([key,symbol,title])=><button type="button" key={key} className={tab===key?"selected":""} aria-current={tab===key?"page":undefined} onClick={()=>{setTab(key);clearMessages();}}><span aria-hidden="true" className="real-tab-symbol">{symbol}</span><span>{title}</span>{tab===key&&<span aria-hidden="true" className="real-tab-current">•</span>}</button>)}
+              {canManage&&<div className="real-sidebar-module-group">
                 <div className="real-sidebar-module-label">✦ TODOS OS MÓDULOS</div>
                 {areaOrder.map(area=><div className="real-sidebar-cluster" key={area}>
                   <div className="real-sidebar-cluster-title">{area}</div>
@@ -188,37 +219,37 @@ export default function ProductionApp() {
                     </button>;
                   })}
                 </div>)}
-              </div>
+              </div>}
               <button type="button" className={tab==="configuracoes"?"selected real-settings-trigger":"real-settings-trigger"} onClick={()=>{setTab("configuracoes");clearMessages();}} aria-current={tab==="configuracoes"?"page":undefined}><span className="real-tab-symbol" aria-hidden="true">⚙</span><span>Configurações</span></button>
               <p className="real-sidebar-footnote">🌿 Menos confusão, mais tempo pra você.</p>
             </nav>
             <div className="real-workspace-main">
           {loading&&<p role="status">Sincronizando com o servidor...</p>}
           {tab==="painel"&&<><section className="real-dashboard-welcome"><div className="real-welcome-copy"><span className="real-welcome-kicker">✦ SEU DIA, MAIS LEVE</span><h2>Que bom te ver, {session.name.split(" ")[0]}! <span aria-hidden="true">🌿</span></h2><p>Seu trabalho organizado, com os próximos atendimentos e os recursos de que você precisa, sem bagunça.</p><button type="button" className="real-welcome-action" onClick={()=>setTab("agenda")}>Ver minha agenda <span aria-hidden="true">↗</span></button></div><div className="real-welcome-ornament" aria-hidden="true"><span>INSTRUA</span><strong>Seu espaço,<br/>seu ritmo.</strong><small>feito pra facilitar ✿</small></div></section><div className="real-stats"><div><span>Agendamentos</span><b>{appointments.length}</b></div><div><span>Confirmados</span><b>{appointments.filter(a=>a.status==="CONFIRMED").length}</b></div><div><span>Profissionais</span><b>{professionals.length}</b></div><div><span>Clientes</span><b>{clients.length}</b></div></div><section className="real-panel"><h2>Próximos agendamentos</h2><Bookings list={appointments.filter(a=>new Date(a.startsAt).getTime()>=Date.now()&&a.status!=="CANCELLED").slice(0,8)}/><button type="button" className="real-secondary" onClick={()=>setTab("agenda")}>Abrir agenda</button></section></>}
-          {tab==="modulos"&&<ModulesHub openTab={nextTab=>{setTab(nextTab);clearMessages();}}/>}
+          {canManage&&tab==="modulos"&&<ModulesHub openTab={nextTab=>{setTab(nextTab);clearMessages();}}/>}
           {tab==="configuracoes"&&<SettingsWorkspace session={session} company={business} context="business"/>}
-          {selectedModule&&!selectedModule.tab&&<PlannedModuleScreen module={selectedModule} back={()=>setTab("modulos")}/>}
+          {canManage&&selectedModule&&!selectedModule.tab&&<PlannedModuleScreen module={selectedModule} back={()=>setTab("modulos")}/>}
           
-          {tab==="clientes"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar cliente</h2><form className="real-form" onSubmit={createClient}>
+          {canSchedule&&tab==="clientes"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar cliente</h2><form className="real-form" onSubmit={createClient}>
             <label>Nome<input required value={newClient.name} onChange={e=>setNewClient({...newClient,name:e.target.value})}/></label><label>E-mail<input type="email" value={newClient.email} onChange={e=>setNewClient({...newClient,email:e.target.value})}/></label><label>Telefone<input type="tel" value={newClient.phone} onChange={e=>setNewClient({...newClient,phone:e.target.value})}/></label><button className="real-primary" type="submit" disabled={busy}>Salvar cliente</button></form></section>
             <section className="real-panel"><h2>Clientes ({clients.length})</h2><Records list={clients.map(c=>({id:c.id,title:c.name,subtitle:c.phone||c.email||"Sem contato"}))}/></section></div>}
-          {tab==="equipe"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar profissional</h2><form className="real-form" onSubmit={createProfessional}>
+          {canSchedule&&tab==="equipe"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar profissional</h2><form className="real-form" onSubmit={createProfessional}>
             <label>Nome<input required value={newProfessional.name} onChange={e=>setNewProfessional({...newProfessional,name:e.target.value})}/></label><label>Função / especialidade<input value={newProfessional.title} onChange={e=>setNewProfessional({...newProfessional,title:e.target.value})}/></label><label>E-mail<input type="email" value={newProfessional.email} onChange={e=>setNewProfessional({...newProfessional,email:e.target.value})}/></label><button className="real-primary" type="submit" disabled={busy}>Salvar profissional</button></form><p className="real-small">Adicionar à agenda não concede automaticamente acesso à conta.</p></section>
             <section className="real-panel"><h2>Equipe ({professionals.length})</h2><Records list={professionals.map(p=>({id:p.id,title:p.name,subtitle:p.title||"Profissional"}))}/></section></div>}
-          {tab==="equipe"&&session.roles.includes("COMPANY_OWNER")&&<section className="real-panel"><h2>Convidar colaborador para acessar o sistema</h2><form className="real-form" onSubmit={generateInvitation}><label>E-mail da pessoa<input type="email" required value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)}/></label><label>Função<select value={inviteRole} onChange={e=>setInviteRole(e.target.value)}><option value="RECEPTION">Recepção</option><option value="CLINICAL">Profissional</option><option value="COMPANY_ADMIN">Administração</option><option value="BILLING">Financeiro</option></select></label><button type="submit" className="real-primary" disabled={busy}>Gerar convite individual</button></form>{inviteCode&&<div className="real-policy"><h3>Código único do convite</h3><input aria-label="Código a compartilhar" readOnly value={inviteCode} onFocus={e=>e.currentTarget.select()}/><p className="real-small">A pessoa deve criar ou acessar a própria conta com o e-mail convidado, abrir Minha jornada e aceitar este código. O código expira em 7 dias.</p></div>}</section>}
-          {tab==="servicos"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar serviço</h2><form className="real-form" onSubmit={createService}>
+          {tab==="equipe"&&canManage&&<section className="real-panel"><h2>Convidar colaborador para acessar o sistema</h2><form className="real-form" onSubmit={generateInvitation}><label>E-mail da pessoa<input type="email" required value={inviteEmail} onChange={e=>setInviteEmail(e.target.value)}/></label><label>Função<select value={inviteRole} onChange={e=>setInviteRole(e.target.value)}><option value="RECEPTION">Recepção</option><option value="CLINICAL">Profissional</option><option value="COMPANY_ADMIN">Administração</option><option value="BILLING">Financeiro</option></select></label><button type="submit" className="real-primary" disabled={busy}>Gerar convite individual</button></form>{inviteCode&&<div className="real-policy"><h3>Código único do convite</h3><input aria-label="Código a compartilhar" readOnly value={inviteCode} onFocus={e=>e.currentTarget.select()}/><p className="real-small">A pessoa deve criar ou acessar a própria conta com o e-mail convidado, abrir Minha jornada e aceitar este código. O código expira em 7 dias.</p></div>}</section>}
+          {canManage&&tab==="servicos"&&<div className="real-columns"><section className="real-panel"><h2>Adicionar serviço</h2><form className="real-form" onSubmit={createService}>
             <label>Nome<input required value={newService.name} onChange={e=>setNewService({...newService,name:e.target.value})}/></label><label>Duração em minutos<input type="number" required min="1" max="1440" value={newService.durationMinutes} onChange={e=>setNewService({...newService,durationMinutes:e.target.value})}/></label><label>Preço em reais (opcional)<input type="number" min="0" step=".01" value={newService.price} onChange={e=>setNewService({...newService,price:e.target.value})}/></label><button className="real-primary" type="submit" disabled={busy}>Salvar serviço</button></form></section>
             <section className="real-panel"><h2>Serviços ({services.length})</h2><Records list={services.map(s=>({id:s.id,title:s.name,subtitle:String(s.durationMinutes)+" min · "+money(s.price)}))}/></section></div>}
-          {tab==="agenda"&&<div className="real-columns"><section className="real-panel real-schedule-full"><div className="real-section-head"><h2>Agenda visual por profissional</h2><span className="real-workspace-caption">Dados sincronizados com o servidor</span></div><ScheduleBoard appointments={appointments} professionals={professionals} canManage={session.roles.some(r=>["COMPANY_OWNER","COMPANY_ADMIN","RECEPTION"].includes(r))} busy={busy} onStatus={updateStatus}/></section><section className="real-panel"><h2>Novo agendamento</h2><form className="real-form" onSubmit={createAppointment}>
+          {canSeeOperations&&tab==="agenda"&&<div className="real-columns"><section className="real-panel real-schedule-full"><div className="real-section-head"><h2>Agenda visual por profissional</h2><span className="real-workspace-caption">Dados sincronizados com o servidor</span></div><ScheduleBoard appointments={appointments} professionals={professionals} canManage={canSchedule} busy={busy} onStatus={updateStatus}/></section>{canSchedule&&<section className="real-panel"><h2>Novo agendamento</h2><form className="real-form" onSubmit={createAppointment}>
             <label>Cliente<select value={newBooking.clientId} required onChange={e=>setNewBooking({...newBooking,clientId:e.target.value})}><option value="">Selecionar</option>{clients.filter(c=>c.active).map(c=><option value={c.id} key={c.id}>{c.name}</option>)}</select></label>
             <label>Profissional<select value={newBooking.employeeId} required onChange={e=>setNewBooking({...newBooking,employeeId:e.target.value})}><option value="">Selecionar</option>{professionals.filter(p=>p.active).map(p=><option value={p.id} key={p.id}>{p.name}</option>)}</select></label>
             <label>Serviço<select value={newBooking.serviceId} required onChange={e=>setNewBooking({...newBooking,serviceId:e.target.value})}><option value="">Selecionar</option>{services.filter(s=>s.active).map(s=><option value={s.id} key={s.id}>{s.name} ({s.durationMinutes} min)</option>)}</select></label>
             <label>Data/hora do seu dispositivo<input type="datetime-local" required value={newBooking.startsAt} onChange={e=>setNewBooking({...newBooking,startsAt:e.target.value})}/></label>
             <label>Observações administrativas<textarea maxLength={2000} rows={3} value={newBooking.notes} onChange={e=>setNewBooking({...newBooking,notes:e.target.value})}/></label>
-            <button className="real-primary" type="submit" disabled={busy||!clients.length||!professionals.length||!services.length}>Registrar no servidor</button></form><p className="real-small">Para reservar, é necessário ter cliente, profissional e serviço cadastrados.</p></section>
+            <button className="real-primary" type="submit" disabled={busy||!clients.length||!professionals.length||!services.length}>Registrar no servidor</button></form><p className="real-small">Para reservar, é necessário ter cliente, profissional e serviço cadastrados.</p></section>}
             <section className="real-panel"><div className="real-section-head"><h2>Agenda ({appointments.length})</h2><button className="real-secondary" type="button" onClick={()=>setRevision(v=>v+1)}>Atualizar</button></div>
               <label>Motivo para cancelar<input placeholder="Obrigatório para cancelamentos" maxLength={1000} value={cancelReason} onChange={e=>setCancelReason(e.target.value)}/></label>
-              <Bookings list={appointments} controls={a=>(a.status==="SCHEDULED"||a.status==="CONFIRMED")?<div className="real-row-actions">{a.status==="SCHEDULED"&&<button disabled={busy} onClick={()=>updateStatus(a.id,"CONFIRMED")}>Confirmar</button>}<button disabled={busy} onClick={()=>updateStatus(a.id,"COMPLETED")}>Concluir</button><button disabled={busy} onClick={()=>updateStatus(a.id,"CANCELLED")}>Cancelar</button></div>:null}/></section></div>}
+              <Bookings list={appointments} controls={canSchedule?a=>(a.status==="SCHEDULED"||a.status==="CONFIRMED")?<div className="real-row-actions">{a.status==="SCHEDULED"&&<button disabled={busy} onClick={()=>updateStatus(a.id,"CONFIRMED")}>Confirmar</button>}<button disabled={busy} onClick={()=>updateStatus(a.id,"COMPLETED")}>Concluir</button><button disabled={busy} onClick={()=>updateStatus(a.id,"CANCELLED")}>Cancelar</button></div>:null:undefined}/></section></div>}
             </div>
           </div>
         </>}</>}
