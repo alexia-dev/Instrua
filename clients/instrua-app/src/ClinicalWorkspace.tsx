@@ -7,7 +7,7 @@ type Draft=SoapFields&{id:string;encounterId:string;status:"DRAFT";updatedAt:str
 type EncounterSnapshot={
  appointmentId:string;clientName:string;patientName:string|null;serviceName:string;
  professionalName:string;startsAt:string;appointmentStatus:string;
- patientLinked:boolean;encounterId:string|null;encounterStatus?:string;soapDraft:Draft|null
+ patientLinked:boolean;canStartRecord:boolean;encounterId:string|null;encounterStatus?:string;soapDraft:Draft|null
 };
 const empty:SoapFields={subjective:"",objective:"",assessment:"",plan:""};
 const sections:{key:keyof SoapFields;letter:string;name:string;hint:string;placeholder:string}[]=[
@@ -56,7 +56,7 @@ export default function ClinicalWorkspace({session,companyId,appointments}:{sess
    setSelectedId(id);
  }
  async function startEncounter(){
-   if(!selectedId||saving||!snapshot?.patientLinked)return;
+   if(!selectedId||saving||!snapshot?.canStartRecord)return;
    setSaving(true);setError("");setNotice("");
    try{
      const saved=await api<EncounterSnapshot>("/companies/"+companyId+"/clinical/appointments/"+selectedId+"/encounter",
@@ -100,7 +100,7 @@ export default function ClinicalWorkspace({session,companyId,appointments}:{sess
           <div className="icw-panel">
             <div className="icw-section-head"><div><span className="icw-eyebrow">REGISTRO CLÍNICO · SOAP</span><h2>Consulta atual e evolução</h2><p>O texto é escrito por você; nenhuma avaliação ou prescrição é gerada automaticamente.</p></div><span className="icw-draft-status">{snapshot.encounterId?"Rascunho em andamento":"Não iniciado"}</span></div>
             {!snapshot.encounterId?
-             <div className="icw-init"><Icon name="folder_shared"/><div><strong>{snapshot.patientLinked?"Iniciar atendimento clínico":"Cadastro clínico ainda não vinculado"}</strong><p>{snapshot.patientLinked?"Ao iniciar, o Instrua cria um atendimento exclusivo para este agendamento e profissional.":"A recepção precisa vincular a identidade da pessoa ao cadastro clínico deste estabelecimento. Informações pessoais não são associadas apenas por nome, e-mail ou CPF."}</p></div><button type="button" disabled={!snapshot.patientLinked||saving} onClick={()=>void startEncounter()}>{saving?"Aguarde…":"Iniciar registro"}</button></div>:
+             <div className="icw-init"><Icon name="folder_shared"/><div><strong>{snapshot.patientLinked?"Iniciar atendimento clínico":"Criar ficha clínica deste atendimento"}</strong><p>{snapshot.patientLinked?"O Instrua abre um registro clínico deste profissional, vinculado ao agendamento.":"O Instrua criará um cadastro clínico local, exclusivo deste estabelecimento, usando a referência exata do agendamento. Não é necessário que o paciente tenha conta no aplicativo."}</p></div><button type="button" disabled={!snapshot.canStartRecord||saving} onClick={()=>void startEncounter()}>{saving?"Aguarde…":"Iniciar registro"}</button></div>:
              <>
                <div className="icw-soap-grid">{sections.map(item=><label key={item.key} className="icw-soap-field"><span className="icw-soap-title"><b>{item.letter}</b><strong>{item.name}</strong></span><small>{item.hint}</small><textarea rows={item.key==="subjective"?5:4} maxLength={10000} placeholder={item.placeholder} value={fields[item.key]} onChange={e=>edit(item.key,e.target.value)}/><span className="icw-char">{fields[item.key].length.toLocaleString("pt-BR")} / 10.000</span></label>)}</div>
                <div className="icw-save-bar"><div><strong>{dirty?"Alterações ainda não salvas":snapshot.soapDraft?"Rascunho sincronizado":"Nenhum rascunho gravado"}</strong><small>{snapshot.soapDraft?.updatedAt?"Última gravação: "+time(snapshot.soapDraft.updatedAt):"Somente o profissional responsável pode acessar e salvar"}</small></div><button type="button" className="icw-primary" disabled={!dirty||saving} onClick={()=>void save()}><Icon name="save"/>{saving?"Salvando…":"Salvar rascunho no servidor"}</button></div>
