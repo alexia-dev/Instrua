@@ -7,6 +7,7 @@ import ScheduleBoard from "./ScheduleBoard";
 import ClientWorkspace from "./ClientWorkspace";
 import InstruaHome, {type HomeDestination} from "./InstruaHome";
 import PersonalDashboardOrganic from "./PersonalDashboardOrganic";
+import ClinicalWorkspace from "./ClinicalWorkspace";
 import BusinessOverviewExtras from "./BusinessOverviewExtras";
 import { api, API_URL, type Appointment, type AppointmentStatus, type CatalogCompany, type CancellationPolicy, type Client, type Company, type Professional, type Service, type Session } from "./production-api";
 import "./production.css";
@@ -184,7 +185,7 @@ export default function ProductionApp() {
     if(!session||isPatient)return;
     const allowed=canManage?["painel","agenda","clientes","equipe","servicos","modulos","comunidade","configuracoes"]:
       workspaceRole==="RECEPTION"?["painel","agenda","clientes","equipe","comunidade","configuracoes"]:
-      canClinical?["painel","agenda","comunidade","configuracoes"]:["painel","comunidade","configuracoes"];
+      canClinical?["painel","agenda","prontuario","comunidade","configuracoes"]:["painel","comunidade","configuracoes"];
     if(!allowed.includes(tab)&&!canManage)setTab("painel");
   },[session,isPatient,workspaceRole,selected,tab,canManage,canClinical]);
   useEffect(()=>{setSelectedCatalog(old=>catalog.some(c=>c.id===old)?old:(catalog[0]?.id||""));},[catalog]);
@@ -254,7 +255,7 @@ export default function ProductionApp() {
           <div className="real-workspace-layout">
             <nav className="real-tabs" aria-label="Navegação do espaço de trabalho">
               <div className="real-sidebar-intro"><span>✳ INSTRUA WORKSPACE</span><strong>{workspaceName}</strong><small>Uma coisa de cada vez, com carinho.</small></div>
-              {([["painel","⌂","Visão geral"],["agenda","▦","Agenda"],["clientes","♧","Encontrar pessoas"],["comunidade","♡","Instrua Social"],["equipe","♙","Equipe"],["servicos","✳","Serviços"],["modulos","☷","Módulos"]] as [Tab,string,string][]).filter(([key])=>key==="painel"||key==="comunidade"||(key==="agenda"&&canSeeOperations)||(key==="clientes"&&canSchedule)||(key==="equipe"&&canSchedule)||(key==="servicos"&&canManage)||(key==="modulos"&&canManage)).map(([key,symbol,title])=><button type="button" key={key} className={tab===key?"selected":""} aria-current={tab===key?"page":undefined} onClick={()=>{setTab(key);clearMessages();}}><span aria-hidden="true" className="real-tab-symbol">{symbol}</span><span>{title}</span>{tab===key&&<span aria-hidden="true" className="real-tab-current">•</span>}</button>)}
+              {([["painel","⌂","Visão geral"],["agenda","▦","Agenda"],["prontuario","✚","Prontuário clínico"],["clientes","♧","Encontrar pessoas"],["comunidade","♡","Instrua Social"],["equipe","♙","Equipe"],["servicos","✳","Serviços"],["modulos","☷","Módulos"]] as [Tab,string,string][]).filter(([key])=>key==="painel"||key==="comunidade"||(key==="agenda"&&canSeeOperations)||(key==="prontuario"&&canClinical)||(key==="clientes"&&canSchedule)||(key==="equipe"&&canSchedule)||(key==="servicos"&&canManage)||(key==="modulos"&&canManage)).map(([key,symbol,title])=><button type="button" key={key} className={tab===key?"selected":""} aria-current={tab===key?"page":undefined} onClick={()=>{setTab(key);clearMessages();}}><span aria-hidden="true" className="real-tab-symbol">{symbol}</span><span>{title}</span>{tab===key&&<span aria-hidden="true" className="real-tab-current">•</span>}</button>)}
               {canManage&&<div className="real-sidebar-module-group">
                 <div className="real-sidebar-module-label">✦ TODOS OS MÓDULOS</div>
                 {areaOrder.map(area=><div className="real-sidebar-cluster" key={area}>
@@ -290,6 +291,7 @@ export default function ProductionApp() {
             {business&&<BusinessOverviewExtras token={session.accessToken} companyId={business.id}
               canSeeSales={canManage||workspaceRole==="BILLING"} onSocial={()=>setTab("comunidade")}/>}
           </div>}
+          {canClinical&&tab==="prontuario"&&session&&selected&&<ClinicalWorkspace session={session} companyId={selected} appointments={appointments}/>}
           {tab==="comunidade"&&<InstruaHome view="comunidade" session={session} appointments={appointments} isPatient={false} onOpen={()=>setTab("painel")}/>}
           {canManage&&tab==="modulos"&&<ModulesHub openTab={nextTab=>{setTab(nextTab);clearMessages();}}/>}
           {tab==="configuracoes"&&<SettingsWorkspace session={session} company={business} context="business"/>}
