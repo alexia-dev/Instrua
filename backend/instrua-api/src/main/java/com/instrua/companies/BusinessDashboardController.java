@@ -38,12 +38,12 @@ public class BusinessDashboardController {
         Instant start=day.atStartOfDay(tz).toInstant();
         Instant end=day.plusDays(1).atStartOfDay(tz).toInstant();
         Map<String,Object> row=jdbc.queryForMap("""
-            select count(*) as orders_today,coalesce(sum(total),0) as sales_today
-            from business_orders where company_id=? and status in ('PAID','COMPLETED','SETTLED')
-                and created_at>=? and created_at<?
+            select count(distinct coalesce(order_id,id)) as orders_today,coalesce(sum(amount),0) as sales_today
+            from payment_transactions where company_id=? and status='CAPTURED'
+                and updated_at>=? and updated_at<?
             """,companyId,Timestamp.from(start),Timestamp.from(end));
         return Map.of("date",day.toString(),"ordersToday",row.get("orders_today"),
             "salesToday",row.getOrDefault("sales_today",BigDecimal.ZERO),"currency","BRL",
-            "note","Somente pedidos registrados com status de pagamento concluído; não inclui vendas externas.");
+            "note","Somente transações capturadas e registradas no Instrua; não inclui vendas externas.");
     }
 }
