@@ -25,6 +25,23 @@ export default function ProductionApp() {
   useEffect(()=>{const onHash=()=>setRoute(window.location.hash.replace(/^#/,"")||"/");window.addEventListener("hashchange",onHash);return()=>window.removeEventListener("hashchange",onHash);},[]);
   function navigate(next:string){window.location.hash="#"+next;setRoute(next);window.scrollTo({top:0,behavior:"auto"});}
   const [session,setSession]=useState<Session|null>(null);
+  useEffect(()=>{
+    if(!session){
+      delete document.documentElement.dataset.instruaTheme;
+      delete document.documentElement.dataset.instruaContrast;
+      document.documentElement.style.fontSize="";
+      return;
+    }
+    let active=true;
+    void api<{theme:string;font_scale:number;high_contrast:boolean}>("/me/profile",session.accessToken)
+      .then(profile=>{
+        if(!active)return;
+        document.documentElement.dataset.instruaTheme=(profile.theme||"LIGHT").toLowerCase();
+        document.documentElement.dataset.instruaContrast=profile.high_contrast?"high":"normal";
+        document.documentElement.style.fontSize=Math.round((Number(profile.font_scale)||1)*100)+"%";
+      }).catch(()=>{});
+    return()=>{active=false;};
+  },[session?.accessToken]);
   const [authForm,setAuthForm]=useState({name:"",email:"",password:"",companyName:"",slug:""});
   const [companies,setCompanies]=useState<Company[]>([]);
   const [workspaceRoles,setWorkspaceRoles]=useState<WorkspaceRole[]>([]);
