@@ -44,6 +44,7 @@ public class User extends BaseEntity {
     }
 
     public String getName() { return name; }
+    public void changeName(String fullName) { this.name = fullName.trim(); }
     public String getEmail() { return email; }
     public String getPasswordHash() { return passwordHash; }
     public boolean isEnabled() { return enabled; }
